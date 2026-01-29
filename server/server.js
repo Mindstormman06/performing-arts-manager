@@ -9,11 +9,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-sequelize.sync({ force: true })
-  .then(() => console.log('Database & tables created!'))
-  .catch((err) => console.error('Error syncing database:', err));
-
-app.get('/server-up', (res) => {
+if (process.env.NODE_ENV !== 'test') {
+    sequelize.sync({ force: true })
+        .then(() => console.log('Database & tables created!'))
+        .catch((err) => console.error('Error syncing database:', err));
+}
+app.get('/server-up', (req, res) => {
     res.json({ message: 'ok' });
 });
 
@@ -45,6 +46,10 @@ app.use((err, req, res, next) => {
   return;
 });
 
-app.listen(expressConfig.port, () => {
-  console.log(`Server is running on http://localhost:${expressConfig.port}`);
-});
+if (process.env.NODE_ENV !== 'test') {
+    app.listen(expressConfig.port, () => {
+        console.log(`Server is running on http://localhost:${expressConfig.port}`);
+    });
+}
+
+export default app;
