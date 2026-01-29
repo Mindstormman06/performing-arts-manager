@@ -6,6 +6,7 @@ import ScheduleModel from './Schedule.js';
 import DepartmentModel from './Department.js';
 import InventoryModel from './Inventory.js';
 import NoteModel from './Note.js';
+import CueModel from './Cue.js';
 import UserGlobalRoleModel from './UserGlobalRole.js';
 import ShowAssignmentModel from './ShowAssignment.js';
 import ShowInventoryModel from './ShowInventory.js';
@@ -20,6 +21,7 @@ const models = {
     Department: DepartmentModel(sequelize, DataTypes),
     Inventory: InventoryModel(sequelize, DataTypes),
     Note: NoteModel(sequelize, DataTypes),
+    Cue: CueModel(sequelize, DataTypes),
     UserGlobalRole: UserGlobalRoleModel(sequelize, DataTypes),
     ShowAssignment: ShowAssignmentModel(sequelize, DataTypes),
     ShowInventory: ShowInventoryModel(sequelize, DataTypes),
@@ -73,6 +75,14 @@ models.Inventory.belongsTo(models.Department, { foreignKey: 'dept_id' });
 // A Department can be the target of many Notes (e.g., a "Tech Note")
 models.Department.hasMany(models.Note, { foreignKey: 'dept_id' });
 models.Note.belongsTo(models.Department, { foreignKey: 'dept_id' });
+
+// A show can have many cues
+models.Show.hasMany(models.Cue, { foreignKey: 'show_id' });
+models.Cue.belongsTo(models.Show, { foreignKey: 'show_id' });
+
+// A inventory piece can be used for many cues
+models.Inventory.hasMany(models.Cue, { foreignKey: 'light_id' });
+models.Cue.belongsTo(models.Inventory, { foreignKey: 'light_id' });
 
 Object.values(models).forEach((model) => {
 
