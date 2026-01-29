@@ -9,7 +9,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-sequelize.sync({ alter: true })
+sequelize.sync({ force: true })
   .then(() => console.log('Database & tables created!'))
   .catch((err) => console.error('Error syncing database:', err));
 
