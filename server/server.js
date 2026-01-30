@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 
+import userRouter from './src/routes/user.route.js';
+
 import { expressConfig } from './src/config/index.js';
 import sequelize from './src/services/db.service.js';
 import models from './src/models/index.js';
@@ -19,20 +21,16 @@ app.get('/server-up', (req, res) => {
 });
 
 
-app.post('/api/users', async (req, res) => {
-    try {
-        const newUser = await models.User.create(req.body);
-        res.status(201).json(newUser);
-    } catch (error) {
-        res.status(400).json({ error: error.message });
-    }
-});
+app.use('/api/users', userRouter);
+
 
 app.use((req, res, next) => {
-    next({
-        statusCode: 404,
-        message: "Route Not Found"
-    })
+    if (res.statusCode === 404) {
+        next({
+            statusCode: 404,
+            message: "Route Not Found"
+        })
+    }
 })
 
 app.use((err, req, res, next) => {
