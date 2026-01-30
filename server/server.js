@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 
 import userRouter from './src/routes/user.route.js';
+import userRoleRouter from './src/routes/userRole.route.js';
 
 import { expressConfig } from './src/config/index.js';
 import sequelize from './src/services/db.service.js';
@@ -33,6 +34,7 @@ app.get('/server-up', (req, res) => {
 
 
 app.use('/api/users', userRouter);
+app.use('/api/users', userRoleRouter);
 
 
 app.use((req, res, next) => {

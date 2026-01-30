@@ -48,6 +48,59 @@ describe('User API Routes (/api/users)', () => {
         expect(res.body.fname).toBe('updated_test'); // Match the input above
     });
 
+    describe('User Role Management (Many-to-Many)', () => {
+        
+        it('PUT /api/users/:id/roles - should append new roles (actor, tech)', async () => {
+            const res = await request(app)
+                .put(`/api/users/${testUserId}/roles`)
+                .send({ roles: ['actor', 'tech'] });
+
+            expect(res.statusCode).toEqual(200);
+            expect(Array.isArray(res.body)).toBeTruthy();
+            
+            const roleNames = res.body.map(r => r.name);
+            expect(roleNames).toContain('actor');
+            expect(roleNames).toContain('tech');
+        });
+
+        it('PUT /api/users/:id/roles - should append without replacing (stage-manager)', async () => {
+            // Adding a third role
+            const res = await request(app)
+                .put(`/api/users/${testUserId}/roles`)
+                .send({ roles: ['stage-manager'] });
+
+            expect(res.statusCode).toEqual(200);
+            const roleNames = res.body.map(r => r.name);
+            
+            // Verify all three exist now
+            expect(roleNames).toContain('actor');
+            expect(roleNames).toContain('tech');
+            expect(roleNames).toContain('stage-manager');
+        });
+
+        it('GET /api/users/:id/roles - should retrieve all assigned roles', async () => {
+            const res = await request(app).get(`/api/users/${testUserId}/roles`);
+            
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.length).toBe(3);
+        });
+
+        it('DELETE /api/users/:id/roles - should remove a specific role (actor)', async () => {
+            // Using the 'role' key as expected by your controller
+            const res = await request(app)
+                .delete(`/api/users/${testUserId}/roles`)
+                .send({ role: 'actor' });
+
+            expect(res.statusCode).toEqual(204);
+
+            // Verify 'actor' is gone but 'tech' remains
+            const verify = await request(app).get(`/api/users/${testUserId}/roles`);
+            const roleNames = verify.body.map(r => r.name);
+            expect(roleNames).not.toContain('actor');
+            expect(roleNames).toContain('tech');
+        });
+    });
+
     // 5. DELETE
     it('DELETE /api/users/:id - should delete a user', async () => {
         const res = await request(app).delete(`/api/users/${testUserId}`);
