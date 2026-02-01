@@ -7,11 +7,15 @@ import DepartmentModel from './Department.js';
 import InventoryModel from './Inventory.js';
 import NoteModel from './Note.js';
 import CueModel from './Cue.js';
-import UserGlobalRoleModel from './UserGlobalRole.js';
-import ShowAssignmentModel from './ShowAssignment.js';
+import OrganizationModel from "./Organization.js";
 import ShowInventoryModel from './ShowInventory.js';
 import UserScheduleModel from './UserSchedule.js';
+
+import OrgMembershipModel from './OrgMembership.js';
+import OrgRoleModel from './OrgRole.js';
+
 import sequelize from "../services/db.service.js";
+
 
 const models = {
     User: UserModel(sequelize, DataTypes),
@@ -22,37 +26,26 @@ const models = {
     Inventory: InventoryModel(sequelize, DataTypes),
     Note: NoteModel(sequelize, DataTypes),
     Cue: CueModel(sequelize, DataTypes),
-    UserGlobalRole: UserGlobalRoleModel(sequelize, DataTypes),
-    ShowAssignment: ShowAssignmentModel(sequelize, DataTypes),
+    Organization: OrganizationModel(sequelize, DataTypes),
     ShowInventory: ShowInventoryModel(sequelize, DataTypes),
     UserSchedule: UserScheduleModel(sequelize, DataTypes),
+    OrgMembership: OrgMembershipModel(sequelize, DataTypes),
+    OrgRole: OrgRoleModel(sequelize, DataTypes),
 };
-
-// Global Roles
-models.User.belongsToMany(models.Role, { through: models.UserGlobalRole, foreignKey: 'users_id', otherKey: 'roles_id', as: 'globalRoles' });
-models.Role.belongsToMany(models.User, { through: models.UserGlobalRole, foreignKey: 'roles_id', otherKey: 'users_id' });
 
 // Show Inventory (includes the user who added it to the show)
 models.Inventory.belongsToMany(models.Show, { through: models.ShowInventory, foreignKey: 'inventory_id', otherKey: 'shows_id' });
 models.Show.belongsToMany(models.Inventory, { through: models.ShowInventory, foreignKey: 'shows_id', otherKey: 'inventory_id' });
 models.ShowInventory.belongsTo(models.User, { foreignKey: 'user_id', as: 'assignedUser' });
+
 // Schedules Many-to-Many
 models.Schedule.belongsToMany(models.User, { through: models.UserSchedule, foreignKey: 'schedules_id', otherKey: 'users_id' });
 models.User.belongsToMany(models.Schedule, { through: models.UserSchedule, foreignKey: 'users_id', otherKey: 'schedules_id' });
 
-// Show Assignments (The "Multi-Hat" Logic)
-models.User.hasMany(models.ShowAssignment, { foreignKey: 'users_id' });
-models.ShowAssignment.belongsTo(models.User, { foreignKey: 'users_id' });
-
-models.Show.hasMany(models.ShowAssignment, { foreignKey: 'show_id' });
-models.ShowAssignment.belongsTo(models.Show, { foreignKey: 'show_id' });
-
-models.Role.hasMany(models.ShowAssignment, { foreignKey: 'role_id' });
-models.ShowAssignment.belongsTo(models.Role, { foreignKey: 'role_id' });
-
 models.Show.hasMany(models.Schedule, { foreignKey: 'show_id' });
 models.Schedule.belongsTo(models.Show, { foreignKey: 'show_id' });
 
+// A Show has many Notes
 models.Show.hasMany(models.Note, { foreignKey: 'show_id' });
 models.Note.belongsTo(models.Show, { foreignKey: 'show_id' });
 
@@ -83,6 +76,38 @@ models.Cue.belongsTo(models.Show, { foreignKey: 'show_id' });
 // A inventory piece can be used for many cues
 models.Inventory.hasMany(models.Cue, { foreignKey: 'light_id' });
 models.Cue.belongsTo(models.Inventory, { foreignKey: 'light_id' });
+
+// Organization to Departments (One-to-Many)
+models.Organization.hasMany(models.Department, { foreignKey: 'organization_id' });
+models.Department.belongsTo(models.Organization, { foreignKey: 'organization_id' });
+
+// Organization to Shows (One-to-Many)
+models.Organization.hasMany(models.Show, { foreignKey: 'organization_id' });
+models.Show.belongsTo(models.Organization, { foreignKey: 'organization_id' });
+
+// Organization to Users (Many-to-Many)
+models.Organization.belongsToMany(models.User, { through: models.OrgMembership, foreignKey: 'org_id', otherKey: 'users_id' });
+models.User.belongsToMany(models.Organization, { through: models.OrgMembership, foreignKey: 'users_id', otherKey: 'org_id' });
+
+models.User.hasMany(models.OrgMembership, { foreignKey: 'users_id' });
+models.OrgMembership.belongsTo(models.User, { foreignKey: 'users_id' });
+
+models.Organization.hasMany(models.OrgMembership, { foreignKey: 'org_id' });
+models.OrgMembership.belongsTo(models.Organization, { foreignKey: 'org_id' });
+
+// OrgMembership to Roles (Many-to-Many)
+models.OrgMembership.belongsToMany(models.Role, { 
+    through: models.OrgRole, 
+    foreignKey: 'assignment_id', 
+    otherKey: 'role_id',
+    as: 'assignedRoles'
+});
+
+models.Role.belongsToMany(models.OrgMembership, { 
+    through: models.OrgRole, 
+    foreignKey: 'role_id', 
+    otherKey: 'assignment_id' 
+});
 
 Object.values(models).forEach((model) => {
 
