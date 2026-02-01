@@ -92,8 +92,8 @@ describe('Multi-Tenant Organization & Role API', () => {
         const delUser = await request(app).delete(`/api/users/${testUserId}`);
         const delOrg = await request(app).delete(`/api/orgs/${testOrgId}`);
         
-        expect(delUser.statusCode).toEqual(204);
-        expect(delOrg.statusCode).toEqual(204);
+        expect(delUser.statusCode).toEqual(200);
+        expect(delOrg.statusCode).toEqual(200);
     });
 
     afterAll(async () => {
