@@ -43,7 +43,7 @@ async function update(req, res, next) {
 async function remove(req, res, next) {
     try {
         await userService.remove(req.params.id);
-        res.status(204).send();
+        res.status(200).json({ success: true, message: 'User deleted successfully' });
     } catch (error) {
         if (error.message === 'User not found') {
             res.status(404).json({ success: false, message: 'User not found' });
