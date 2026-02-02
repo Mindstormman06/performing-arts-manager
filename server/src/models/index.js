@@ -7,6 +7,12 @@ import DepartmentModel from './Department.js';
 import InventoryModel from './Inventory.js';
 import NoteModel from './Note.js';
 import CueModel from './Cue.js';
+import BudgetModel from './Budget.js';
+import ExpenseModel from './Expense.js';
+import LayoutModel from './Layout.js';
+import StageObjectModel from './StageObject.js';
+import LightingPlotModel from './LightingPlot.js';
+
 import OrganizationModel from "./Organization.js";
 import ShowInventoryModel from './ShowInventory.js';
 import UserScheduleModel from './UserSchedule.js';
@@ -26,6 +32,11 @@ const models = {
     Inventory: InventoryModel(sequelize, DataTypes),
     Note: NoteModel(sequelize, DataTypes),
     Cue: CueModel(sequelize, DataTypes),
+    Budget: BudgetModel(sequelize, DataTypes),
+    Expense: ExpenseModel(sequelize, DataTypes),
+    Layout: LayoutModel(sequelize, DataTypes),
+    StageObject: StageObjectModel(sequelize, DataTypes),
+    LightingPlot: LightingPlotModel(sequelize, DataTypes),
     Organization: OrganizationModel(sequelize, DataTypes),
     ShowInventory: ShowInventoryModel(sequelize, DataTypes),
     UserSchedule: UserScheduleModel(sequelize, DataTypes),
@@ -76,6 +87,26 @@ models.Cue.belongsTo(models.Show, { foreignKey: 'show_id' });
 // A inventory piece can be used for many cues
 models.Inventory.hasMany(models.Cue, { foreignKey: 'light_id' });
 models.Cue.belongsTo(models.Inventory, { foreignKey: 'light_id' });
+
+// A budget can have one show
+models.Show.hasOne(models.Budget, { foreignKey: 'show_id' });
+models.Budget.belongsTo(models.Show, { foreignKey: 'show_id' });
+
+// A show can have many expenses
+models.Show.hasMany(models.Expense, { foreignKey: 'show_id' });
+models.Expense.belongsTo(models.Show, { foreignKey: 'show_id' });
+
+// A show can have many stage_layouts
+models.Show.hasMany(models.Layout, { foreignKey: 'show_id' });
+models.Layout.belongsTo(models.Show, { foreignKey: 'show_id' });
+
+// A layout can have many stage_objects
+models.Layout.hasMany(models.StageObject, { foreignKey: 'layout_id' });
+models.StageObject.belongsTo(models.Layout, { foreignKey: 'layout_id' });
+
+// A layout can have many lighting_plots
+models.Layout.hasMany(models.LightingPlot, { foreignKey: 'layout_id' });
+models.LightingPlot.belongsTo(models.Layout, { foreignKey: 'layout_id' });
 
 // Organization to Departments (One-to-Many)
 models.Organization.hasMany(models.Department, { foreignKey: 'organization_id' });

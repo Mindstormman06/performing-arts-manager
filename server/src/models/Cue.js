@@ -18,7 +18,7 @@ export default (sequelize, DataTypes) => {
             allowNull: true
         }
     }, {
-        tableName: 'cue',
+        tableName: 'cues',
     });
 
     return Cue;
