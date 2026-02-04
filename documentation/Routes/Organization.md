@@ -36,7 +36,7 @@
     *   404: { error: "Organization not found" }
 
  ## POST /api/orgs/:id/join
- * Delete user
+ * Add user to organization
  * Body: { userId }
  * Returns:
     *   200: { message: "User added to organization", data: [...] } 
@@ -53,6 +53,7 @@
     *   404: Error resource not found.
         * { error: "Organization not found" }
         * { error: "User is not a member of this organization" }
+        * { error: "Role(s) not found" }
 
  ## GET /api/orgs/:id/users
  * Get all users in organization
