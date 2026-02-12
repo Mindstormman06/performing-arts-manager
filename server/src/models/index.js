@@ -20,6 +20,9 @@ import UserScheduleModel from './UserSchedule.js';
 import OrgMembershipModel from './OrgMembership.js';
 import OrgRoleModel from './OrgRole.js';
 
+import ShowMembershipModel from './ShowMembership.js';
+import ShowRoleModel from './ShowRole.js';
+
 import sequelize from "../services/db.service.js";
 
 
@@ -42,6 +45,8 @@ const models = {
     UserSchedule: UserScheduleModel(sequelize, DataTypes),
     OrgMembership: OrgMembershipModel(sequelize, DataTypes),
     OrgRole: OrgRoleModel(sequelize, DataTypes),
+    ShowMembership: ShowMembershipModel(sequelize, DataTypes),
+    ShowRole: ShowRoleModel(sequelize, DataTypes),
 };
 
 // Show Inventory (includes the user who added it to the show)
@@ -139,6 +144,32 @@ models.Role.belongsToMany(models.OrgMembership, {
     foreignKey: 'role_id', 
     otherKey: 'assignment_id' 
 });
+
+
+// Shows to Users (Many-to-Many)
+models.Show.belongsToMany(models.User, { through: models.ShowMembership, foreignKey: 'show_id', otherKey: 'users_id' });
+models.User.belongsToMany(models.Show, { through: models.ShowMembership, foreignKey: 'users_id', otherKey: 'show_id' });
+
+models.User.hasMany(models.ShowMembership, { foreignKey: 'users_id' });
+models.ShowMembership.belongsTo(models.User, { foreignKey: 'users_id' });
+
+models.Show.hasMany(models.ShowMembership, { foreignKey: 'show_id' });
+models.ShowMembership.belongsTo(models.Show, { foreignKey: 'show_id' });
+
+// OrgMembership to Roles (Many-to-Many)
+models.ShowMembership.belongsToMany(models.Role, { 
+    through: models.ShowRole, 
+    foreignKey: 'assignment_id', 
+    otherKey: 'role_id',
+    as: 'assignedRoles'
+});
+
+models.Role.belongsToMany(models.ShowMembership, { 
+    through: models.ShowRole, 
+    foreignKey: 'role_id', 
+    otherKey: 'assignment_id' 
+});
+
 
 Object.values(models).forEach((model) => {
 

@@ -3,6 +3,7 @@ import cors from 'cors';
 
 import userRouter from './src/routes/user.route.js';
 import organzationRouter from './src/routes/organization.route.js';
+import showRouter from './src/routes/show.route.js';
 
 import { expressConfig } from './src/config/index.js';
 import sequelize from './src/services/db.service.js';
@@ -20,7 +21,7 @@ if (process.env.NODE_ENV !== 'test') {
     
     const seedRoles = async () => {
         const { Role } = models;
-        const roles = ['admin', 'president', 'board-member', 'costumes', 'props', 'sets', 'tech', 'director', 'stage-manager', 'actor', 'stagehand'];
+        const roles = ['admin', 'president', 'board-member', 'costumes', 'props', 'sets', 'tech', 'director', 'stage-manager', 'actor', 'stagehand', 'lead'];
         for (const roleName of roles) {
             await Role.findOrCreate({ where: { name: roleName } });
         }
@@ -35,15 +36,14 @@ app.get('/server-up', (req, res) => {
 
 app.use('/api/users', userRouter);
 app.use('/api/orgs', organzationRouter);
+app.use('/api/shows', showRouter)
 
 
 app.use((req, res, next) => {
-    if (res.statusCode === 404) {
-        next({
-            statusCode: 404,
-            message: "Route Not Found"
-        })
-    }
+    next({
+        statusCode: 404,
+        message: "Route Not Found"
+    })
 })
 
 app.use((err, req, res, next) => {
