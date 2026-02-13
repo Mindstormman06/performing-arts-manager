@@ -8,7 +8,7 @@ const router = Router();
 // Org CRUD routes
 router.get('/', organizationController.get);
 router.get('/:id', organizationController.getById);
-router.post('/', organizationController.create);
+router.post('/', authenticate, organizationController.create);
 router.put('/:id', authenticate, authorizeOrg(['admin', 'president']), organizationController.update);
 router.delete('/:id', authenticate, authorizeOrg(['admin', 'president']), organizationController.remove);
 

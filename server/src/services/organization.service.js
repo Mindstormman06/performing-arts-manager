@@ -1,4 +1,5 @@
 import models from '../models/index.js';
+import sequelize from './db.service.js';
 
 const { Organization } = models;
 
@@ -16,8 +17,29 @@ async function getById(id) {
 }
 
 async function create(data) {
-    const newOrganization = await Organization.create(data);
-    return newOrganization.toJSON();
+    const t = await sequelize.transaction();
+    
+    try {
+        const newOrg = await Organization.create(data, { transaction: t });
+
+        const presidentRole = await models.Role.findOne({ where: { name: 'president' }, transaction: t });
+        if (!presidentRole) {
+            throw new Error('President role not found');
+        }
+
+        const membership = await models.OrgMembership.create({
+            users_id: data.userId,
+            org_id: newOrg.id,
+        }, { transaction: t });
+
+        await membership.addAssignedRole(presidentRole, { transaction: t });
+
+        await t.commit();
+        return newOrg.toJSON();
+    } catch (err) {
+        await t.rollback();
+        throw err;
+    }
 }
 
 async function update(id, data) {

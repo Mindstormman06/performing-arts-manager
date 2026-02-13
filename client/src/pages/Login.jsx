@@ -1,10 +1,12 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { login } from '../services/api.js';
 
 export default function LoginPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -12,7 +14,7 @@ export default function LoginPage() {
         try {
             const { data } = await login({ email, password });
             localStorage.setItem('token', data.token);
-            alert('Login successful! Token stored in localStorage.');
+            navigate('/organizations');
         } catch (err) {
             setError(err.response?.data?.message || 'Login failed');
         }

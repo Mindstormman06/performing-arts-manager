@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { signup } from '../services/api';
 
 export default function SignupPage() {
@@ -10,6 +11,7 @@ export default function SignupPage() {
     });
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -25,7 +27,7 @@ export default function SignupPage() {
         try {
             // Sends fname, lname, email, and password
             await signup(formData);
-            alert('Account created! You can now log in.');
+            navigate('/login');
         } catch (err) {
             setError(err.response?.data?.message || 'Signup failed');
         }

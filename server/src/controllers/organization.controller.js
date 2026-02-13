@@ -22,7 +22,9 @@ async function getById(req, res, next) {
 
 async function create(req, res, next) {
     try {
-        res.status(201).json(await organizationService.create(req.body));
+        const userId = req.user.id;
+        const newOrg = await organizationService.create({ ...req.body, userId });
+        res.status(201).json(newOrg);
     } catch (error) {
         console.error(error);
         next(error);

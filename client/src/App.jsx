@@ -19,15 +19,15 @@ function App() {
             <div className="flex items-center space-x-4">
               {!token ? (
                 <>
-                  <Link to="/login" className="px-3 py-2 rounded-md hover:bg-blue-700">Login</Link>
-                  <Link to="/signup" className="px-3 py-2 rounded-md hover:bg-blue-700">Sign Up</Link>
+                  <Link to="/login" className="px-3 py-2 rounded-md hover:bg-blue-700 cursor-pointer">Login</Link>
+                  <Link to="/signup" className="px-3 py-2 rounded-md hover:bg-blue-700 cursor-pointer">Sign Up</Link>
                 </>
               ) : (
                 <>
-                  <Link to="/organizations" className="px-3 py-2 rounded-md hover:bg-blue-700">Dashboard</Link>
+                  <Link to="/organizations" className="px-3 py-2 rounded-md hover:bg-blue-700 cursor-pointer">Dashboard</Link>
                   <button 
                     onClick={logout} 
-                    className="px-3 py-2 rounded-md text-sm font-medium bg-red-500 hover:bg-red-600 transition"
+                    className="px-3 py-2 rounded-md text-sm font-medium bg-red-500 hover:bg-red-600 transition cursor-pointer"
                   >
                     Logout
                   </button>
