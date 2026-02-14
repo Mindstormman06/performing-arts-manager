@@ -32,7 +32,7 @@ describe("Performing Arts Manager: Auth & Permissions API", () => {
 		}
 	}, 30000);
 
-    // Inital - Test Online
+	// Inital - Test Online
 	it("Server should be up and running", async () => {
 		const res = await request(app).get("/server-up");
 		expect(res.statusCode).toEqual(200);
@@ -49,7 +49,10 @@ describe("Performing Arts Manager: Auth & Permissions API", () => {
 	it("Should handle server errors gracefully", async () => {
 		const res = await request(app).get("/crash-test");
 		expect(res.statusCode).toEqual(500);
-		expect(res.body).toHaveProperty("message", "Intentional crash for testing error handling");
+		expect(res.body).toHaveProperty(
+			"message",
+			"Intentional crash for testing error handling",
+		);
 	});
 
 	// Initial - Test Minimal Error Handling
@@ -175,14 +178,19 @@ describe("Performing Arts Manager: Auth & Permissions API", () => {
 
 			expect(res.statusCode).toEqual(200);
 			expect(res.body).toHaveProperty("success", true);
-			expect(res.body).toHaveProperty("message", "Database reset and seeded successfully.");
+			expect(res.body).toHaveProperty(
+				"message",
+				"Database reset and seeded successfully.",
+			);
 		}, 30000);
 	});
 
 	describe("Database Reset Failure", () => {
 		it("POST /api/admin/reset-db - should handle database execution errors", async () => {
 			// 1. Spy on sync
-			const spy = vi.spyOn(sequelize, 'sync').mockRejectedValue(new Error("Database connection lost"));
+			const spy = vi
+				.spyOn(sequelize, "sync")
+				.mockRejectedValue(new Error("Database connection lost"));
 
 			const res = await request(app)
 				.post("/api/admin/reset-db")
@@ -193,7 +201,7 @@ describe("Performing Arts Manager: Auth & Permissions API", () => {
 			expect(res.body.error).toBe("Database connection lost");
 
 			// 3. VERY IMPORTANT: restore so the tool knows the Happy Path is still valid
-			spy.mockRestore(); 
+			spy.mockRestore();
 		});
 	});
 });

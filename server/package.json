@@ -6,6 +6,7 @@
 	"scripts": {
 		"biome": "npx @biomejs/biome check",
 		"biome-fix": "npx @biomejs/biome check --fix",
+		"biome-fix-unsafe": "npx @biomejs/biome check --fix --unsafe",
 		"coverage": "vitest run tests/ --coverage",
 		"dev": "nodemon ./server.js",
 		"test": "vitest run tests/"

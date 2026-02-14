@@ -56,12 +56,12 @@ app.get("/server-up", (_req, res) => {
 	res.json({ message: "ok" });
 });
 
-app.get("/crash-test", (req, res, next) => {
-    next(new Error("Intentional crash for testing error handling")); 
+app.get("/crash-test", (_req, _res, next) => {
+	next(new Error("Intentional crash for testing error handling"));
 });
 
-app.get("/crash-test-minimal", (req, res, next) => {
-    next({}); 
+app.get("/crash-test-minimal", (_req, _res, next) => {
+	next({});
 });
 
 app.use("/api/users", userRouter);
