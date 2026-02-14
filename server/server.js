@@ -14,6 +14,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+/* v8 ignore start */
 if (process.env.NODE_ENV !== "test") {
 	sequelize
 		.sync({ alter: true })
@@ -49,9 +50,18 @@ if (process.env.NODE_ENV !== "test") {
 		console.log("Roles seeding complete");
 	};
 }
+/* v8 ignore stop */
 
 app.get("/server-up", (_req, res) => {
 	res.json({ message: "ok" });
+});
+
+app.get("/crash-test", (req, res, next) => {
+    next(new Error("Intentional crash for testing error handling")); 
+});
+
+app.get("/crash-test-minimal", (req, res, next) => {
+    next({}); 
 });
 
 app.use("/api/users", userRouter);
@@ -68,7 +78,7 @@ app.use((_req, _res, next) => {
 	});
 });
 
-app.use((err, _req, res) => {
+app.use((err, _req, res, _next) => {
 	const statusCode = err.statusCode || err.status || 500;
 	console.error(err);
 	res.status(statusCode).json({
@@ -79,10 +89,12 @@ app.use((err, _req, res) => {
 	return;
 });
 
+/* v8 ignore start */
 if (process.env.NODE_ENV !== "test") {
 	app.listen(expressConfig.port, () => {
 		console.log(`Server is running on http://localhost:${expressConfig.port}`);
 	});
 }
+/* v8 ignore stop */
 
 export default app;

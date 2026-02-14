@@ -1,8 +1,8 @@
 import request from "supertest";
 
-import app from "./server.js";
-import models from "./src/models/index.js";
-import sequelize from "./src/services/db.service.js";
+import app from "../server.js";
+import models from "../src/models/index.js";
+import sequelize from "../src/services/db.service.js";
 
 describe("Performing Arts Manager: Auth & Permissions API", () => {
 	let authToken;
@@ -13,7 +13,7 @@ describe("Performing Arts Manager: Auth & Permissions API", () => {
 	beforeAll(async () => {
 		try {
 			await sequelize.authenticate();
-			await sequelize.sync({ alter: true });
+			await sequelize.sync({ force: true });
 
 			// Seed all required roles for the multi-tenant logic
 			const roles = [
@@ -31,6 +31,33 @@ describe("Performing Arts Manager: Auth & Permissions API", () => {
 			console.error("Unable to connect to the database:", error);
 		}
 	}, 30000);
+
+    // Inital - Test Online
+	it("Server should be up and running", async () => {
+		const res = await request(app).get("/server-up");
+		expect(res.statusCode).toEqual(200);
+		expect(res.body).toHaveProperty("message", "ok");
+	});
+
+	// Inital - Test 404
+	it("Should return 404 for unknown routes", async () => {
+		const res = await request(app).get("/unknown-route");
+		expect(res.statusCode).toEqual(404);
+	});
+
+	// Initial - Test Error Handling
+	it("Should handle server errors gracefully", async () => {
+		const res = await request(app).get("/crash-test");
+		expect(res.statusCode).toEqual(500);
+		expect(res.body).toHaveProperty("message", "Intentional crash for testing error handling");
+	});
+
+	// Initial - Test Minimal Error Handling
+	it("Should fallback to 500 and default message when error is empty", async () => {
+		const res = await request(app).get("/crash-test-minimal");
+		expect(res.statusCode).toEqual(500);
+		expect(res.body.message).toBe("Internal server error");
+	});
 
 	// 1. REGISTRATION & AUTHENTICATION
 	it("Setup: Register and Login User", async () => {
@@ -137,5 +164,36 @@ describe("Performing Arts Manager: Auth & Permissions API", () => {
 
 	afterAll(async () => {
 		await sequelize.close();
+	}, 20000);
+
+	// 5. ADMIN OPERATIONS
+	describe("Admin Operations", () => {
+		it("POST /api/admin/reset-db - should reset database (requires authentication)", async () => {
+			const res = await request(app)
+				.post("/api/admin/reset-db")
+				.set("Authorization", `Bearer ${authToken}`);
+
+			expect(res.statusCode).toEqual(200);
+			expect(res.body).toHaveProperty("success", true);
+			expect(res.body).toHaveProperty("message", "Database reset and seeded successfully.");
+		}, 30000);
+	});
+
+	describe("Database Reset Failure", () => {
+		it("POST /api/admin/reset-db - should handle database execution errors", async () => {
+			// 1. Spy on sync
+			const spy = vi.spyOn(sequelize, 'sync').mockRejectedValue(new Error("Database connection lost"));
+
+			const res = await request(app)
+				.post("/api/admin/reset-db")
+				.set("Authorization", `Bearer ${authToken}`);
+
+			// 2. Verify the catch block logic (Lines 48-50)
+			expect(res.statusCode).toEqual(500);
+			expect(res.body.error).toBe("Database connection lost");
+
+			// 3. VERY IMPORTANT: restore so the tool knows the Happy Path is still valid
+			spy.mockRestore(); 
+		});
 	});
 });

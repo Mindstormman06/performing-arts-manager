@@ -4,10 +4,11 @@
 	"description": "",
 	"main": "server.js",
 	"scripts": {
-		"test": "vitest run",
 		"biome": "npx @biomejs/biome check",
 		"biome-fix": "npx @biomejs/biome check --fix",
-		"dev": "nodemon ./server.js"
+		"coverage": "vitest run tests/ --coverage",
+		"dev": "nodemon ./server.js",
+		"test": "vitest run tests/"
 	},
 	"keywords": [],
 	"author": "Aiden Adzich",
