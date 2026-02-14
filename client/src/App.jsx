@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import SignupPage from './pages/Signup.jsx';
 import LoginPage from './pages/Login.jsx';
 import OrgDashboard from './pages/OrgDashboard.jsx';
@@ -34,6 +34,7 @@ function App() {
                   <Link to="/organizations" className="px-3 py-2 rounded-md hover:bg-blue-700 cursor-pointer">Dashboard</Link>
                   <button 
                     onClick={logout} 
+                    type="button"
                     className="px-3 py-2 rounded-md text-sm font-medium bg-red-500 hover:bg-red-600 transition cursor-pointer"
                   >
                     Logout

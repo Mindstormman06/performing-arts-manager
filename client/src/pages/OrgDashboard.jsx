@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getOrganizations, deleteOrganization, respondToInvite, getMyOrganizations } from '../services/api'; //
 import CreateOrgModal from '../components/CreateOrgModal';
@@ -12,7 +12,7 @@ export default function OrgDashboard() {
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
-    const fetchOrganizations = async () => {
+    const fetchOrganizations = useCallback(async () => {
         try {
             setLoading(true);
             console.log('Starting to fetch organizations...');
@@ -47,7 +47,7 @@ export default function OrgDashboard() {
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
 
     const handleDelete = async (orgId) => {
         if (window.confirm('Are you sure you want to delete this organization? This action cannot be undone.')) {
@@ -81,7 +81,7 @@ export default function OrgDashboard() {
     useEffect(() => {
         console.log('OrgDashboard component mounted, fetching organizations...');
         fetchOrganizations();
-    }, []);
+    }, [fetchOrganizations]);
 
     // Split organizations by status
     const activeOrgs = organizations.filter(o => o.status === 'active'); 
@@ -118,12 +118,14 @@ export default function OrgDashboard() {
                                     </div>
                                     <div className="flex space-x-3">
                                         <button 
+                                            type="button"
                                             onClick={() => handleInviteAction(invite.org_id, 'accept')}
                                             className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 cursor-pointer"
                                         >
                                             Accept
                                         </button>
-                                        <button 
+                                        <button
+                                            type="button" 
                                             onClick={() => handleInviteAction(invite.org_id, 'decline')}
                                             className="bg-white text-red-600 border border-red-600 px-4 py-2 rounded hover:bg-red-50 cursor-pointer"
                                         >
@@ -140,6 +142,7 @@ export default function OrgDashboard() {
                 <header className="flex justify-between items-center mb-8">
                     <h2 className="text-3xl font-bold text-gray-900">Your Organizations</h2>
                     <button 
+                        type="button"
                         onClick={() => setIsModalOpen(true)}
                         className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 cursor-pointer"
                     >
@@ -161,6 +164,7 @@ export default function OrgDashboard() {
                                         <h3 className="text-xl font-semibold text-gray-800">{orgData.name}</h3>
                                         <div className="flex items-center space-x-3">
                                             <button 
+                                                type="button"
                                                 onClick={() => navigate(`/orgs/${orgData.id}/shows`)}
                                                 className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 cursor-pointer"
                                                 title="View Shows"
@@ -171,6 +175,7 @@ export default function OrgDashboard() {
                                             {hasAdminPermissions(org.org_id) && (
                                                 <>
                                                     <button 
+                                                        type="button"
                                                         onClick={() => navigate(`/orgs/${orgData.id}/users`)}
                                                         className="bg-gray-700 text-white px-3 py-2 rounded-md hover:bg-gray-800 cursor-pointer"
                                                         title="Manage Users"
@@ -178,6 +183,7 @@ export default function OrgDashboard() {
                                                         👥
                                                     </button>
                                                     <button 
+                                                        type="button"
                                                         onClick={() => { setSelectedOrg(orgData); setIsEditModalOpen(true); }}
                                                         className="bg-yellow-500 text-white px-3 py-2 rounded-md hover:bg-yellow-600 cursor-pointer"
                                                         title="Edit Organization"
@@ -185,6 +191,7 @@ export default function OrgDashboard() {
                                                         ✏️
                                                     </button>
                                                     <button 
+                                                        type="button"
                                                         onClick={() => handleDelete(orgData.id)}
                                                         className="bg-red-500 text-white px-3 py-2 rounded-md hover:bg-red-600 cursor-pointer"
                                                         title="Delete Organization"

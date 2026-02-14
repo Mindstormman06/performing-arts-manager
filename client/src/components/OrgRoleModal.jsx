@@ -27,7 +27,7 @@ export default function RoleModal({ isOpen, onClose, onSuccess, orgId, user }) {
             onSuccess();
             onClose();
         } catch (err) {
-            alert('Failed to update roles: ' + (err.response?.data?.message || err.message));
+            alert(`Failed to update roles: ${err.response?.data?.message || err.message}`);
         }
     };
 
@@ -49,8 +49,8 @@ export default function RoleModal({ isOpen, onClose, onSuccess, orgId, user }) {
                     ))}
                 </div>
                 <div className="flex justify-end gap-2">
-                    <button onClick={onClose} className="text-gray-500 hover:text-gray-700 cursor-pointer">Cancel</button>
-                    <button onClick={handleSave} className="bg-blue-600 text-white px-4 py-1 rounded cursor-pointer hover:bg-blue-700">Save</button>
+                    <button onClick={onClose} type="button" className="text-gray-500 hover:text-gray-700 cursor-pointer">Cancel</button>
+                    <button onClick={handleSave} type="button" className="bg-blue-600 text-white px-4 py-1 rounded cursor-pointer hover:bg-blue-700">Save</button>
                 </div>
             </div>
         </div>

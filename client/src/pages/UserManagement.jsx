@@ -106,12 +106,14 @@ export default function UserManagement() {
                                 </div>
                                 <div className="col-span-2 flex justify-end space-x-3">
                                     <button 
+                                        type="button"
                                         onClick={() => { setSelectedUser(m); setIsRoleModalOpen(true); }}
                                         className="text-blue-600 hover:text-blue-800 text-sm font-medium cursor-pointer transition-colors"
                                     >
                                         Edit Roles
                                     </button>
                                     <button 
+                                        type="button"
                                         onClick={() => removeUserFromOrganization(orgId, m.users_id).then(fetchMembers)}
                                         className="text-red-600 hover:text-red-800 text-sm font-medium cursor-pointer transition-colors"
                                     >
@@ -133,6 +135,7 @@ export default function UserManagement() {
                             <div key={m.assignment_id} className="p-4 border-b flex justify-between items-center">
                                 <span>{m.User?.email}</span>
                                 <button 
+                                    type="button"
                                     onClick={() => removeUserFromOrganization(orgId, m.users_id).then(fetchMembers)}
                                     className="text-gray-500 hover:text-red-600 text-sm"
                                 >
