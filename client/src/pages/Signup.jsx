@@ -8,6 +8,8 @@ export default function SignupPage() {
         email: '',
         password: ''
     });
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [error, setError] = useState('');
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -15,12 +17,17 @@ export default function SignupPage() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError('');
+        if (formData.password !== confirmPassword) {
+            setError('Passwords do not match');
+            return;
+        }
         try {
             // Sends fname, lname, email, and password
             await signup(formData);
             alert('Account created! You can now log in.');
         } catch (err) {
-            alert(err.response?.data?.message || 'Signup failed');
+            setError(err.response?.data?.message || 'Signup failed');
         }
     };
 
@@ -28,6 +35,7 @@ export default function SignupPage() {
         <div className="min-h-screen flex items-center justify-center bg-gray-100">
             <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
                 <h2 className="text-2xl font-bold text-center mb-6">Create Account</h2>
+                {error && <p className="text-red-500 text-center mb-4">{error}</p>}
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <input
                         name="fname"
@@ -56,6 +64,14 @@ export default function SignupPage() {
                         type="password"
                         placeholder="Password"
                         onChange={handleChange}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        required
+                    />
+                    <input
+                        type="password"
+                        placeholder="Confirm Password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
                         className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         required
                     />
