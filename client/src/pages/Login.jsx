@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../services/api.js';
+import { useAuth } from '../context/AuthContext.jsx';
 
 export default function LoginPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
+    const { setToken } = useAuth();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -14,6 +16,7 @@ export default function LoginPage() {
         try {
             const { data } = await login({ email, password });
             localStorage.setItem('token', data.token);
+            setToken(data.token); // Update the auth context
             navigate('/organizations');
         } catch (err) {
             setError(err.response?.data?.message || 'Login failed');

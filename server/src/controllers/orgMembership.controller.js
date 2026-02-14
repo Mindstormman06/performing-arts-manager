@@ -101,4 +101,46 @@ async function removeRole(req, res, next) {
     }
 }
 
-export default { join, addRoles, getAllUsers, getUser, getByRole, leave, removeRole };
+async function invite(req, res, next) {
+    try {
+        const { orgId } = req.params;
+        const { email } = req.body;
+
+        const invitation = await orgMembershipService.inviteByEmail(orgId, email);
+        
+        return res.status(201).json({
+            success: true,
+            message: 'Invitation sent successfully',
+            data: invitation
+        });
+    } catch (error) {
+        if (error.message.includes('No user found') || error.message.includes('already in')) {
+            return res.status(400).json({ success: false, message: error.message });
+        }
+        next(error);
+    }
+}
+
+async function respondToInvite(req, res, next) {
+    try {
+        const { orgId } = req.params;
+        const { action } = req.body;
+        const userId = req.user.id;
+
+        const membership = await models.OrgMembership.findOne({
+            where: { org_id: orgId, users_id: userId, status: 'pending' }
+        });
+
+        if (!membership) return res.status(404).json({ message: 'Invite not found.' });
+
+        if (action === 'accept') {
+            await membership.update({ status: 'active' });
+            return res.json({ success: true, message: 'Invite accepted.' });
+        } else {
+            await membership.destroy();
+            return res.json({ success: true, message: 'Invite declined.' });
+        }
+    } catch (error) { next(error); }
+}
+
+export default { join, addRoles, getAllUsers, getUser, getByRole, leave, removeRole, respondToInvite, invite };

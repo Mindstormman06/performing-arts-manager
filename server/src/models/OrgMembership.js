@@ -12,6 +12,10 @@ export default (sequelize, DataTypes) => {
         org_id: {
             type: DataTypes.INTEGER,
             references: { model: 'organizations', key: 'id' }
+        },
+        status: {
+            type: DataTypes.ENUM('pending', 'active'),
+            defaultValue: 'pending'
         }
     }, { tableName: 'org_has_users', timestamps: false });
 };

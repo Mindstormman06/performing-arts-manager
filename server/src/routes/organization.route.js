@@ -2,6 +2,7 @@ import Router from 'express';
 import organizationController from '../controllers/organization.controller.js';
 import orgMembershipController from '../controllers/orgMembership.controller.js';
 import { authenticate, authorizeOrg } from '../middleware/auth.middleware.js';
+import models from '../models/index.js';
 
 const router = Router();
 
@@ -32,5 +33,10 @@ router.delete('/:orgId/users/:userId', orgMembershipController.leave);
 
 // DELETE a specific role from a user
 router.delete('/:orgId/users/:userId/roles', orgMembershipController.removeRole);
+
+// POST /api/organizations/1/invite -> Invite user by email to join org (creates pending assignment_id)
+router.post('/:orgId/invite', authenticate, authorizeOrg(['admin', 'president']), orgMembershipController.invite);
+// PUT /api/organizations/1/respond -> Accept or decline invite (updates status to 'active' or deletes assignment_id)
+router.put('/:orgId/respond', authenticate, orgMembershipController.respondToInvite);
 
 export default router;
