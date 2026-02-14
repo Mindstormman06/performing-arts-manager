@@ -88,7 +88,7 @@ export default function OrgDashboard() {
     const pendingInvites = organizations.filter(o => o.status === 'pending');
 
     return (
-        <div className="min-h-screen bg-gray-100 py-8">
+        <div className="py-8">
             <CreateOrgModal 
                 isOpen={isModalOpen} 
                 onClose={() => setIsModalOpen(false)} 

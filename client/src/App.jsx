@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import SignupPage from './pages/Signup.jsx';
 import LoginPage from './pages/Login.jsx';
 import OrgDashboard from './pages/OrgDashboard.jsx';
@@ -9,8 +9,14 @@ import './assets/styles.css';
 
 function App() {
   const { token, logout } = useAuth();
+  const location = useLocation();
+  
+  // Check if current route should be centered (login/signup)
+  const shouldCenter = location.pathname === '/login' || location.pathname === '/signup';
+  
   return (
-    <>
+    <div className="min-h-screen flex flex-col">
+      {/* Navbar */}
       <nav className="bg-blue-600 text-white shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
@@ -39,28 +45,42 @@ function App() {
         </div>
       </nav>
 
-      <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage />} />
-        <Route path="/" element={<h2>Welcome to Performing Arts Manager</h2>} />
-        <Route 
-          path="/organizations" 
-          element={
-            <PrivateRoute>
-              <OrgDashboard />
-            </PrivateRoute>
-          } 
-        />
-        <Route 
-          path="/orgs/:orgId/users" 
-          element={
-            <PrivateRoute>
-              <UserManagement />
-            </PrivateRoute>
-          } 
-        />
+      {/* Main Content */}
+      <main className={`flex-1 bg-gray-100 ${shouldCenter ? 'flex items-center justify-center' : ''}`}>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
+          <Route path="/" element={<h2>Welcome to Performing Arts Manager</h2>} />
+          <Route 
+            path="/organizations" 
+            element={
+              <PrivateRoute>
+                <OrgDashboard />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/orgs/:orgId/users" 
+            element={
+              <PrivateRoute>
+                <UserManagement />
+              </PrivateRoute>
+            } 
+          />
         </Routes>
-    </>
+      </main>
+
+      {/* Footer */}
+      <footer className="bg-gray-800 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="border-gray-700 mt-4 mb-4 text-center">
+            <p className="text-gray-300 text-sm">
+              © 2026 Performing Arts Manager. All rights reserved.
+            </p>
+          </div>
+        </div>
+      </footer>
+    </div>
   );
 }
 
