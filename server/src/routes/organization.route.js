@@ -1,6 +1,7 @@
 import Router from 'express';
 import organizationController from '../controllers/organization.controller.js';
 import orgMembershipController from '../controllers/orgMembership.controller.js';
+import { authenticate, authorizeOrg } from '../middleware/auth.middleware.js';
 
 const router = Router();
 
@@ -8,8 +9,8 @@ const router = Router();
 router.get('/', organizationController.get);
 router.get('/:id', organizationController.getById);
 router.post('/', organizationController.create);
-router.put('/:id', organizationController.update);
-router.delete('/:id', organizationController.remove);
+router.put('/:id', authenticate, authorizeOrg(['admin', 'president']), organizationController.update);
+router.delete('/:id', authenticate, authorizeOrg(['admin', 'president']), organizationController.remove);
 
 // POST /api/organizations/1/join -> Links User 1 to Org 1 (assignment_id created)
 router.post('/:orgId/join', orgMembershipController.join);

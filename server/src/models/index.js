@@ -12,6 +12,7 @@ import ExpenseModel from './Expense.js';
 import LayoutModel from './Layout.js';
 import StageObjectModel from './StageObject.js';
 import LightingPlotModel from './LightingPlot.js';
+import CastingModel from "./Casting.js";
 
 import OrganizationModel from "./Organization.js";
 import ShowInventoryModel from './ShowInventory.js';
@@ -43,6 +44,7 @@ const models = {
     Organization: OrganizationModel(sequelize, DataTypes),
     ShowInventory: ShowInventoryModel(sequelize, DataTypes),
     UserSchedule: UserScheduleModel(sequelize, DataTypes),
+    Casting: CastingModel(sequelize, DataTypes),
     OrgMembership: OrgMembershipModel(sequelize, DataTypes),
     OrgRole: OrgRoleModel(sequelize, DataTypes),
     ShowMembership: ShowMembershipModel(sequelize, DataTypes),
@@ -112,6 +114,12 @@ models.StageObject.belongsTo(models.Layout, { foreignKey: 'layout_id' });
 // A layout can have many lighting_plots
 models.Layout.hasMany(models.LightingPlot, { foreignKey: 'layout_id' });
 models.LightingPlot.belongsTo(models.Layout, { foreignKey: 'layout_id' });
+
+// A user and show can have many castings
+models.Show.hasMany(models.Casting, { foreignKey: 'show_id'});
+models.User.hasMany(models.Casting, { foreignKey: 'users_id'});
+models.Casting.belongsTo(models.Show, { foreignKey: 'show_id' });
+models.Casting.belongsTo(models.User, { foreignKey: 'users_id' });
 
 // Organization to Departments (One-to-Many)
 models.Organization.hasMany(models.Department, { foreignKey: 'organization_id' });

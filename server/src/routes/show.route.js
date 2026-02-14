@@ -1,15 +1,16 @@
 import Router from 'express';
 import showController from '../controllers/show.controller.js';
 import showMembershipController from '../controllers/showMembership.controller.js';
+import { authenticate, authorizeShow, authorizeOrg } from '../middleware/auth.middleware.js';
 
 const router = Router();
 
 // Show CRUD routes
 router.get('/', showController.get);
 router.get('/:id', showController.getById);
-router.post('/', showController.create);
-router.put('/:id', showController.update);
-router.delete('/:id', showController.remove);
+router.post('/', authenticate, authorizeOrg(['admin', 'president']), showController.create);
+router.put('/:id', authenticate, authorizeShow(['director', 'stage-manager']), showController.update);
+router.delete('/:id', authenticate, authorizeShow(['director', 'stage-manager']), showController.remove);
 
 // POST /api/shows/1/join -> Links User 1 to Show 1 (assignment_id created)
 router.post('/:showId/join', showMembershipController.join);

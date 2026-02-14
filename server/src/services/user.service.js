@@ -1,3 +1,4 @@
+import bcrypt from 'bcrypt';
 import models from '../models/index.js';
 
 const { User } = models;
@@ -16,6 +17,10 @@ async function getById(id) {
 }
 
 async function create(data) {
+    if (data.password) {
+        data.passwordHash = await bcrypt.hash(data.password, 10);
+        delete data.password; 
+    }
     const newUser = await User.create(data);
     return newUser.toJSON();
 }
@@ -24,6 +29,10 @@ async function update(id, data) {
     const user = await User.findByPk(id);
     if (!user) {
         throw new Error('User not found');
+    }
+    if (data.password) {
+        data.passwordHash = await bcrypt.hash(data.password, 10);
+        delete data.password; 
     }
     await user.update(data);
     return user.toJSON();
