@@ -3,7 +3,14 @@ import models from '../models/index.js';
 async function getUserOrganizations(userId) {
     return await models.OrgMembership.findAll({
         where: { users_id: userId },
-        include: [{ model: models.Organization }]
+        include: [
+            { model: models.Organization },
+            { 
+                model: models.Role,
+                as: 'assignedRoles',
+                through: { attributes: [] } // Don't include junction table attributes
+            }
+        ]
     });
 }
 
