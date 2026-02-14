@@ -30,6 +30,7 @@ async function create(data) {
         const membership = await models.OrgMembership.create({
             users_id: data.userId,
             org_id: newOrg.id,
+            status: 'active',
         }, { transaction: t });
 
         await membership.addAssignedRole(presidentRole, { transaction: t });

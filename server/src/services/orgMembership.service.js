@@ -1,5 +1,12 @@
 import models from '../models/index.js';
 
+async function getUserOrganizations(userId) {
+    return await models.OrgMembership.findAll({
+        where: { users_id: userId },
+        include: [{ model: models.Organization }]
+    });
+}
+
 async function addUserToOrg(orgId, userId) {
     const org = await models.Organization.findOne({ where: { id: orgId } });
     if (!org) throw new Error('Organization not found');
@@ -34,4 +41,4 @@ async function inviteByEmail(orgId, email) {
     });
 }
 
-export default { addUserToOrg, inviteByEmail };
+export default { addUserToOrg, inviteByEmail, getUserOrganizations };

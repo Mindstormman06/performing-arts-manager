@@ -6,6 +6,8 @@ import models from '../models/index.js';
 
 const router = Router();
 
+router.get('/my', authenticate, orgMembershipController.getUserOrganizations);
+
 // Org CRUD routes
 router.get('/', organizationController.get);
 router.get('/:id', organizationController.getById);
@@ -38,5 +40,7 @@ router.delete('/:orgId/users/:userId/roles', orgMembershipController.removeRole)
 router.post('/:orgId/invite', authenticate, authorizeOrg(['admin', 'president']), orgMembershipController.invite);
 // PUT /api/organizations/1/respond -> Accept or decline invite (updates status to 'active' or deletes assignment_id)
 router.put('/:orgId/respond', authenticate, orgMembershipController.respondToInvite);
+
+// GET all organizations for the authenticated user
 
 export default router;

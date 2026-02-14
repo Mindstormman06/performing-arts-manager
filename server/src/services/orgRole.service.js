@@ -23,6 +23,36 @@ async function appendRolesToAssignment(orgId, userId, roleNames) {
     return await membership.getAssignedRoles();
 }
 
+async function setRolesForAssignment(orgId, userId, roleNames) {
+    const org = await models.Organization.findOne({ where: { id: orgId } });
+    if (!org) throw new Error('Organization not found');
+    const membership = await models.OrgMembership.findOne({
+        where: { org_id: orgId, users_id: userId }
+    });
+    if (!membership) throw new Error('User is not a member of this organization');
+
+    // Remove all existing roles
+    await models.OrgRole.destroy({
+        where: { assignment_id: membership.assignment_id }
+    });
+
+    // Add new roles if any
+    if (roleNames && roleNames.length > 0) {
+        const roles = await models.Role.findAll({
+            where: { name: roleNames }
+        });
+
+        const roleEntries = roles.map(role => ({
+            assignment_id: membership.assignment_id,
+            role_id: role.id
+        }));
+
+        await models.OrgRole.bulkCreate(roleEntries);
+    }
+
+    return await membership.getAssignedRoles();
+}
+
 async function getOrgUsers(orgId) {
     const org = await models.Organization.findOne({ where: { id: orgId } });
     if (!org) throw new Error('Organization not found');
@@ -115,6 +145,7 @@ async function removeRolesFromUser(orgId, userId, roleNames) {
 
 export default { 
     appendRolesToAssignment, 
+    setRolesForAssignment,
     getOrgUsers, 
     getOrgUserById, 
     getUsersByRole, 

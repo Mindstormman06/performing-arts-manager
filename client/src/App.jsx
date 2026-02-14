@@ -4,6 +4,7 @@ import LoginPage from './pages/Login.jsx';
 import OrgDashboard from './pages/OrgDashboard.jsx';
 import PrivateRoute from './components/PrivateRoute.jsx';
 import { useAuth } from './context/AuthContext.jsx';
+import UserManagement from './pages/UserManagement.jsx';
 import './assets/styles.css';
 
 function App() {
@@ -47,6 +48,14 @@ function App() {
           element={
             <PrivateRoute>
               <OrgDashboard />
+            </PrivateRoute>
+          } 
+        />
+        <Route 
+          path="/orgs/:orgId/users" 
+          element={
+            <PrivateRoute>
+              <UserManagement />
             </PrivateRoute>
           } 
         />

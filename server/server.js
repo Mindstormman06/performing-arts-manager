@@ -15,18 +15,22 @@ app.use(cors());
 app.use(express.json());
 
 if (process.env.NODE_ENV !== 'test') {
-    sequelize.sync({ force: true })
-        .then(() => console.log('Database & tables created!'))
+    sequelize.sync({ alter: true })
+        .then(() => console.log('Database synchronized!'))
         .then(() => { seedRoles(); })
         .catch((err) => console.error('Error syncing database:', err));
     
     const seedRoles = async () => {
         const { Role } = models;
         const roles = ['admin', 'president', 'board-member', 'costumes', 'props', 'sets', 'tech', 'director', 'stage-manager', 'actor', 'stagehand', 'lead'];
+        
         for (const roleName of roles) {
-            await Role.findOrCreate({ where: { name: roleName } });
+            const [role, created] = await Role.findOrCreate({ where: { name: roleName } });
+            if (created) {
+                console.log(`Created role: ${roleName}`);
+            }
         }
-        console.log('Roles seeded');
+        console.log('Roles seeding complete');
     }
 }
 

@@ -1,5 +1,6 @@
 import orgMembershipService from '../services/orgMembership.service.js';
 import orgRoleService from '../services/orgRole.service.js';
+import models from '../models/index.js';
 
 async function join(req, res, next) {
     try {
@@ -26,7 +27,7 @@ async function addRoles(req, res, next) {
         const { orgId, userId } = req.params;
         const { roles } = req.body; // Expecting ["admin", "tech"]
 
-        const updatedRoles = await orgRoleService.appendRolesToAssignment(orgId, userId, roles);
+        const updatedRoles = await orgRoleService.setRolesForAssignment(orgId, userId, roles);
         
         return res.json({
             success: true,
@@ -36,6 +37,14 @@ async function addRoles(req, res, next) {
         if (error.message.includes('No valid') || error.message.includes('not a member') || error.message.includes('not found')) {
             return res.status(404).json({ success: false, message: error.message });
         }
+        next(error);
+    }
+}
+
+async function getUserOrganizations(req, res, next) {
+    try {
+        res.json(await orgMembershipService.getUserOrganizations(req.user.id));
+    } catch (error) {
         next(error);
     }
 }
@@ -143,4 +152,4 @@ async function respondToInvite(req, res, next) {
     } catch (error) { next(error); }
 }
 
-export default { join, addRoles, getAllUsers, getUser, getByRole, leave, removeRole, respondToInvite, invite };
+export default { join, addRoles, getAllUsers, getUser, getByRole, leave, removeRole, respondToInvite, invite, getUserOrganizations };
