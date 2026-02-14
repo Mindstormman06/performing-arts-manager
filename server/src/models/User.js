@@ -19,6 +19,10 @@ export default (sequelize, DataTypes) => {
             unique: true,
             validate: { isEmail: true }
         },
+        phone: {
+            type: DataTypes.STRING(20),
+            allowNull: true
+        },
         passwordHash: {
             type: DataTypes.STRING(255),
             allowNull: true
