@@ -1,16 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { updateOrganizationUserRoles } from '../services/api';
 
 export default function RoleModal({ isOpen, onClose, onSuccess, orgId, user }) {
     // List of roles available in your system
     const availableRoles = ['admin', 'board-member', 'costumes', 'props', 'sets', 'tech'];
-    const [selectedRoles, setSelectedRoles] = useState([]);
-
-    useEffect(() => {
-        if (user?.assignedRoles) {
-            setSelectedRoles(user.assignedRoles.map(r => r.name));
-        }
-    }, [user]);
+    const [selectedRoles, setSelectedRoles] = useState(
+        () => user?.assignedRoles?.map(r => r.name) || []);
 
     if (!isOpen) return null;
 
@@ -22,7 +17,13 @@ export default function RoleModal({ isOpen, onClose, onSuccess, orgId, user }) {
 
     const handleSave = async () => {
         try {
-            await updateOrganizationUserRoles(orgId, user.users_id, selectedRoles);
+            const hiddenRoles = user?.assignedRoles
+                ?.map(r => r.name)
+                .filter(name => !availableRoles.includes(name)) || [];
+
+            const finalRoles = [...new Set([...selectedRoles, ...hiddenRoles])];
+
+            await updateOrganizationUserRoles(orgId, user.users_id, finalRoles);
             onSuccess();
             onClose();
         } catch (err) {

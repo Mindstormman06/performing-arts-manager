@@ -3,7 +3,7 @@ import SignupPage from './pages/Signup.jsx';
 import LoginPage from './pages/Login.jsx';
 import OrgDashboard from './pages/OrgDashboard.jsx';
 import PrivateRoute from './components/PrivateRoute.jsx';
-import { useAuth } from './context/AuthContext.jsx';
+import { useAuth } from './hooks/useAuth.js';
 import UserManagement from './pages/UserManagement.jsx';
 import './assets/styles.css';
 

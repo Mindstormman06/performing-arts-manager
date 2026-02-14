@@ -35,7 +35,7 @@ jobs:
         run: npx eslint .
 
   test-server:
-    # This ensures tests ONLY run if linting passes
+    # Only run on successful lint
     needs: lint-and-format-server
     runs-on: ubuntu-latest
 

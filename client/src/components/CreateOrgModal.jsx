@@ -3,7 +3,7 @@ import { createOrganization } from '../services/api';
 
 export default function CreateOrgModal({ isOpen, onClose, onSuccess }) {
     const [name, setName] = useState('');
-    const [error, setError] = useState('');
+    const [_error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
     if (!isOpen) return null;

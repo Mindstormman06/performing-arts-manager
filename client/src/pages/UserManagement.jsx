@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import { getOrganizationUsers, inviteByEmail, updateOrganizationUserRoles, removeUserFromOrganization } from '../services/api';
+import { getOrganizationUsers, inviteByEmail,  removeUserFromOrganization } from '../services/api';
 import RoleModal from '../components/OrgRoleModal';
 
 export default function UserManagement() {
@@ -8,22 +8,22 @@ export default function UserManagement() {
     const [members, setMembers] = useState([]);
     const [email, setEmail] = useState('');
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
+    const [_error, setError] = useState('');
     const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
 
-    const fetchMembers = async () => {
+    const fetchMembers = useCallback(async () => {
         try {
             const { data } = await getOrganizationUsers(orgId);
             setMembers(data);
         } catch (err) {
             console.error('Failed to fetch members:', err);
         }
-    };
+    }, [orgId]);
 
     useEffect(() => {
         fetchMembers();
-    }, [orgId]);
+    }, [fetchMembers]);
 
     const handleInvite = async (e) => {
         e.preventDefault();
