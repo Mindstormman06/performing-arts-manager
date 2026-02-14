@@ -1,7 +1,8 @@
 import dotenv from "dotenv";
+
 dotenv.config();
 
-const { databaseConfig } = await import('./database.config.js');
-const { expressConfig } = await import('./express.config.js');
+const { databaseConfig } = await import("./database.config.js");
+const { expressConfig } = await import("./express.config.js");
 
-export { databaseConfig,expressConfig }
+export { databaseConfig, expressConfig };
