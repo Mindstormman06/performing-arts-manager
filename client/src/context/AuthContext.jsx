@@ -1,26 +1,26 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AuthContext } from './AuthContextInstance';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "./AuthContextInstance";
 
 export const AuthProvider = ({ children }) => {
-    const [token, setToken] = useState(() => localStorage.getItem('token'));
-    const [user, setUser] = useState(() => {
-        const savedToken = localStorage.getItem('token');
-        return savedToken ? { id: 'decoded-id-here' } : null;
-    });
+	const [token, setToken] = useState(() => localStorage.getItem("token"));
+	const [user, setUser] = useState(() => {
+		const savedToken = localStorage.getItem("token");
+		return savedToken ? { id: "decoded-id-here" } : null;
+	});
 
-    const navigate = useNavigate();
+	const navigate = useNavigate();
 
-    const logout = () => {
-        localStorage.removeItem('token');
-        setToken(null);
-        setUser(null);
-        navigate('/login');
-    };
+	const logout = () => {
+		localStorage.removeItem("token");
+		setToken(null);
+		setUser(null);
+		navigate("/login");
+	};
 
-    return (
-        <AuthContext.Provider value={{ user, token, setToken, logout }}>
-            {children}
-        </AuthContext.Provider>
-    );
+	return (
+		<AuthContext.Provider value={{ user, token, setToken, logout }}>
+			{children}
+		</AuthContext.Provider>
+	);
 };
