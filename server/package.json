@@ -4,7 +4,9 @@
 	"description": "",
 	"main": "server.js",
 	"scripts": {
-		"test": "cross-env NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js --no-cache",
+		"test": "vitest run",
+		"biome": "npx @biomejs/biome check",
+		"biome-fix": "npx @biomejs/biome check --fix",
 		"dev": "nodemon ./server.js"
 	},
 	"keywords": [],
@@ -23,11 +25,12 @@
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",
+		"@vitest/coverage-v8": "^4.0.18",
 		"eslint": "^10.0.0",
 		"eslint-plugin-simple-import-sort": "^12.1.1",
 		"globals": "^17.3.0",
-		"jest": "^30.2.0",
 		"nodemon": "^3.1.11",
-		"supertest": "^7.2.2"
+		"supertest": "^7.2.2",
+		"vitest": "^4.0.18"
 	}
 }
