@@ -38,12 +38,10 @@ export const authorizeOrg = (requiredRoles = []) => {
 		});
 
 		if (!membership) {
-			return res
-				.status(403)
-				.json({
-					success: false,
-					message: "Not a member of this organization.",
-				});
+			return res.status(403).json({
+				success: false,
+				message: "Not a member of this organization.",
+			});
 		}
 
 		const userRoles = membership.assignedRoles.map((r) => r.name);
@@ -53,9 +51,10 @@ export const authorizeOrg = (requiredRoles = []) => {
 		);
 
 		if (requiredRoles.length > 0 && !hasPermission) {
-			return res
-				.status(403)
-				.json({ success: false, message: "Insufficient permissions." });
+			return res.status(403).json({
+				success: false,
+				message: "Insufficient permissions.",
+			});
 		}
 
 		next();

@@ -38,13 +38,11 @@ const resetDb = async (_req, res) => {
 		});
 	} catch (error) {
 		console.error("Error resetting database:", error);
-		res
-			.status(500)
-			.json({
-				success: false,
-				message: "Failed to reset database.",
-				error: error.message,
-			});
+		res.status(500).json({
+			success: false,
+			message: "Failed to reset database.",
+			error: error.message,
+		});
 	}
 };
 
