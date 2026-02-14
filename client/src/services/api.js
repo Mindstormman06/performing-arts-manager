@@ -14,3 +14,4 @@ API.interceptors.request.use((config) => {
 
 export const login = (credentials) => API.post('/auth/login', credentials);
 export const signup = (userData) => API.post('/users', userData);
+export const getOrganizations = () => API.get('/orgs');
