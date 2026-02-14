@@ -1,7 +1,8 @@
 import Router from 'express';
+
 import showController from '../controllers/show.controller.js';
 import showMembershipController from '../controllers/showMembership.controller.js';
-import { authenticate, authorizeShow, authorizeOrg } from '../middleware/auth.middleware.js';
+import { authenticate, authorizeOrg,authorizeShow } from '../middleware/auth.middleware.js';
 
 const router = Router();
 

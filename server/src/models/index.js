@@ -1,30 +1,27 @@
 import { DataTypes } from "sequelize";
-import UserModel from './User.js';
-import RoleModel from './Role.js';
-import ShowModel from './Show.js';
-import ScheduleModel from './Schedule.js';
-import DepartmentModel from './Department.js';
-import InventoryModel from './Inventory.js';
-import NoteModel from './Note.js';
-import CueModel from './Cue.js';
-import BudgetModel from './Budget.js';
-import ExpenseModel from './Expense.js';
-import LayoutModel from './Layout.js';
-import StageObjectModel from './StageObject.js';
-import LightingPlotModel from './LightingPlot.js';
-import CastingModel from "./Casting.js";
-
-import OrganizationModel from "./Organization.js";
-import ShowInventoryModel from './ShowInventory.js';
-import UserScheduleModel from './UserSchedule.js';
-
-import OrgMembershipModel from './OrgMembership.js';
-import OrgRoleModel from './OrgRole.js';
-
-import ShowMembershipModel from './ShowMembership.js';
-import ShowRoleModel from './ShowRole.js';
 
 import sequelize from "../services/db.service.js";
+import BudgetModel from './Budget.js';
+import CastingModel from "./Casting.js";
+import CueModel from './Cue.js';
+import DepartmentModel from './Department.js';
+import ExpenseModel from './Expense.js';
+import InventoryModel from './Inventory.js';
+import LayoutModel from './Layout.js';
+import LightingPlotModel from './LightingPlot.js';
+import NoteModel from './Note.js';
+import OrganizationModel from "./Organization.js";
+import OrgMembershipModel from './OrgMembership.js';
+import OrgRoleModel from './OrgRole.js';
+import RoleModel from './Role.js';
+import ScheduleModel from './Schedule.js';
+import ShowModel from './Show.js';
+import ShowInventoryModel from './ShowInventory.js';
+import ShowMembershipModel from './ShowMembership.js';
+import ShowRoleModel from './ShowRole.js';
+import StageObjectModel from './StageObject.js';
+import UserModel from './User.js';
+import UserScheduleModel from './UserSchedule.js';
 
 
 const models = {

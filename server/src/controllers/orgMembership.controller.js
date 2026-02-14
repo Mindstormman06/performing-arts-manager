@@ -1,6 +1,6 @@
+import models from '../models/index.js';
 import orgMembershipService from '../services/orgMembership.service.js';
 import orgRoleService from '../services/orgRole.service.js';
-import models from '../models/index.js';
 
 async function join(req, res, next) {
     try {

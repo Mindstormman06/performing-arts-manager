@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs';
+
 import models from '../models/index.js';
 
 const { User } = models;

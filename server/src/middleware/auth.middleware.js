@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+
 import models from '../models/index.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_theatre_secret';
@@ -15,7 +16,7 @@ export const authenticate = (req, res, next) => {
         req.user = decoded;
         next();
     } catch (error) {
-        res.status(400).json({ success: false, message: 'Invalid token.' });
+        res.status(400).json({ success: false, message: `Invalid token: ${error.message}` });
     }
 };
 

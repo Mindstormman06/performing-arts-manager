@@ -1,15 +1,14 @@
-import express from 'express';
 import cors from 'cors';
-
-import userRouter from './src/routes/user.route.js';
-import organzationRouter from './src/routes/organization.route.js';
-import showRouter from './src/routes/show.route.js';
-import authRouter from './src/routes/auth.route.js';
-import adminRouter from './src/routes/admin.route.js';
+import express from 'express';
 
 import { expressConfig } from './src/config/index.js';
-import sequelize from './src/services/db.service.js';
 import models from './src/models/index.js';
+import adminRouter from './src/routes/admin.route.js';
+import authRouter from './src/routes/auth.route.js';
+import organzationRouter from './src/routes/organization.route.js';
+import showRouter from './src/routes/show.route.js';
+import userRouter from './src/routes/user.route.js';
+import sequelize from './src/services/db.service.js';
 
 const app = express();
 app.use(cors());
@@ -26,7 +25,7 @@ if (process.env.NODE_ENV !== 'test') {
         const roles = ['admin', 'president', 'board-member', 'costumes', 'props', 'sets', 'tech', 'director', 'stage-manager', 'actor', 'stagehand', 'lead'];
         
         for (const roleName of roles) {
-            const [role, created] = await Role.findOrCreate({ where: { name: roleName } });
+            const [created] = await Role.findOrCreate({ where: { name: roleName } });
             if (created) {
                 console.log(`Created role: ${roleName}`);
             }
@@ -35,7 +34,7 @@ if (process.env.NODE_ENV !== 'test') {
     }
 }
 
-app.get('/server-up', (req, res) => {
+app.get('/server-up', (_req, res) => {
     res.json({ message: 'ok' });
 });
 
@@ -48,14 +47,14 @@ app.use('/api/auth', authRouter);
 app.use('/api/admin', adminRouter);
 
 
-app.use((req, res, next) => {
+app.use((_req, _res, next) => {
     next({
         statusCode: 404,
         message: "Route Not Found"
     })
 })
 
-app.use((err, req, res, next) => {
+app.use((err, _req, res) => {
   const statusCode = err.statusCode || err.status || 500;
   console.error(err);
   res.status(statusCode).json({

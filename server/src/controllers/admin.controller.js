@@ -1,7 +1,7 @@
-import sequelize from '../services/db.service.js';
 import models from '../models/index.js';
+import sequelize from '../services/db.service.js';
 
-const resetDb = async (req, res) => {
+const resetDb = async (_req, res) => {
     try {
         // Force sync to drop and recreate tables
         await sequelize.sync({ force: true });
@@ -12,7 +12,7 @@ const resetDb = async (req, res) => {
         const roles = ['admin', 'president', 'board-member', 'costumes', 'props', 'sets', 'tech', 'director', 'stage-manager', 'actor', 'stagehand', 'lead'];
 
         for (const roleName of roles) {
-            const [role, created] = await Role.findOrCreate({ where: { name: roleName } });
+            const [created] = await Role.findOrCreate({ where: { name: roleName } });
             if (created) {
                 console.log(`Created role: ${roleName}`);
             }

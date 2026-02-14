@@ -1,7 +1,8 @@
 import request from 'supertest';
+
 import app from './server.js';
-import sequelize from './src/services/db.service.js';
 import models from './src/models/index.js';
+import sequelize from './src/services/db.service.js';
 
 describe('Performing Arts Manager: Auth & Permissions API', () => {
     let authToken;

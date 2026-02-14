@@ -1,6 +1,6 @@
 import showService from "../services/show.service.js";
 
-async function get(req, res, next) {
+async function get(_req, res, next) {
     try {
         res.json(await showService.getAll());
     } catch (error) {

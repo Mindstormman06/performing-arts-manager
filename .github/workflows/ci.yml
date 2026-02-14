@@ -7,7 +7,36 @@ on:
     branches: [ main ]
 
 jobs:
+  lint-and-format-server:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: './server/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: ./server
+        run: npm install
+
+      # 1. Biome Check
+      - name: Run Biome
+        working-directory: ./server
+        run: npx @biomejs/biome ci .
+
+      # 2. ESLint Check
+      - name: Run ESLint
+        working-directory: ./server
+        run: npx eslint .
+
   test-server:
+    # This ensures tests ONLY run if linting passes
+    needs: lint-and-format-server
     runs-on: ubuntu-latest
 
     steps:

@@ -1,6 +1,6 @@
 import userService from "../services/user.service.js";
 
-async function get(req, res, next) {
+async function get(_req, res, next) {
     try {
         res.json(await userService.getAll());
     } catch (error) {

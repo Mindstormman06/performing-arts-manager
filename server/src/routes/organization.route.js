@@ -1,8 +1,8 @@
 import Router from 'express';
+
 import organizationController from '../controllers/organization.controller.js';
 import orgMembershipController from '../controllers/orgMembership.controller.js';
 import { authenticate, authorizeOrg } from '../middleware/auth.middleware.js';
-import models from '../models/index.js';
 
 const router = Router();
 
