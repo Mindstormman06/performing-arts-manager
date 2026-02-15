@@ -126,7 +126,7 @@ async function removeRole(req, res, next) {
 			rolesToRemove,
 		);
 		// Tested but not recognizing coverage. Ignoring for now.
-		/* v8 ignore next */ res.json(result); 
+		/* v8 ignore next */ res.json(result);
 	} catch (error) {
 		if (
 			error.message.includes("required") ||

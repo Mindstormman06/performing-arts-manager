@@ -3,11 +3,11 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
 import app from "../server.js";
 import authService from "../src/services/auth.service.js";
-import { closeDatabase,setupTestDatabase } from "./utils/test-setup.js";
+import { closeDatabase, setupTestDatabase } from "./utils/test-setup.js";
 
 describe("Authentication & Registration", () => {
-	let testUserEmail = `auth-test-${Date.now()}@viu.ca`;
-	let testUserPassword = "password123";
+	const testUserEmail = `auth-test-${Date.now()}@viu.ca`;
+	const testUserPassword = "password123";
 
 	// Setup a fresh database before running auth tests
 	beforeAll(async () => {
@@ -24,9 +24,9 @@ describe("Authentication & Registration", () => {
 			fname: "Auth",
 			lname: "Tester",
 			email: testUserEmail,
-			password: testUserPassword, 
+			password: testUserPassword,
 		});
-		
+
 		expect(userRes.statusCode).toEqual(201);
 		expect(userRes.body).toHaveProperty("id");
 	});
@@ -70,9 +70,9 @@ describe("Authentication & Registration", () => {
 	describe("Login Controller - Error Handling", () => {
 		it("should return 401 when authService throws an error", async () => {
 			// Force the auth service to throw an error to test the controller's catch block
-			const authSpy = vi.spyOn(authService, "login").mockRejectedValue(
-				new Error("Invalid credentials")
-			);
+			const authSpy = vi
+				.spyOn(authService, "login")
+				.mockRejectedValue(new Error("Invalid credentials"));
 
 			const res = await request(app)
 				.post("/api/auth/login")

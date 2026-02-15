@@ -3,7 +3,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
 import app from "../server.js";
 import sequelize from "../src/services/db.service.js";
-import { closeDatabase,setupTestDatabase } from "./utils/test-setup.js";
+import { closeDatabase, setupTestDatabase } from "./utils/test-setup.js";
 
 describe("Admin & Database Operations", () => {
 	let authToken;
@@ -12,14 +12,20 @@ describe("Admin & Database Operations", () => {
 		await setupTestDatabase();
 
 		// Set up an admin user to interact with the protected reset routes
-		const userRes = await request(app).post("/api/users").send({
-			fname: "System", lname: "Admin", email: `admin-${Date.now()}@viu.ca`, password: "password123",
-		});
-		
+		const userRes = await request(app)
+			.post("/api/users")
+			.send({
+				fname: "System",
+				lname: "Admin",
+				email: `admin-${Date.now()}@viu.ca`,
+				password: "password123",
+			});
+
 		const loginRes = await request(app).post("/api/auth/login").send({
-			email: userRes.body.email, password: "password123",
+			email: userRes.body.email,
+			password: "password123",
 		});
-		
+
 		authToken = loginRes.body.token;
 	}, 30000);
 
@@ -51,7 +57,10 @@ describe("Admin & Database Operations", () => {
 
 			expect(res.statusCode).toEqual(200);
 			expect(res.body).toHaveProperty("success", true);
-			expect(res.body).toHaveProperty("message", "Database reset and seeded successfully.");
+			expect(res.body).toHaveProperty(
+				"message",
+				"Database reset and seeded successfully.",
+			);
 		}, 30000); // 30 second timeout as DB resets can be slow
 	});
 });

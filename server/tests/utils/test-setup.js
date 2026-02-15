@@ -22,13 +22,16 @@ export const setupTestDatabase = async () => {
 			"director",
 			"stage-manager",
 		];
-		
+
 		// Insert each role into the database if it doesn't already exist
 		for (const roleName of roles) {
 			await models.Role.findOrCreate({ where: { name: roleName } });
 		}
 	} catch (error) {
-		/* v8 ignore next */ console.error("Unable to connect to the database:", error);
+		/* v8 ignore next */ console.error(
+			"Unable to connect to the database:",
+			error,
+		);
 	}
 };
 

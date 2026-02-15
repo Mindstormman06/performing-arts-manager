@@ -1,10 +1,9 @@
 import request from "supertest";
-import { describe, expect,it } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import app from "../server.js";
 
 describe("Server Core & Error Handling", () => {
-	
 	// Check if the base server is responding correctly
 	it("Server should be up and running", async () => {
 		const res = await request(app).get("/server-up");
@@ -24,7 +23,7 @@ describe("Server Core & Error Handling", () => {
 		expect(res.statusCode).toEqual(500);
 		expect(res.body).toHaveProperty(
 			"message",
-			"Intentional crash for testing error handling"
+			"Intentional crash for testing error handling",
 		);
 	});
 
