@@ -1,27 +1,27 @@
 import models from "../models/index.js";
 
-async function appendRolesToAssignment(orgId, userId, roleNames) {
-	const org = await models.Organization.findOne({ where: { id: orgId } });
-	if (!org) throw new Error("Organization not found");
-	const membership = await models.OrgMembership.findOne({
-		where: { org_id: orgId, users_id: userId },
-	});
-	if (!membership) throw new Error("User is not a member of this organization");
+// async function appendRolesToAssignment(orgId, userId, roleNames) {
+// 	const org = await models.Organization.findOne({ where: { id: orgId } });
+// 	if (!org) throw new Error("Organization not found");
+// 	const membership = await models.OrgMembership.findOne({
+// 		where: { org_id: orgId, users_id: userId },
+// 	});
+// 	if (!membership) throw new Error("User is not a member of this organization");
 
-	const roles = await models.Role.findAll({
-		where: { name: roleNames },
-	});
-	if (!roles.length) throw new Error("No valid roles provided");
+// 	const roles = await models.Role.findAll({
+// 		where: { name: roleNames },
+// 	});
+// 	if (!roles.length) throw new Error("No valid roles provided");
 
-	const roleEntries = roles.map((role) => ({
-		assignment_id: membership.assignment_id,
-		role_id: role.id,
-	}));
+// 	const roleEntries = roles.map((role) => ({
+// 		assignment_id: membership.assignment_id,
+// 		role_id: role.id,
+// 	}));
 
-	await models.OrgRole.bulkCreate(roleEntries, { ignoreDuplicates: true });
+// 	await models.OrgRole.bulkCreate(roleEntries, { ignoreDuplicates: true });
 
-	return await membership.getAssignedRoles();
-}
+// 	return await membership.getAssignedRoles();
+// }
 
 async function setRolesForAssignment(orgId, userId, roleNames) {
 	const org = await models.Organization.findOne({ where: { id: orgId } });
@@ -152,7 +152,7 @@ async function removeRolesFromUser(orgId, userId, roleNames) {
 }
 
 export default {
-	appendRolesToAssignment,
+	// appendRolesToAssignment,
 	setRolesForAssignment,
 	getOrgUsers,
 	getOrgUserById,

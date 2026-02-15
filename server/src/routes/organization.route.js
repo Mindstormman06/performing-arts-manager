@@ -34,8 +34,8 @@ router.put("/:orgId/users/:userId/roles", orgMembershipController.addRoles);
 // GET all users in an organization
 router.get("/:orgId/users", orgMembershipController.getAllUsers);
 
-// GET all users with a specific role (usage: /api/organizations/1/users/search?role=admin)
-router.get("/:orgId/users/search", orgMembershipController.getByRole);
+// GET all users with a specific role (usage: /api/organizations/1/users/role?role=admin)
+router.get("/:orgId/users/role", orgMembershipController.getByRole);
 
 // GET a specific user by ID in an organization
 router.get("/:orgId/users/:userId", orgMembershipController.getUser);

@@ -11,7 +11,7 @@ async function addUserToShow(showId, userId) {
 	const existing = await models.ShowMembership.findOne({
 		where: { show_id: showId, users_id: userId },
 	});
-	if (existing) throw new Error("User already in showanization");
+	if (existing) throw new Error("User already in show");
 
 	// Create membership without any roles in the second join table
 	return await models.ShowMembership.create({

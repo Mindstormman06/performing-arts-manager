@@ -212,10 +212,10 @@ models.Role.belongsToMany(models.ShowMembership, {
 	otherKey: "assignment_id",
 });
 
-Object.values(models).forEach((model) => {
-	if (typeof model.associate === "function") {
-		model.associate(models);
-	}
-});
+// Object.values(models).forEach((model) => {
+// 	if (typeof model.associate === "function") {
+// 		model.associate(models);
+// 	}
+// });
 
 export default models;
