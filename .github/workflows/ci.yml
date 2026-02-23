@@ -24,6 +24,11 @@ jobs:
         working-directory: ./server
         run: npm install
 
+      - name: Create Report Directory
+        working-directory: ./server
+        run: mkdir -p ./linting-reports
+
+
       # 1. Biome Check
       - name: Run Biome
         working-directory: ./server
@@ -128,6 +133,10 @@ jobs:
       - name: Install dependencies
         working-directory: ./client
         run: npm install
+
+      - name: Create Report Directory
+        working-directory: ./server
+        run: mkdir -p ./linting-reports
 
       # 1. Biome Check
       - name: Run Biome
