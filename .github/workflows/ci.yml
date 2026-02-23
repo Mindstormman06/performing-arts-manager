@@ -135,7 +135,7 @@ jobs:
         run: npm install
 
       - name: Create Report Directory
-        working-directory: ./server
+        working-directory: ./client
         run: mkdir -p ./linting-reports
 
       # 1. Biome Check
