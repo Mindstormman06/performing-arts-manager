@@ -26,3 +26,17 @@ When setting up my repository, I used Jest for my small amount of initial testin
 
 In my case, I decided to switch to vitest as I am using Vite on my frontend, ESM on my backend, and it is fully compatible with my existing Jest tests.
 
+## SCA
+The two SCA tools I've found are [OWASP Dependency Check](https://owasp.org/www-project-dependency-check/) and [Retire.js](https://github.com/RetireJS/retire.js). OWASP DC is a very heavy tool that supports a wide variety of languages, where Retire.js is more lightweight and built specifically for Javascript.
+
+| Key | OWASP DC | Retire.js |
+| --- | --- | --- |
+| **Speed** | Slow. Runs very thorough testing. Downloads full vuln database | Much faster, very lightweight |
+| **Scope** | Java, .NET, Ruby, Node.js, Python | Javascript |
+| **Integration** | Seperate tool, requires Java | Node Modules |
+
+I will be going with **Retire.js**, as OSWASP DC seems like it would be overkill for this project, and the simplicity of Retire is quite appealing.
+
+## SAST
+
+
