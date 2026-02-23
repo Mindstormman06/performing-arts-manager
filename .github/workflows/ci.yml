@@ -27,12 +27,20 @@ jobs:
       # 1. Biome Check
       - name: Run Biome
         working-directory: ./server
-        run: npx @biomejs/biome ci .
+        run: npx @biomejs/biome ci . > ./linting-reports/biome-report.txt
 
       # 2. ESLint Check
       - name: Run ESLint
         working-directory: ./server
-        run: npx eslint .
+        run: npx eslint . -f json -o ./linting-reports/eslint-report.json
+
+      - name: Upload Linting Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-lint-reports
+          path: ./server/linting-reports/
+          retention-days: 28
 
   test-server:
     # Only run on successful lint
@@ -67,6 +75,13 @@ jobs:
           DB_DIALECT: ${{ secrets.DB_DIALECT }}
           DB_SSL: ${{ secrets.DB_SSL }}
 
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-coverage-report
+          path: ./server/coverage/
+          retention-days: 28
+
   server-security:
     runs-on: ubuntu-latest
     needs: lint-and-format-server
@@ -87,7 +102,15 @@ jobs:
 
       - name: Run Retire (SCA)
         working-directory: ./server
-        run: npm run retire
+        run: npm run retire > retire-output.txt
+
+      - name: Upload Security Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-security-report
+          path: ./server/retire-output.txt
+          retention-days: 28
 
   lint-and-format-client:
     runs-on: ubuntu-latest
@@ -109,9 +132,18 @@ jobs:
       # 1. Biome Check
       - name: Run Biome
         working-directory: ./client
-        run: npx @biomejs/biome ci .
+        run: npx @biomejs/biome ci . > ./linting-reports/biome-report.txt
+
 
       # 2. ESLint Check
       - name: Run ESLint
         working-directory: ./client
-        run: npx eslint .
+        run: npx eslint . -f json -o ./linting-reports/eslint-report.json
+
+      - name: Upload Linting Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: client-lint-reports
+          path: ./client/linting-reports/
+          retention-days: 28

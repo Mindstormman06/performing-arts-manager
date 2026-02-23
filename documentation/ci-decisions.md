@@ -37,6 +37,4 @@ The two SCA tools I've found are [OWASP Dependency Check](https://owasp.org/www-
 
 I will be going with **Retire.js**, as OSWASP DC seems like it would be overkill for this project, and the simplicity of Retire is quite appealing.
 
-## SAST
-
 
