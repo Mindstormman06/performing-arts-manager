@@ -17,6 +17,7 @@
 	"license": "MIT",
 	"type": "module",
 	"dependencies": {
+		"@biomejs/biome": "^2.4.4",
 		"bcryptjs": "^3.0.3",
 		"cors": "^2.8.5",
 		"cross-env": "^10.1.0",
