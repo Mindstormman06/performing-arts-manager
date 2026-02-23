@@ -149,6 +149,32 @@ jobs:
           retention-days: 28
 
 
+  deploy-docker:
+    runs-on: ubuntu-latest
+    needs: build-server
+    steps:
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v7.8.0
+        with:
+          name: server-build
+          path: ./server-deploy
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3.12.0
+
+      - name: Build Docker Image
+        uses: docker/build-push-action@v6.19.2
+        with:
+          context: ./server-deploy
+          tags: performing-arts-manager:latest
+          push: false
+          load: true
+
+      - name: Verify Image
+        run: docker images | grep performing-arts-manager
+
+
+
   lint-and-format-client:
     runs-on: ubuntu-latest
     steps:
