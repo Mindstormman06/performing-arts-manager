@@ -87,7 +87,7 @@ jobs:
 
       - name: Run Retire (SCA)
         working-directory: ./server
-        run: retire
+        run: npm run retire
 
   lint-and-format-client:
     runs-on: ubuntu-latest
