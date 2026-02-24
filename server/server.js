@@ -14,8 +14,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-Intentionally fail pipeline!
-
 /* v8 ignore start */
 if (process.env.NODE_ENV !== "test") {
 	sequelize
