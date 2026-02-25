@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { updateOrganizationUserRoles } from "../services/api";
 
 export default function RoleModal({ isOpen, onClose, onSuccess, orgId, user }) {
@@ -12,9 +12,14 @@ export default function RoleModal({ isOpen, onClose, onSuccess, orgId, user }) {
 		"sets",
 		"tech",
 	];
-	const [selectedRoles, setSelectedRoles] = useState(
-		() => user?.assignedRoles?.map((r) => r.name) || [],
-	);
+	
+	const [selectedRoles, setSelectedRoles] = useState([]);
+
+	useEffect(() => {
+		if (isOpen && user) {
+			setSelectedRoles(user.assignedRoles?.map((r) => r.name) || []);
+		}
+	}, [isOpen, user]);
 
 	if (!isOpen) return null;
 
