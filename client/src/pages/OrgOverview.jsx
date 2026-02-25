@@ -4,11 +4,12 @@ import EditOrgModal from "../components/EditOrgModal";
 import FullMembersModal from "../components/FullMembersModal";
 import InviteMemberModal from "../components/InviteMemberModal";
 import RoleModal from "../components/OrgRoleModal";
+import CreateShowModal from "../components/CreateShowModal";
 import {
 	deleteOrganization,
 	getOrganization,
 	getOrganizationUsers,
-	getShows,
+	getOrgShows,
 } from "../services/api";
 
 export default function OrgOverview() {
@@ -26,6 +27,8 @@ export default function OrgOverview() {
 	const [isFullMembersModalOpen, setIsFullMembersModalOpen] = useState(false);
 	const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
 	const [selectedUser, setSelectedUser] = useState(null);
+	const [isCreateShowModalOpen, setIsCreateShowModalOpen] = useState(false);
+
 
 	const fetchData = useCallback(async () => {
 		try {
@@ -33,7 +36,7 @@ export default function OrgOverview() {
 			const [orgRes, usersRes, showsRes] = await Promise.all([
 				getOrganization(orgId),
 				getOrganizationUsers(orgId),
-				getShows(orgId),
+				getOrgShows(orgId),
 			]);
 			setOrganization(orgRes.data);
 			setMembers(usersRes.data);
@@ -115,6 +118,12 @@ export default function OrgOverview() {
 				orgId={orgId}
 				onSuccess={fetchData}
 			/>
+			<CreateShowModal
+				isOpen={isCreateShowModalOpen}
+				onClose={() => setIsCreateShowModalOpen(false)}
+				onSuccess={fetchData}
+				orgId={orgId}
+			/>
 
 			{/* Dashboard Container */}
 			<div className="flex flex-1 flex-col overflow-hidden rounded-2xl bg-white shadow-xl ring-1 ring-gray-200">
@@ -159,7 +168,7 @@ export default function OrgOverview() {
 							<button
 								type="button"
 								onClick={() => {
-									/* TODO: Open Create Show Modal */
+									setIsCreateShowModalOpen(true);
 								}}
 								className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-blue-100 pb-1 font-bold text-blue-600 text-xl transition-colors hover:bg-blue-200"
 								title="Add New Show"
@@ -178,10 +187,10 @@ export default function OrgOverview() {
 											className="cursor-pointer rounded-lg border border-gray-100 bg-white p-5 shadow-sm transition-all hover:border-blue-300 hover:shadow-md"
 										>
 											<h3 className="font-bold text-gray-900 text-lg">
-												{show.name}
+												{show.title}
 											</h3>
-											<p className="mt-1 text-gray-500 text-sm">
-												Dates: {show.dates}
+											<p className="mt-1 text-sm text-gray-500">
+												{new Date(show.start_date).toLocaleDateString()} - {new Date(show.end_date).toLocaleDateString()}
 											</p>
 										</div>
 									))

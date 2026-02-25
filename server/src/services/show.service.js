@@ -2,8 +2,9 @@ import models from "../models/index.js";
 
 const { Show } = models;
 
-async function getAll() {
-	const shows = await Show.findAll();
+async function getAll(orgId) {
+	const whereClause = orgId ? { org_id: orgId } : {}; 
+    const shows = await Show.findAll({ where: whereClause });
 	return shows;
 }
 
@@ -13,6 +14,14 @@ async function getById(id) {
 		throw new Error("Show not found");
 	}
 	return show;
+}
+
+async function getByOrg(orgId) {
+	const shows = await Show.findAll({ where: { org_id: orgId } });
+	if (!show) {
+		throw new Error("No shows found for this organization");
+	}
+	return shows;
 }
 
 async function create(data) {

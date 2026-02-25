@@ -12,8 +12,11 @@ API.interceptors.request.use((config) => {
 	return config;
 });
 
+// Authentication
 export const login = (credentials) => API.post("/auth/login", credentials);
 export const signup = (userData) => API.post("/users", userData);
+
+// Organizations
 export const getOrganizations = () => API.get("/orgs");
 export const getOrganization = (id) => API.get(`/orgs/${id}`);
 export const createOrganization = (orgData) => API.post("/orgs", orgData);
@@ -30,4 +33,23 @@ export const removeUserFromOrganization = (orgId, userId) =>
 export const respondToInvite = (orgId, action) =>
 	API.put(`/orgs/${orgId}/respond`, { action });
 export const getMyOrganizations = () => API.get("/orgs/my");
+
+// Shows
 export const getShows = () => API.get("/shows");
+export const getOrgShows = (orgId) => API.get(`/shows?org=${orgId}`);
+export const getShow = (id) => API.get(`/shows/${id}`);
+export const createShow = (showData) => API.post("/shows", showData);
+export const updateShow = (id, showData) => API.put(`/shows/${id}`, showData);
+export const deleteShow = (id) => API.delete(`/shows/${id}`);
+export const joinShow = (showId) => API.post(`/shows/${showId}/join`);
+export const updateShowUserRoles = (showId, userId, roles) =>
+	API.put(`/shows/${showId}/users/${userId}/roles`, { roles });
+export const getShowUsers = (showId) => API.get(`/shows/${showId}/users`);
+export const searchShowUsers = (showId, role) =>
+	API.get(`/shows/${showId}/users/search?role=${role}`);
+export const getShowUser = (showId, userId) =>
+	API.get(`/shows/${showId}/users/${userId}`);
+export const removeUserFromShow = (showId, userId) =>
+	API.delete(`/shows/${showId}/users/${userId}`);
+export const removeShowUserRole = (showId, userId, roles) =>
+	API.delete(`/shows/${showId}/users/${userId}/roles`, { roles });
