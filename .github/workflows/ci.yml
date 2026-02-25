@@ -232,7 +232,7 @@ jobs:
       # Biome Check
       - name: Run Biome
         working-directory: ./client
-        run: npx @biomejs/biome ci . > ./linting-reports/biome-report.txt
+        run: npm run biome > ./linting-reports/biome-report.txt
 
 
       # ESLint Check
