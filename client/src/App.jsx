@@ -4,8 +4,8 @@ import { useAuth } from "./hooks/useAuth.js";
 import LoginPage from "./pages/Login.jsx";
 import OrgDashboard from "./pages/OrgDashboard.jsx";
 import SignupPage from "./pages/Signup.jsx";
-import UserManagement from "./pages/UserManagement.jsx";
 import "./assets/styles.css";
+import OrgOverview from "./pages/OrgOverview.jsx";
 
 function App() {
 	const { token, logout } = useAuth();
@@ -82,10 +82,10 @@ function App() {
 						}
 					/>
 					<Route
-						path="/orgs/:orgId/users"
+						path="/orgs/:orgId/overview"
 						element={
 							<PrivateRoute>
-								<UserManagement />
+								<OrgOverview />
 							</PrivateRoute>
 						}
 					/>

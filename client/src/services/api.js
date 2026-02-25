@@ -15,6 +15,7 @@ API.interceptors.request.use((config) => {
 export const login = (credentials) => API.post("/auth/login", credentials);
 export const signup = (userData) => API.post("/users", userData);
 export const getOrganizations = () => API.get("/orgs");
+export const getOrganization = (id) => API.get(`/orgs/${id}`);
 export const createOrganization = (orgData) => API.post("/orgs", orgData);
 export const updateOrganization = (id, orgData) =>
 	API.put(`/orgs/${id}`, orgData);
@@ -29,3 +30,4 @@ export const removeUserFromOrganization = (orgId, userId) =>
 export const respondToInvite = (orgId, action) =>
 	API.put(`/orgs/${orgId}/respond`, { action });
 export const getMyOrganizations = () => API.get("/orgs/my");
+export const getShows = () => API.get("/shows");

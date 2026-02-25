@@ -2,7 +2,8 @@ import { useState } from "react";
 import { updateOrganizationUserRoles } from "../services/api";
 
 export default function RoleModal({ isOpen, onClose, onSuccess, orgId, user }) {
-	// List of roles available in your system
+	const [loading, setLoading] = useState(false);
+
 	const availableRoles = [
 		"admin",
 		"board-member",
@@ -24,6 +25,7 @@ export default function RoleModal({ isOpen, onClose, onSuccess, orgId, user }) {
 	};
 
 	const handleSave = async () => {
+		setLoading(true);
 		try {
 			const hiddenRoles =
 				user?.assignedRoles
@@ -39,6 +41,8 @@ export default function RoleModal({ isOpen, onClose, onSuccess, orgId, user }) {
 			alert(
 				`Failed to update roles: ${err.response?.data?.message || err.message}`,
 			);
+		} finally {
+			setLoading(false);
 		}
 	};
 
@@ -76,9 +80,10 @@ export default function RoleModal({ isOpen, onClose, onSuccess, orgId, user }) {
 					<button
 						onClick={handleSave}
 						type="button"
+						disabled={loading}
 						className="cursor-pointer rounded bg-blue-600 px-4 py-1 text-white hover:bg-blue-700"
 					>
-						Save
+						{loading ? "Saving..." : "Save"}
 					</button>
 				</div>
 			</div>

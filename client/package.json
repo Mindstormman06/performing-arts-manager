@@ -7,9 +7,13 @@
 		"dev": "vite",
 		"build": "vite build",
 		"lint": "eslint .",
-		"preview": "vite preview"
+		"preview": "vite preview",
+		"biome": "npx @biomejs/biome check",
+		"biome-fix": "npx @biomejs/biome check --fix",
+		"biome-fix-unsafe": "npx @biomejs/biome check --fix --unsafe"
 	},
 	"dependencies": {
+		"@biomejs/biome": "^2.4.4",
 		"@tailwindcss/vite": "^4.1.18",
 		"axios": "^1.13.5",
 		"react": "^19.2.0",
