@@ -11,6 +11,7 @@ import {
 	getOrganizationUsers,
 	getOrgShows,
 } from "../services/api";
+import { IconButton } from "../components/ui/IconButton";
 
 export default function OrgOverview() {
 	const { orgId } = useParams();
@@ -165,16 +166,13 @@ export default function OrgOverview() {
 					<section className="flex flex-1 flex-col">
 						<div className="mb-4 flex items-center justify-between">
 							<h2 className="font-bold text-2xl text-gray-800">Shows</h2>
-							<button
-								type="button"
+							<IconButton
 								onClick={() => {
 									setIsCreateShowModalOpen(true);
 								}}
-								className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-blue-100 pb-1 font-bold text-blue-600 text-xl transition-colors hover:bg-blue-200"
 								title="Add New Show"
-							>
-								+
-							</button>
+								variant="blue"
+							/>
 						</div>
 
 						{/* Shows Grid */}
@@ -218,14 +216,11 @@ export default function OrgOverview() {
 									Members
 								</button>
 							</h2>
-							<button
-								type="button"
+							<IconButton
 								onClick={() => setIsInviteModalOpen(true)}
-								className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-blue-100 pb-1 font-bold text-blue-600 text-xl transition-colors hover:bg-blue-200"
 								title="Invite New Member"
-							>
-								+
-							</button>
+								variant="blue"
+							/>
 						</div>
 
 						{/* Members List */}
