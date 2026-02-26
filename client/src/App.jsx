@@ -6,6 +6,8 @@ import OrgDashboard from "./pages/OrgDashboard.jsx";
 import SignupPage from "./pages/Signup.jsx";
 import "./assets/styles.css";
 import OrgOverview from "./pages/OrgOverview.jsx";
+import { useEffect } from "react";
+import { verifyToken } from "./services/api.js";
 
 function App() {
 	const { token, logout } = useAuth();
@@ -14,6 +16,24 @@ function App() {
 	// Check if current route should be centered (login/signup)
 	const shouldCenter =
 		location.pathname === "/login" || location.pathname === "/signup";
+
+	useEffect(() => {
+		const validateSession = async () => {
+			if (token) {
+				try {
+					await verifyToken();
+				} catch (error) {
+					// ONLY log out if the token is explicitly rejected (401)
+					if (error.response && error.response.status === 401) {
+						console.warn("Session invalid or user no longer exists. Logging out.");
+						logout();
+					}
+				}
+			}
+		};
+
+		validateSession();
+	}, [token, logout]);
 
 	return (
 		<div className="flex min-h-screen flex-col">

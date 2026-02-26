@@ -19,7 +19,7 @@ export const authenticate = (req, res, next) => {
 		next();
 	} catch (error) {
 		res
-			.status(400)
+			.status(401)
 			.json({ success: false, message: `Invalid token: ${error.message}` });
 	}
 };

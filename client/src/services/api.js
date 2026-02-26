@@ -12,9 +12,25 @@ API.interceptors.request.use((config) => {
 	return config;
 });
 
+API.interceptors.response.use(
+	(response) => response,
+	(error) => {
+		if (error.response && error.response.status === 401) {
+			// Safely check if the URL contains the login path
+			if (!error.config?.url?.includes("/auth/login")) {
+				console.warn("Unauthorized! Clearing session and redirecting...");
+				localStorage.removeItem("token");
+				window.location.href = "/login";
+			}
+		}
+		return Promise.reject(error);
+	}
+);
+
 // Authentication
 export const login = (credentials) => API.post("/auth/login", credentials);
 export const signup = (userData) => API.post("/users", userData);
+export const verifyToken = () => API.get("/auth/verify");
 
 // Organizations
 export const getOrganizations = () => API.get("/orgs");

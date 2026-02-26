@@ -11,7 +11,10 @@ import {
 	getOrganizationUsers,
 	getOrgShows,
 } from "../services/api";
-import { IconButton } from "../components/ui/IconButton";
+import OrgHeader from "../components/ui/organizations/OrgHeader";
+import ShowCard from "../components/ui/shows/ShowCard";
+import DashboardSection from "../components/ui/DashboardSection";
+import MemberListItem from "../components/ui/users/MemberListItem";
 
 export default function OrgOverview() {
 	const { orgId } = useParams();
@@ -83,6 +86,9 @@ export default function OrgOverview() {
 	}
 
 	const activeMembers = members.filter((m) => m.status === "active");
+	const displayMembers = members.filter((m) => 
+		m.status === "active" || m.status === "pending"
+	);
 	const president = activeMembers.find((m) =>
 		m.assignedRoles?.some((role) => role.name === "president"),
 	);
@@ -129,126 +135,53 @@ export default function OrgOverview() {
 			{/* Dashboard Container */}
 			<div className="flex flex-1 flex-col overflow-hidden rounded-2xl bg-white shadow-xl ring-1 ring-gray-200">
 				{/* Header Section */}
-				<header className="flex items-start justify-between border-gray-200 border-b bg-gray-50 px-8 py-6">
-					<div>
-						<h1 className="font-extrabold text-5xl text-gray-900 tracking-tight">
-							{organization?.name || "Loading..."}
-						</h1>
-						<p className="mt-2 font-medium text-gray-500 text-lg">
-							President: <span className="text-gray-800">{presidentName}</span>
-						</p>
-					</div>
-
-					{/* Actions */}
-					<div className="flex space-x-2">
-						<button
-							type="button"
-							onClick={() => setIsEditOrgModalOpen(true)}
-							className="rounded-lg p-2 text-gray-400 text-xl transition-colors hover:bg-blue-50 hover:text-blue-600"
-							title="Edit Organization"
-						>
-							✏️
-						</button>
-						<button
-							type="button"
-							onClick={handleDeleteOrg}
-							className="rounded-lg p-2 text-gray-400 text-xl transition-colors hover:bg-red-50 hover:text-red-600"
-							title="Delete Organization"
-						>
-							🗑️
-						</button>
-					</div>
-				</header>
+				<OrgHeader 
+					name={organization?.name}
+					presidentName={presidentName}
+					onEdit={() => setIsEditOrgModalOpen(true)}
+					onDelete={handleDeleteOrg}
+				/>
 
 				{/* Main Content Layout */}
 				<div className="flex flex-1 flex-col gap-8 p-8 md:flex-row">
 					{/* Left Column: Shows */}
-					<section className="flex flex-1 flex-col">
-						<div className="mb-4 flex items-center justify-between">
-							<h2 className="font-bold text-2xl text-gray-800">Shows</h2>
-							<IconButton
-								onClick={() => {
-									setIsCreateShowModalOpen(true);
-								}}
-								title="Add New Show"
-								colour="blue"
-							/>
+					<DashboardSection
+						title="Shows"
+						actionTitle="Add New Show"
+						onActionClick={() => setIsCreateShowModalOpen(true)}
+						className="flex-1"
+					>
+						<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+							{shows.length > 0 ? (
+								shows.map((show) => <ShowCard key={show.id} show={show} />)
+							) : (
+								<EmptyState message="No shows created yet." />
+							)}
 						</div>
-
-						{/* Shows Grid */}
-						<div className="min-h-75 flex-1 overflow-y-auto rounded-xl border border-gray-200 bg-gray-50 p-6">
-							<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-								{shows.length > 0 ? (
-									shows.map((show) => (
-										<div
-											key={show.id}
-											className="cursor-pointer rounded-lg border border-gray-100 bg-white p-5 shadow-sm transition-all hover:border-blue-300 hover:shadow-md"
-										>
-											<h3 className="font-bold text-gray-900 text-lg">
-												{show.title}
-											</h3>
-											<p className="mt-1 text-sm text-gray-500">
-												{new Date(show.start_date).toLocaleDateString()} - {new Date(show.end_date).toLocaleDateString()}
-											</p>
-										</div>
-									))
-								) : (
-									<div className="col-span-full flex h-32 items-center justify-center rounded-lg border-2 border-gray-300 border-dashed">
-										<p className="text-gray-500 italic">
-											No shows created yet.
-										</p>
-									</div>
-								)}
-							</div>
-						</div>
-					</section>
+					</DashboardSection>
 
 					{/* Right Column: Members */}
-					<section className="flex w-full flex-col md:w-72 lg:w-80">
-						<div className="mb-4 flex items-center justify-between">
-							<h2 className="font-bold text-2xl text-gray-800">
-								<button
-									type="button"
-									className="cursor-pointer rounded outline-none transition-colors hover:text-blue-600 hover:underline focus-visible:ring-2 focus-visible:ring-blue-500"
-									onClick={() => setIsFullMembersModalOpen(true)}
-									title="View all members and roles"
-								>
-									Members
-								</button>
-							</h2>
-							<IconButton
-								onClick={() => setIsInviteModalOpen(true)}
-								title="Invite New Member"
-								colour="blue"
-							/>
-						</div>
-
-						{/* Members List */}
-						<div className="min-h-75 flex-1 overflow-y-auto rounded-xl border border-gray-200 bg-gray-50 p-4">
-							<ul className="space-y-3">
-								{activeMembers.map((m) => (
-									<li key={m.assignment_id}>
-										<button
-											type="button"
-											className="flex w-full cursor-pointer items-center rounded-lg border border-gray-100 bg-white px-4 py-3 text-left font-medium text-gray-700 shadow-sm transition-all hover:border-blue-300 hover:shadow-md focus:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-											onClick={() => {
-												setSelectedUser(m);
-												setIsRoleModalOpen(true);
-											}}
-										>
-											<div className="mr-3 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 font-bold text-indigo-700 text-sm">
-												{m.User?.fname?.charAt(0)}
-												{m.User?.lname?.charAt(0)}
-											</div>
-											<span className="truncate">
-												{m.User?.fname} {m.User?.lname}
-											</span>
-										</button>
-									</li>
-								))}
-							</ul>
-						</div>
-					</section>
+					<DashboardSection
+						title="Members"
+						actionTitle="Invite New Member"
+						onActionClick={() => setIsInviteModalOpen(true)}
+						isTitleClickable={true}
+						onTitleClick={() => setIsFullMembersModalOpen(true)}
+						className="w-full md:w-72 lg:w-80"
+					>
+						<ul className="space-y-3">
+							{displayMembers.map((m) => (
+								<MemberListItem 
+									key={m.assignment_id} 
+									member={m} 
+									onClick={() => {
+										setSelectedUser(m);
+										setIsRoleModalOpen(true);
+									}}
+								/>
+							))}
+						</ul>
+					</DashboardSection>
 				</div>
 			</div>
 		</div>
