@@ -8,7 +8,7 @@ async function appendRolesToAssignment(showId, userId, roleNames) {
 	});
 	if (!membership) throw new Error("User is not a member of this show");
 
-	const roles = await models.Role.findAll({
+	const roles = await models.ShowRole.findAll({
 		where: { name: roleNames },
 	});
 	if (!roles.length) throw new Error("No valid roles provided");
@@ -31,7 +31,7 @@ async function getShowUsers(showId) {
 		where: { show_id: showId },
 		include: [
 			{ model: models.User },
-			{ model: models.Role, as: "assignedRoles" },
+			{ model: models.ShowRole, as: "assignedRoles" },
 		],
 	});
 	if (!memberships.length) throw new Error("No users found for this show");
@@ -46,7 +46,7 @@ async function getShowUserById(showId, userId) {
 		where: { show_id: showId, users_id: userId },
 		include: [
 			{ model: models.User },
-			{ model: models.Role, as: "assignedRoles" },
+			{ model: models.ShowRole, as: "assignedRoles" },
 		],
 	});
 	if (!membership) throw new Error("User not found in this show");
@@ -57,7 +57,7 @@ async function getUsersByRole(showId, roleName) {
 	const show = await models.Show.findOne({ where: { id: showId } });
 	if (!show) throw new Error("Show not found");
 
-	const role = await models.Role.findOne({ where: { name: roleName } });
+	const role = await models.ShowRole.findOne({ where: { name: roleName } });
 	if (!role) throw new Error("Role not found");
 
 	return await models.User.findAll({
@@ -67,7 +67,7 @@ async function getUsersByRole(showId, roleName) {
 				where: { show_id: showId },
 				include: [
 					{
-						model: models.Role,
+						model: models.ShowRole,
 						as: "assignedRoles",
 						where: { name: roleName }, // Filter by role name here
 					},
@@ -98,7 +98,7 @@ async function removeRolesFromUser(showId, userId, roleNames) {
 		where: { show_id: showId, users_id: userId },
 	});
 
-	const roles = await models.Role.findAll({
+	const roles = await models.ShowRole.findAll({
 		where: { name: namesArray },
 	});
 

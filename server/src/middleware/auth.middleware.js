@@ -43,7 +43,7 @@ export const authorizeOrg = (requiredRoles = []) => {
 
 		const membership = await models.OrgMembership.findOne({
 			where: { org_id: orgId, users_id: userId },
-			include: [{ model: models.Role, as: "assignedRoles" }],
+			include: [{ model: models.OrganizationRole, as: "assignedRoles" }],
 		});
 
 		if (!membership) {
@@ -77,7 +77,7 @@ export const authorizeShow = (requiredRoles = []) => {
 
 		const membership = await models.ShowMembership.findOne({
 			where: { show_id: showId, users_id: userId },
-			include: [{ model: models.Role, as: "assignedRoles" }],
+			include: [{ model: models.ShowRole, as: "assignedRoles" }],
 		});
 
 		if (!membership) {

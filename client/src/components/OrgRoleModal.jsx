@@ -6,12 +6,11 @@ export default function RoleModal({ isOpen, onClose, onSuccess, orgId, user }) {
 	const [loading, setLoading] = useState(false);
 
 	const availableRoles = [
-		"admin",
 		"board-member",
 		"costumes",
 		"props",
 		"sets",
-		"tech",
+		"tech"
 	];
 	
 	const [selectedRoles, setSelectedRoles] = useState([]);

@@ -22,7 +22,7 @@ async function create(data) {
 	try {
 		const newOrg = await Organization.create(data, { transaction: t });
 
-		const presidentRole = await models.Role.findOne({
+		const presidentRole = await models.OrganizationRole.findOne({
 			where: { name: "president" },
 			transaction: t,
 		});

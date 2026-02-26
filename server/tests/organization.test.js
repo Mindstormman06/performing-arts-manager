@@ -792,7 +792,7 @@ describe("Organization API & Permissions", () => {
 
 			it("create - should throw 'President role not found' (Line 30)", async () => {
 				// Intercept the Role lookup and pretend the 'president' role doesn't exist in the DB
-				const spy = vi.spyOn(models.Role, "findOne").mockResolvedValue(null);
+				const spy = vi.spyOn(models.OrganizationRole, "findOne").mockResolvedValue(null);
 
 				await expect(
 					organizationService.create({

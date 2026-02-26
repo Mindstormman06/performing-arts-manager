@@ -14,18 +14,31 @@ export const setupTestDatabase = async () => {
 		await sequelize.sync({ force: true });
 
 		// Seed all required roles necessary for the multi-tenant logic
-		const roles = [
-			"admin",
-			"president",
-			"actor",
-			"lead",
-			"director",
-			"stage-manager",
+		const orgRoles = [
+			"president", // Org
+			"board-member", // Org
+			"costumes", // Both
+			"props", // Both
+			"sets", // Both
+			"tech", // Both
+		];
+		const showRoles = [
+		    "director", // Show
+			"stage-manager", // Show
+			"actor", // Show
+			"stagehand", // Show
+			"costumes", // Both
+			"props", // Both
+			"sets", // Both
+			"tech", // Both
 		];
 
 		// Insert each role into the database if it doesn't already exist
-		for (const roleName of roles) {
-			await models.Role.findOrCreate({ where: { name: roleName } });
+		for (const roleName of orgRoles) {
+			await models.OrganizationRole.findOrCreate({ where: { name: roleName } });
+		}
+		for (const roleName of showRoles) {
+			await models.ShowRole.findOrCreate({ where: { name: roleName } });
 		}
 	} catch (error) {
 		/* v8 ignore next */ console.error(
