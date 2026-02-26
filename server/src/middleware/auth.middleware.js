@@ -4,7 +4,7 @@ import models from "../models/index.js";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your_theatre_secret";
 
-export const authenticate = (req, res, next) => {
+export const authenticate = async (req, res, next) => {
 	const token = req.header("Authorization")?.replace("Bearer ", "");
 
 	if (!token) {
@@ -15,6 +15,15 @@ export const authenticate = (req, res, next) => {
 
 	try {
 		const decoded = jwt.verify(token, JWT_SECRET);
+
+		const user = await models.User.findByPk(decoded.id);
+		if (!user) {
+			return res.status(401).json({
+				success: false,
+				message: "User no longer exists. Please log in again.",
+			});
+		}
+
 		req.user = decoded;
 		next();
 	} catch (error) {

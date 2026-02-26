@@ -25,26 +25,36 @@ if (process.env.NODE_ENV !== "test") {
 		.catch((err) => console.error("Error syncing database:", err));
 
 	const seedRoles = async () => {
-		const { Role } = models;
-		const roles = [
-			"admin",
-			"president",
-			"board-member",
-			"costumes",
-			"props",
-			"sets",
-			"tech",
-			"director",
-			"stage-manager",
-			"actor",
-			"stagehand",
-			"lead",
+		const { OrganizationRole, ShowRole } = models;
+		const orgRoles = [
+			"president", // Org
+			"board-member", // Org
+			"costumes", // Both
+			"props", // Both
+			"sets", // Both
+			"tech", // Both
+		];
+		const showRoles = [
+		    "director", // Show
+			"stage-manager", // Show
+			"actor", // Show
+			"stagehand", // Show
+			"costumes", // Both
+			"props", // Both
+			"sets", // Both
+			"tech", // Both
 		];
 
-		for (const roleName of roles) {
-			const [created] = await Role.findOrCreate({ where: { name: roleName } });
+		for (const roleName of orgRoles) {
+			const [created] = await OrganizationRole.findOrCreate({ where: { name: roleName } });
 			if (created) {
-				console.log(`Created role: ${roleName}`);
+				console.log(`Created organization role: ${roleName}`);
+			}
+		}
+		for (const roleName of showRoles) {
+			const [created] = await ShowRole.findOrCreate({ where: { name: roleName } });
+			if (created) {
+				console.log(`Created show role: ${roleName}`);
 			}
 		}
 		console.log("Roles seeding complete");

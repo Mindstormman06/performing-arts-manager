@@ -155,7 +155,9 @@ export default function OrgOverview() {
 							{shows.length > 0 ? (
 								shows.map((show) => <ShowCard key={show.id} show={show} />)
 							) : (
-								<EmptyState message="No shows created yet." />
+								<div className="col-span-full flex h-32 items-center justify-center rounded-lg border-2 border-dashed border-gray-300">
+									<p className="italic text-gray-500">No shows created yet.</p>
+								</div>
 							)}
 						</div>
 					</DashboardSection>

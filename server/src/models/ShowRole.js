@@ -1,18 +1,21 @@
 export default (sequelize, DataTypes) => {
-	return sequelize.define(
-		"ShowRole",
+	const OrganizationRole = sequelize.define(
+		"OrganizationRole",
 		{
-			assignment_id: {
+			id: {
 				type: DataTypes.INTEGER,
-				primaryKey: true, // Part of composite key
-				references: { model: "show_has_users", key: "assignment_id" },
+				autoIncrement: true,
+				primaryKey: true,
 			},
-			role_id: {
-				type: DataTypes.INTEGER,
-				primaryKey: true, // Part of composite key
-				references: { model: "roles", key: "id" },
+			name: {
+				type: DataTypes.STRING(100),
+				allowNull: false,
 			},
 		},
-		{ tableName: "show_assignment_has_roles", timestamps: false },
+		{
+			tableName: "roles",
+		},
 	);
+
+	return OrganizationRole;
 };

@@ -11,21 +11,22 @@ import LayoutModel from "./Layout.js";
 import LightingPlotModel from "./LightingPlot.js";
 import NoteModel from "./Note.js";
 import OrganizationModel from "./Organization.js";
+import OrganizationRoleModel from "./OrganizationRole.js";
 import OrgMembershipModel from "./OrgMembership.js";
-import OrgRoleModel from "./OrgRole.js";
-import RoleModel from "./Role.js";
+import OrgRoleRelationshipsModel from "./OrgRoleRelationships.js";
 import ScheduleModel from "./Schedule.js";
 import ShowModel from "./Show.js";
 import ShowInventoryModel from "./ShowInventory.js";
 import ShowMembershipModel from "./ShowMembership.js";
 import ShowRoleModel from "./ShowRole.js";
+import ShowRoleRelationshipsModel from "./ShowRoleRelationships.js";
 import StageObjectModel from "./StageObject.js";
 import UserModel from "./User.js";
 import UserScheduleModel from "./UserSchedule.js";
 
 const models = {
 	User: UserModel(sequelize, DataTypes),
-	Role: RoleModel(sequelize, DataTypes),
+	OrganizationRole: OrganizationRoleModel(sequelize, DataTypes),
 	Show: ShowModel(sequelize, DataTypes),
 	Schedule: ScheduleModel(sequelize, DataTypes),
 	Department: DepartmentModel(sequelize, DataTypes),
@@ -42,8 +43,9 @@ const models = {
 	UserSchedule: UserScheduleModel(sequelize, DataTypes),
 	Casting: CastingModel(sequelize, DataTypes),
 	OrgMembership: OrgMembershipModel(sequelize, DataTypes),
-	OrgRole: OrgRoleModel(sequelize, DataTypes),
+	OrgRoleRelationship: OrgRoleRelationshipsModel(sequelize, DataTypes),
 	ShowMembership: ShowMembershipModel(sequelize, DataTypes),
+	ShowRoleRelationship: ShowRoleRelationshipsModel(sequelize, DataTypes),
 	ShowRole: ShowRoleModel(sequelize, DataTypes),
 };
 
@@ -167,15 +169,15 @@ models.Organization.hasMany(models.OrgMembership, { foreignKey: "org_id" });
 models.OrgMembership.belongsTo(models.Organization, { foreignKey: "org_id" });
 
 // OrgMembership to Roles (Many-to-Many)
-models.OrgMembership.belongsToMany(models.Role, {
-	through: models.OrgRole,
+models.OrgMembership.belongsToMany(models.OrganizationRole, {
+	through: models.OrgRoleRelationship,
 	foreignKey: "assignment_id",
 	otherKey: "role_id",
 	as: "assignedRoles",
 });
 
-models.Role.belongsToMany(models.OrgMembership, {
-	through: models.OrgRole,
+models.OrganizationRole.belongsToMany(models.OrgMembership, {
+	through: models.OrgRoleRelationship,
 	foreignKey: "role_id",
 	otherKey: "assignment_id",
 });
@@ -198,16 +200,16 @@ models.ShowMembership.belongsTo(models.User, { foreignKey: "users_id" });
 models.Show.hasMany(models.ShowMembership, { foreignKey: "show_id" });
 models.ShowMembership.belongsTo(models.Show, { foreignKey: "show_id" });
 
-// OrgMembership to Roles (Many-to-Many)
-models.ShowMembership.belongsToMany(models.Role, {
-	through: models.ShowRole,
+// ShowMembership to Roles (Many-to-Many)
+models.ShowMembership.belongsToMany(models.ShowRole, {
+	through: models.ShowRoleRelationship,
 	foreignKey: "assignment_id",
 	otherKey: "role_id",
 	as: "assignedRoles",
 });
 
-models.Role.belongsToMany(models.ShowMembership, {
-	through: models.ShowRole,
+models.ShowRoleRelationship.belongsToMany(models.ShowMembership, {
+	through: models.ShowRoleRelationship,
 	foreignKey: "role_id",
 	otherKey: "assignment_id",
 });
