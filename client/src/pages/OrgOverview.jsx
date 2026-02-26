@@ -171,7 +171,7 @@ export default function OrgOverview() {
 									setIsCreateShowModalOpen(true);
 								}}
 								title="Add New Show"
-								variant="blue"
+								colour="blue"
 							/>
 						</div>
 
@@ -219,7 +219,7 @@ export default function OrgOverview() {
 							<IconButton
 								onClick={() => setIsInviteModalOpen(true)}
 								title="Invite New Member"
-								variant="blue"
+								colour="blue"
 							/>
 						</div>
 
