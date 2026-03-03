@@ -3,6 +3,7 @@ import models from "../models/index.js";
 async function appendRolesToAssignment(showId, userId, roleNames) {
 	const show = await models.Show.findOne({ where: { id: showId } });
 	if (!show) throw new Error("Show not found");
+	
 	const membership = await models.ShowMembership.findOne({
 		where: { show_id: showId, users_id: userId },
 	});
@@ -13,14 +14,14 @@ async function appendRolesToAssignment(showId, userId, roleNames) {
 	});
 	if (!roles.length) throw new Error("No valid roles provided");
 
-	const roleEntries = roles.map((role) => ({
-		assignment_id: membership.assignment_id,
-		role_id: role.id,
-	}));
+	await membership.addAssignedRoles(roles);
 
-	await models.ShowRole.bulkCreate(roleEntries, { ignoreDuplicates: true });
+	const updatedMembership = await models.ShowMembership.findOne({
+		where: { show_id: showId, users_id: userId },
+		include: [{ model: models.ShowRole, as: "assignedRoles" }],
+	});
 
-	return await membership.getAssignedRoles();
+	return updatedMembership.assignedRoles;
 }
 
 async function getShowUsers(showId) {
@@ -69,7 +70,7 @@ async function getUsersByRole(showId, roleName) {
 					{
 						model: models.ShowRole,
 						as: "assignedRoles",
-						where: { name: roleName }, // Filter by role name here
+						where: { name: roleName }, 
 					},
 				],
 			},
@@ -105,19 +106,9 @@ async function removeRolesFromUser(showId, userId, roleNames) {
 	if (!membership || !roles.length)
 		throw new Error("Membership or Roles not found");
 
-	const roleIds = roles.map((r) => r.id);
+	await membership.removeAssignedRoles(roles);
 
-	const deletedCount = await models.ShowRole.destroy({
-		where: {
-			assignment_id: membership.assignment_id,
-			role_id: roleIds,
-		},
-	});
-
-	if (deletedCount === 0)
-		throw new Error("User does not have any of these roles");
-
-	return { message: `${deletedCount} role(s) removed successfully` };
+	return { message: `Role(s) removed successfully` };
 }
 
 export default {

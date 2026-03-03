@@ -139,12 +139,8 @@ models.Casting.belongsTo(models.Show, { foreignKey: "show_id" });
 models.Casting.belongsTo(models.User, { foreignKey: "users_id" });
 
 // Organization to Departments (One-to-Many)
-models.Organization.hasMany(models.Department, {
-	foreignKey: "organization_id",
-});
-models.Department.belongsTo(models.Organization, {
-	foreignKey: "organization_id",
-});
+models.Organization.hasMany(models.Inventory, { foreignKey: "org_id" });
+models.Inventory.belongsTo(models.Organization, { foreignKey: "org_id" });
 
 // Organization to Shows (One-to-Many)
 models.Organization.hasMany(models.Show, { foreignKey: "organization_id" });
@@ -208,7 +204,7 @@ models.ShowMembership.belongsToMany(models.ShowRole, {
 	as: "assignedRoles",
 });
 
-models.ShowRoleRelationship.belongsToMany(models.ShowMembership, {
+models.ShowRole.belongsToMany(models.ShowMembership, {
 	through: models.ShowRoleRelationship,
 	foreignKey: "role_id",
 	otherKey: "assignment_id",

@@ -1,3 +1,5 @@
+import { Op } from "sequelize";
+
 import models from "../models/index.js";
 
 const { Show } = models;
@@ -47,10 +49,63 @@ async function remove(id) {
 	return { message: "Show deleted successfully" };
 }
 
+async function getDashboardSummary(showId) {
+	const show = await models.Show.findByPk(showId, {
+		include: [
+			{
+				model: models.ShowMembership,
+				include: [
+					{ model: models.User, attributes: ["id", "fname", "lname"] },
+					{ model: models.ShowRole, as: "assignedRoles" }
+				]
+			},
+			{
+				model: models.Schedule,
+				where: {
+					start_time: { [Op.gte]: new Date() } // Only get future events
+				},
+				limit: 5, // Just get the next 5 for the "Up Next" widget
+				order: [['start_time', 'ASC']],
+				required: false // Don't fail if there are no schedules yet
+			},
+			{
+				model: models.Budget,
+				required: false
+			},
+			{
+				model: models.Expense,
+				required: false
+			}
+		]
+	});
+
+	if (!show) {
+		throw new Error("Show not found");
+	}
+
+	// Calculate budget totals
+	const totalBudget = show.Budget ? show.Budget.amount : 0; // Assuming your Budget model has an 'amount' field
+	const totalSpent = show.Expenses ? show.Expenses.reduce((sum, exp) => sum + exp.amount, 0) : 0;
+
+	return {
+		id: show.id,
+		title: show.title,
+		start_date: show.start_date,
+		end_date: show.end_date,
+		members: show.ShowMemberships,
+		schedule: show.Schedules,
+		budget: {
+			total: totalBudget,
+			spent: totalSpent
+		}
+	};
+}
+
 export default {
 	getAll,
 	getById,
 	create,
 	update,
 	remove,
+	getDashboardSummary
 };

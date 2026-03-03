@@ -69,3 +69,18 @@ export const removeUserFromShow = (showId, userId) =>
 	API.delete(`/shows/${showId}/users/${userId}`);
 export const removeShowUserRole = (showId, userId, roles) =>
 	API.delete(`/shows/${showId}/users/${userId}/roles`, { roles });
+export const getShowDashboard = (id) => API.get(`/shows/${id}/dashboard`);
+
+// --- Inventory ---
+export const getDepartments = () => API.get("/inventory/departments");
+
+// Global Org Inventory
+export const getGlobalInventory = (orgId) => API.get(`/inventory/orgs/${orgId}`);
+export const createGlobalInventoryItem = (orgId, data) => API.post(`/inventory/orgs/${orgId}`, data);
+export const deleteGlobalInventoryItem = (orgId, itemId) => API.delete(`/inventory/orgs/${orgId}/items/${itemId}`);
+
+// Show Inventory
+export const getShowInventory = (showId) => API.get(`/inventory/shows/${showId}`);
+export const createShowItem = (showId, data) => API.post(`/inventory/shows/${showId}`, data);
+export const pullGlobalItemToShow = (showId, itemId) => API.post(`/inventory/shows/${showId}/pull/${itemId}`);
+export const removeShowItem = (showId, itemId) => API.delete(`/inventory/shows/${showId}/items/${itemId}`);

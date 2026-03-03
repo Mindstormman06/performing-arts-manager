@@ -1,6 +1,6 @@
 export default (sequelize, DataTypes) => {
 	const OrganizationRole = sequelize.define(
-		"OrganizationRole",
+		"ShowRole",
 		{
 			id: {
 				type: DataTypes.INTEGER,

@@ -6,8 +6,11 @@ import OrgDashboard from "./pages/OrgDashboard.jsx";
 import SignupPage from "./pages/Signup.jsx";
 import "./assets/styles.css";
 import OrgOverview from "./pages/OrgOverview.jsx";
+import ShowOverview from "./pages/ShowOverview.jsx"; // <-- 1. Imported the new component
 import { useEffect } from "react";
 import { verifyToken } from "./services/api.js";
+import OrgInventory from "./pages/OrgInventory.jsx";
+import ShowInventory from "./components/ShowInventory.jsx";
 
 function App() {
 	const { token, logout } = useAuth();
@@ -106,6 +109,31 @@ function App() {
 						element={
 							<PrivateRoute>
 								<OrgOverview />
+							</PrivateRoute>
+						}
+					/>
+					{/* 2. Added the new route right here */}
+					<Route
+						path="/orgs/:orgId/shows/:showId"
+						element={
+							<PrivateRoute>
+								<ShowOverview />
+							</PrivateRoute>
+						}
+					/>
+					<Route
+						path="/orgs/:orgId/inventory"
+						element={
+							<PrivateRoute>
+								<OrgInventory />
+							</PrivateRoute>
+						}
+					/>
+					<Route
+						path="/orgs/:orgId/shows/:showId/inventory"
+						element={
+							<PrivateRoute>
+								<ShowInventory />
 							</PrivateRoute>
 						}
 					/>

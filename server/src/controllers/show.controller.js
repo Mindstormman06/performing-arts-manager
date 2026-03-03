@@ -55,10 +55,23 @@ async function remove(req, res, next) {
 	}
 }
 
+async function getDashboardSummary(req, res, next) {
+	try {
+		const summary = await showService.getDashboardSummary(req.params.id);
+		res.json({ success: true, data: summary });
+	} catch (error) {
+		if (error.message === "Show not found") {
+			return res.status(404).json({ success: false, message: "Show not found" });
+		}
+		next(error);
+	}
+}
+
 export default {
 	get,
 	getById,
 	create,
 	update,
 	remove,
+	getDashboardSummary
 };
