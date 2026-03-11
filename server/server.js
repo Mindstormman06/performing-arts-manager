@@ -7,6 +7,7 @@ import adminRouter from "./src/routes/admin.route.js";
 import authRouter from "./src/routes/auth.route.js";
 import inventoryRouter from "./src/routes/inventory.route.js";
 import organzationRouter from "./src/routes/organization.route.js";
+import scheduleRouter from "./src/routes/schedule.route.js";
 import showRouter from "./src/routes/show.route.js";
 import userRouter from "./src/routes/user.route.js";
 import sequelize from "./src/services/db.service.js";
@@ -101,6 +102,7 @@ app.use("/api/auth", authRouter);
 // Usage: curl -X POST http://localhost:3000/api/admin/reset-db \ -H "Authorization: Bearer YOUR_JWT_TOKEN"
 app.use("/api/admin", adminRouter);
 app.use("/api/inventory", inventoryRouter);
+app.use("/api/schedule", scheduleRouter)
 
 app.use((_req, _res, next) => {
 	next({

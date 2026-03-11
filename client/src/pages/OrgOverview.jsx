@@ -158,7 +158,7 @@ export default function OrgOverview() {
 						actionTitle="Add New Show"
 						onActionClick={() => setIsCreateShowModalOpen(true)}
 						className="flex-1"
-					>
+					># performing-arts-manager-mobile
 						<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 							{shows.length > 0 ? (
 								shows.map((show) => <ShowCard key={show.id} show={show} />)

@@ -97,6 +97,7 @@ async function removeRolesFromUser(showId, userId, roleNames) {
 
 	const membership = await models.ShowMembership.findOne({
 		where: { show_id: showId, users_id: userId },
+		include: [{ model: models.ShowRole, as: "assignedRoles" }],
 	});
 
 	const roles = await models.ShowRole.findAll({
@@ -106,9 +107,16 @@ async function removeRolesFromUser(showId, userId, roleNames) {
 	if (!membership || !roles.length)
 		throw new Error("Membership or Roles not found");
 
+	const hasAny = membership.assignedRoles
+		.map((r) => r.name)
+		.filter((n) => namesArray.includes(n));
+	if (!hasAny.length) {
+		throw new Error("User does not have any of these roles");
+	}
+
 	await membership.removeAssignedRoles(roles);
 
-	return { message: `Role(s) removed successfully` };
+	return { message: `role(s) removed successfully` };
 }
 
 export default {

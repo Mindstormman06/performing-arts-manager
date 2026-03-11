@@ -178,6 +178,10 @@ models.OrganizationRole.belongsToMany(models.OrgMembership, {
 	otherKey: "assignment_id",
 });
 
+// Organization to Schedules (One-to-Many)
+models.Organization.hasMany(models.Schedule, { foreignKey: "org_id" });
+models.Schedule.belongsTo(models.Organization, { foreignKey: "org_id" });
+
 // Shows to Users (Many-to-Many)
 models.Show.belongsToMany(models.User, {
 	through: models.ShowMembership,

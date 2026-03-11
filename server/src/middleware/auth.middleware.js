@@ -27,16 +27,24 @@ export const authenticate = async (req, res, next) => {
 		req.user = decoded;
 		next();
 	} catch (error) {
+		// invalid or malformed token should be treated as bad request
+		const statusCode = error.name === "JsonWebTokenError" ? 400 : 401;
 		res
-			.status(401)
+			.status(statusCode)
 			.json({ success: false, message: `Invalid token: ${error.message}` });
 	}
 };
 
 export const authorizeOrg = (requiredRoles = []) => {
 	return async (req, res, next) => {
-		const orgId = req.params.orgId || req.params.id || req.body.organization_id;
+		let orgId = req.params.orgId || req.params.id || req.body.organization_id;
 		const userId = req.user.id;
+
+		// guard against the literal string 'undefined' which can occur when test
+		// filters skip earlier setup and a template string gets passed an undefined
+		if (orgId === "undefined") {
+			orgId = undefined;
+		}
 
 		if (!orgId)
 			return res.status(400).json({ message: "Organization ID is missing" });
@@ -45,6 +53,9 @@ export const authorizeOrg = (requiredRoles = []) => {
 			where: { org_id: orgId, users_id: userId },
 			include: [{ model: models.OrganizationRole, as: "assignedRoles" }],
 		});
+		if (!membership) {
+			console.debug("authorizeOrg: membership not found", { orgId, userId });
+		}
 
 		if (!membership) {
 			return res.status(403).json({
@@ -54,6 +65,7 @@ export const authorizeOrg = (requiredRoles = []) => {
 		}
 
 		const userRoles = membership.assignedRoles.map((r) => r.name);
+		console.debug("authorizeOrg: userRoles", userRoles);
 
 		const hasPermission = requiredRoles.some((role) =>
 			userRoles.includes(role),

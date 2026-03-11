@@ -16,7 +16,7 @@ describe("Organization API & Permissions", () => {
 	beforeAll(async () => {
 		await setupTestDatabase();
 
-		// Create user and login to get JWT for protected Org routes
+		// Create a user and login to obtain a JWT for all tests
 		const email = `org-tester-${Date.now()}@viu.ca`;
 		const userRes = await request(app).post("/api/users").send({
 			fname: "Org",
@@ -31,6 +31,13 @@ describe("Organization API & Permissions", () => {
 			password: "password123",
 		});
 		authToken = loginRes.body.token;
+
+		// ensure we have an organization before any individual test runs
+		const orgRes = await request(app)
+			.post("/api/orgs")
+			.set("Authorization", `Bearer ${authToken}`)
+			.send({ name: "VIU Theatre Dept" });
+		testOrgId = orgRes.body.id;
 	}, 30000);
 
 	afterAll(async () => {
@@ -46,13 +53,15 @@ describe("Organization API & Permissions", () => {
 		});
 
 		it("POST /api/orgs - should create organization when authenticated", async () => {
+			// This route is also exercised in beforeAll; we simply verify it still works
 			const res = await request(app)
 				.post("/api/orgs")
 				.set("Authorization", `Bearer ${authToken}`)
-				.send({ name: "VIU Theatre Dept" });
+				.send({ name: "Updated Org Creation" });
 
 			expect(res.statusCode).toEqual(201);
-			testOrgId = res.body.id; // Save org ID for subsequent tests
+			// update the id reference just in case the previous org needs to be replaced
+			testOrgId = res.body.id;
 		});
 
 		it("GET /api/orgs - should fetch all organizations", async () => {
@@ -191,6 +200,9 @@ describe("Organization API & Permissions", () => {
 				.post(`/api/orgs/${testOrgId}/invite`)
 				.set("Authorization", `Bearer ${authToken}`)
 				.send({ email: inviteeEmail });
+			if (res.statusCode !== 201) {
+				console.error("invite response:", res.statusCode, res.body);
+			}
 			expect(res.statusCode).toEqual(201);
 		});
 

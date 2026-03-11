@@ -15,6 +15,7 @@ export const setupTestDatabase = async () => {
 
 		// Seed all required roles necessary for the multi-tenant logic
 		const orgRoles = [
+			"admin", // Org - added for tests
 			"president", // Org
 			"board-member", // Org
 			"costumes", // Both
