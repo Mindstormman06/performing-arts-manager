@@ -21,12 +21,13 @@ async function getById(req, res, next) {
 }
 
 async function create(req, res, next) {
-	try {
-		res.status(201).json(await showService.create(req.body));
-	} catch (error) {
-		console.error(error);
-		next(error);
-	}
+    try {
+        const data = { ...req.body, creatorId: req.user.id };
+        res.status(201).json(await showService.create(data));
+    } catch (error) {
+        console.error(error);
+        next(error);
+    }
 }
 
 async function update(req, res, next) {

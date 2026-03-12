@@ -15,7 +15,12 @@ async function getOrgCalendar(orgId) {
         },
         include: [
             { model: models.Show, attributes: ['title'] },
-            { model: models.User, attributes: ['fname', 'lname'] }
+            {
+                model: models.User,
+                as: 'attendees',
+                attributes: ['id', 'fname', 'lname'],
+                through: { attributes: [] }
+            }
         ],
         order: [['start_time', 'ASC']]
     });
@@ -25,7 +30,12 @@ async function getShowCalendar(showId) {
     return await models.Schedule.findAll({
         where: { show_id: showId },
         include: [
-            { model: models.User, attributes: ['fname', 'lname'] }
+            {
+                model: models.User,
+                as: 'attendees',
+                attributes: ['id', 'fname', 'lname'],
+                through: { attributes: [] }
+            }
         ],
         order: [['start_time', 'ASC']]
     });
@@ -95,9 +105,9 @@ async function assignUsersToOrgEvent(orgId, eventId, config) {
         }
     }
 
-    await event.setUsers(Array.from(userIdsToAssign));
+    await event.setAttendees(Array.from(userIdsToAssign));
 
-    return await event.getUsers({ attributes: ['id', 'fname', 'lname'] });
+    return await event.getAttendees({ attributes: ['id', 'fname', 'lname'] });
 }
 
 async function assignUsersToShowEvent(showId, eventId, config) {
@@ -129,8 +139,8 @@ async function assignUsersToShowEvent(showId, eventId, config) {
         }
     }
 
-    await event.setUsers(Array.from(userIdsToAssign));
-    return await event.getUsers({ attributes: ['id', 'fname', 'lname'] });
+    await event.setAttendees(Array.from(userIdsToAssign));
+    return await event.getAttendees({ attributes: ['id', 'fname', 'lname'] });
 }
 
 async function getPersonalSchedule(userId) {

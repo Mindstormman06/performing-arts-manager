@@ -6,11 +6,13 @@ import OrgDashboard from "./pages/OrgDashboard.jsx";
 import SignupPage from "./pages/Signup.jsx";
 import "./assets/styles.css";
 import OrgOverview from "./pages/OrgOverview.jsx";
-import ShowOverview from "./pages/ShowOverview.jsx"; // <-- 1. Imported the new component
+import ShowOverview from "./pages/ShowOverview.jsx";
 import { useEffect } from "react";
 import { verifyToken } from "./services/api.js";
 import OrgInventory from "./pages/OrgInventory.jsx";
+import OrgSchedule from "./pages/OrgSchedule.jsx";
 import ShowInventory from "./components/ShowInventory.jsx";
+import ShowSchedule from "./pages/ShowSchedule.jsx";
 
 function App() {
 	const { token, logout } = useAuth();
@@ -130,10 +132,26 @@ function App() {
 						}
 					/>
 					<Route
+						path="/orgs/:orgId/scheduling"
+						element={
+							<PrivateRoute>
+								<OrgSchedule />
+							</PrivateRoute>
+						}
+					/>
+					<Route
 						path="/orgs/:orgId/shows/:showId/inventory"
 						element={
 							<PrivateRoute>
 								<ShowInventory />
+							</PrivateRoute>
+						}
+					/>
+					<Route
+						path="/orgs/:orgId/shows/:showId/scheduling"
+						element={
+							<PrivateRoute>
+								<ShowSchedule />
 							</PrivateRoute>
 						}
 					/>

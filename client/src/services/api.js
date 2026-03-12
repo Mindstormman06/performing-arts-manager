@@ -84,3 +84,22 @@ export const getShowInventory = (showId) => API.get(`/inventory/shows/${showId}`
 export const createShowItem = (showId, data) => API.post(`/inventory/shows/${showId}`, data);
 export const pullGlobalItemToShow = (showId, itemId) => API.post(`/inventory/shows/${showId}/pull/${itemId}`);
 export const removeShowItem = (showId, itemId) => API.delete(`/inventory/shows/${showId}/items/${itemId}`);
+
+// -- Schedules --
+
+// Fetching
+export const getOrgCalendar = (orgId) => API.get(`/schedule/orgs/${orgId}`);
+export const getShowCalendar = (showId) => API.get(`/schedule/shows/${showId}`);
+export const getPersonalCalendar = () => API.get("/schedule/personal");
+
+// Managing (Show Level)
+export const createShowEvent = (showId, eventData) => API.post(`/schedule/shows/${showId}`, eventData);
+export const updateShowEvent = (showId, eventId, eventData) => API.put(`/schedule/shows/${showId}/${eventId}`, eventData);1
+export const deleteShowEvent = (showId, eventId) => API.delete(`/schedule/shows/${showId}/${eventId}`);
+export const assignShowEventUsers = (showId, eventId, assignData) => API.put(`/schedule/shows/${showId}/${eventId}/users`, assignData);
+
+// Managing (Org Level)
+export const createOrgEvent = (orgId, eventData) => API.post(`/schedule/orgs/${orgId}`, eventData);
+export const updateOrgEvent = (orgId, eventId, eventData) => API.put(`/schedule/orgs/${orgId}/${eventId}`, eventData);
+export const deleteOrgEvent = (orgId, eventId) => API.delete(`/schedule/orgs/${orgId}/${eventId}`);
+export const assignOrgEventUsers = (orgId, eventId, assignData) => API.put(`/schedule/orgs/${orgId}/${eventId}/users`, assignData);

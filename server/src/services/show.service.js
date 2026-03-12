@@ -1,6 +1,7 @@
 import { Op } from "sequelize";
 
 import models from "../models/index.js";
+import sequelize from "./db.service.js";
 
 const { Show } = models;
 
@@ -27,8 +28,35 @@ async function getByOrg(orgId) {
 }
 
 async function create(data) {
-	const newShow = await Show.create(data);
-	return newShow.toJSON();
+    const t = await sequelize.transaction();
+    try {
+        const newShow = await models.Show.create(data, { transaction: t });
+
+        if (data.creatorId) {
+            const directorRole = await models.ShowRole.findOne({
+                where: { name: "director" },
+                transaction: t,
+            });
+            
+            if (directorRole) {
+                const membership = await models.ShowMembership.create(
+                    {
+                        users_id: data.creatorId,
+                        show_id: newShow.id,
+                        status: "active",
+                    },
+                    { transaction: t }
+                );
+                await membership.addAssignedRole(directorRole, { transaction: t });
+            }
+        }
+
+        await t.commit();
+        return newShow.toJSON();
+    } catch (err) {
+        await t.rollback();
+        throw err;
+    }
 }
 
 async function update(id, data) {

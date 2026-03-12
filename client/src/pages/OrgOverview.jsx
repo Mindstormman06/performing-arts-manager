@@ -149,6 +149,13 @@ export default function OrgOverview() {
                         <span>📦</span> 
                         Global Inventory Database
                     </Link>
+					<Link
+						to={`/orgs/${orgId}/scheduling`}
+						className="flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm ring-1 ring-inset ring-gray-300 transition-all hover:bg-gray-50 hover:text-blue-600"
+					>
+						<span>📅</span>
+						Organization Schedule
+					</Link>
                 </div>
 				{/* Main Content Layout */}
 				<div className="flex flex-1 flex-col gap-8 p-8 md:flex-row">
@@ -158,7 +165,7 @@ export default function OrgOverview() {
 						actionTitle="Add New Show"
 						onActionClick={() => setIsCreateShowModalOpen(true)}
 						className="flex-1"
-					># performing-arts-manager-mobile
+					>
 						<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 							{shows.length > 0 ? (
 								shows.map((show) => <ShowCard key={show.id} show={show} />)
