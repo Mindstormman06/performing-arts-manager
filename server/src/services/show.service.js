@@ -11,6 +11,34 @@ async function getAll(orgId) {
     return shows;
 }
 
+async function getUserShows(orgId, userId) {
+    const whereClause = orgId ? { organization_id: orgId } : {};
+
+    if (orgId && userId) {
+        const orgMembership = await models.OrgMembership.findOne({
+            where: { org_id: orgId, users_id: userId },
+            include: [{ model: models.OrganizationRole, as: "assignedRoles" }]
+        });
+
+        const isSuperAdmin = orgMembership?.assignedRoles?.some(r => 
+            ["president", "board-member"].includes(r.name)
+        );
+
+        if (!isSuperAdmin) {
+            return await models.Show.findAll({
+                where: whereClause,
+                include: [{
+                    model: models.ShowMembership,
+                    where: { users_id: userId },
+                    attributes: []
+                }]
+            });
+        }
+    }
+
+    return await models.Show.findAll({ where: whereClause });
+}
+
 async function getById(id) {
 	const show = await Show.findByPk(id);
 	if (!show) {
@@ -123,6 +151,7 @@ async function getDashboardSummary(showId) {
 
 export default {
 	getAll,
+	getUserShows,
 	getById,
 	create,
 	update,

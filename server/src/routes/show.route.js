@@ -12,6 +12,7 @@ const router = Router();
 
 // Show CRUD routes
 router.get("/", showController.get);
+router.get("/user", authenticate, showController.getUserShows);
 router.get(
 	"/:id/dashboard",
 	authenticate,

@@ -14,24 +14,28 @@ export default function OrgHeader({ name, presidentName, onEdit, onDelete }) {
 
             {/* Actions */}
             <div className="flex space-x-2">
-                <IconButton
-                    onClick={onEdit}
-                    title="Edit Organization"
-                    colour="custom"
-                    customColour="hover:bg-blue-50"
-                    shape="square"
-                    icon="✏️"
-                    size="p2"
-                />
-                <IconButton
-                    onClick={onDelete}
-                    title="Delete Organization"
-                    colour="custom"
-                    customColour="hover:bg-red-50"
-                    shape="square"
-                    icon="🗑️"
-                    size="p2"
-                />
+                {onEdit && (
+                    <IconButton
+                        onClick={onEdit}
+                        title="Edit Organization"
+                        colour="custom"
+                        customColour="hover:bg-blue-50"
+                        shape="square"
+                        icon="✏️"
+                        size="p2"
+                    />
+                )}
+                {onDelete && (
+                    <IconButton
+                        onClick={onDelete}
+                        title="Delete Organization"
+                        colour="custom"
+                        customColour="hover:bg-red-50"
+                        shape="square"
+                        icon="🗑️"
+                        size="p2"
+                    />
+                )}
             </div>
         </header>
     );

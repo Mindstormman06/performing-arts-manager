@@ -53,6 +53,7 @@ export const getMyOrganizations = () => API.get("/orgs/my");
 
 // Shows
 export const getShows = () => API.get("/shows");
+export const getUserShows = (orgId) => API.get(`/shows/user?orgId=${orgId}`);
 export const getOrgShows = (orgId) => API.get(`/shows?org=${orgId}`);
 export const getShow = (id) => API.get(`/shows/${id}`);
 export const createShow = (showData) => API.post("/shows", showData);
