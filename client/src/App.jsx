@@ -11,7 +11,7 @@ import { useEffect } from "react";
 import { verifyToken } from "./services/api.js";
 import OrgInventory from "./pages/OrgInventory.jsx";
 import OrgSchedule from "./pages/OrgSchedule.jsx";
-import ShowInventory from "./components/ShowInventory.jsx";
+import ShowInventory from "./pages/ShowInventory.jsx";
 import ShowSchedule from "./pages/ShowSchedule.jsx";
 
 function App() {

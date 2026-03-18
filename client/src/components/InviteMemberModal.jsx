@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { inviteByEmail } from "../services/api";
+import { inviteByEmail, inviteUserToShow } from "../services/api";
 
 export default function InviteMemberModal({
 	isOpen,
 	onClose,
 	orgId,
+	showId,
 	onSuccess,
 }) {
 	const [email, setEmail] = useState("");
@@ -18,7 +19,11 @@ export default function InviteMemberModal({
 		setError("");
 		setLoading(true);
 		try {
-			await inviteByEmail(orgId, email);
+			if (showId) {
+				await inviteUserToShow(showId, { orgId, email });
+			} else {
+				await inviteByEmail(orgId, email);
+			}
 			setEmail("");
 			onSuccess();
 			onClose();

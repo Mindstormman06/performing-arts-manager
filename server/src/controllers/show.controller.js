@@ -1,12 +1,14 @@
 import showService from "../services/show.service.js";
 
-async function get(_req, res, next) {
-	try {
-		res.json(await showService.getAll());
-	} catch (error) {
-		console.error(error);
-		next(error);
-	}
+async function get(req, res, next) {
+    try {
+        const orgId = req.query.org || req.query.orgId || req.query.organization_id;
+        
+        res.json(await showService.getAll(orgId));
+    } catch (error) {
+        console.error(error);
+        next(error);
+    }
 }
 
 async function getById(req, res, next) {

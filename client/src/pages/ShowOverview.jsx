@@ -3,6 +3,9 @@ import { Link, useParams } from "react-router-dom";
 import { getShowDashboard } from "../services/api";
 import DashboardSection from "../components/ui/DashboardSection";
 import MemberListItem from "../components/ui/users/MemberListItem";
+import ManageShowMembersModal from "../components/ManageShowMembersModal";
+import RoleModal from "../components/ShowRoleModal";
+
 
 export default function ShowOverview() {
 	const { orgId, showId } = useParams();
@@ -10,11 +13,15 @@ export default function ShowOverview() {
 	const [showData, setShowData] = useState(null);
 	const [isLoading, setIsLoading] = useState(true);
 
+	const [isManageMembersModalOpen, setIsManageMembersModalOpen] = useState(false);
+
+	const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
+	const [selectedUser, setSelectedUser] = useState(null);
+
 	const fetchData = useCallback(async () => {
 		try {
 			setIsLoading(true);
 			const res = await getShowDashboard(showId);
-			// Axios puts the response body in .data, and our controller sends { success: true, data: summary }
 			setShowData(res.data.data); 
 		} catch (err) {
 			console.error("Failed to fetch show data:", err);
@@ -47,16 +54,30 @@ export default function ShowOverview() {
 		);
 	}
 
-	// Safe budget calculations to prevent division by zero
 	const budgetTotal = showData.budget?.total || 0;
 	const budgetSpent = showData.budget?.spent || 0;
 	const percentSpent = budgetTotal > 0 ? (budgetSpent / budgetTotal) * 100 : 0;
 	const isOverBudgetLimit = percentSpent > 85;
 
 	return (
-		<div className="mx-auto flex h-[calc(100vh-9rem)] max-w-[90rem] gap-6 p-4 sm:p-6 lg:p-8">
+		<div className="mx-auto flex h-[calc(100vh-9rem)] max-w-360 gap-6 p-4 sm:p-6 lg:p-8">
+			<ManageShowMembersModal 
+				isOpen={isManageMembersModalOpen}
+				onClose={() => setIsManageMembersModalOpen(false)}
+				orgId={orgId}
+				showId={showId}
+				members={showData?.members || []}
+				onSuccess={fetchData}
+			/>
+			<RoleModal
+				isOpen={isRoleModalOpen}
+				onClose={() => setIsRoleModalOpen(false)}
+				user={selectedUser}
+				showId={showId}
+				onSuccess={fetchData}
+			/>
 			{/* Sidebar Navigation */}
-			<aside className="flex w-64 flex-shrink-0 flex-col overflow-hidden rounded-2xl bg-white shadow-xl ring-1 ring-gray-200">
+			<aside className="flex w-64 shrink-0 flex-col overflow-hidden rounded-2xl bg-white shadow-xl ring-1 ring-gray-200">
 				<div className="bg-gray-800 p-6 text-white">
 					<h2 className="truncate font-bold text-xl" title={showData.title}>
 						{showData.title}
@@ -143,7 +164,8 @@ export default function ShowOverview() {
 							title="Cast & Crew"
 							actionTitle="Manage Roster"
 							className="h-full"
-							onActionClick={() => console.log("Open roster modal/page")}
+							onActionClick={() => setIsManageMembersModalOpen(true)}
+							buttonIcon="✏️"
 						>
 							<ul className="space-y-3">
 								{showData.members?.length > 0 ? (
@@ -151,7 +173,10 @@ export default function ShowOverview() {
 										<MemberListItem
 											key={m.assignment_id || m.id}
 											member={m}
-											onClick={() => console.log("View member details", m)}
+											onClick={() => {
+												setSelectedUser(m);
+												setIsRoleModalOpen(true);
+									}}
 										/>
 									))
 								) : (

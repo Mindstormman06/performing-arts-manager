@@ -15,6 +15,10 @@ export default (sequelize, DataTypes) => {
 				type: DataTypes.INTEGER,
 				references: { model: "shows", key: "id" },
 			},
+			status: {
+				type: DataTypes.ENUM("pending", "active"),
+				defaultValue: "pending",
+			},
 		},
 		{ tableName: "show_has_users", timestamps: false },
 	);

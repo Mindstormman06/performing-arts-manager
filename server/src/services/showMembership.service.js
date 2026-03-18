@@ -17,7 +17,42 @@ async function addUserToShow(showId, userId) {
 	return await models.ShowMembership.create({
 		show_id: showId,
 		users_id: userId,
+		status: "active",
 	});
 }
 
-export default { addUserToShow };
+async function inviteByEmail(orgId, showId, email) {
+	const user = await models.User.findOne({ where: { email } });
+	if (!user) throw new Error("No user found with that email.");
+
+	let orgMembership = await models.OrgMembership.findOne({
+		where: { org_id: orgId, users_id: user.id },
+	});
+
+	if (!orgMembership) {
+		orgMembership = await models.OrgMembership.create({
+			org_id: orgId,
+			users_id: user.id,
+			status: "pending",
+		});
+	}
+
+	const existingShowMembership = await models.ShowMembership.findOne({
+		where: {show_id: showId, users_id: user.id }
+	});
+
+	if (existingShowMembership) {
+		throw new Error("User is already a member of the show.");
+	}
+
+	const showStatus = orgMembership.status === "pending" ? "pending" : "active";
+
+	return await models.ShowMembership.create({
+		show_id: showId,
+		users_id: user.id,
+		status: showStatus,
+	});
+
+}
+
+export default { addUserToShow, inviteByEmail };

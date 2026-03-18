@@ -40,6 +40,13 @@ router.delete(
 // POST /api/shows/1/join -> Links User 1 to Show 1 (assignment_id created)
 router.post("/:showId/join", showMembershipController.join);
 
+router.post(
+	"/:showId/invite",
+	authenticate,
+	authorizeShow(["director", "stage-manager"]),
+	showMembershipController.invite,
+);
+
 // PUT /api/shows/1/users/1/roles -> Appends roles to that assignment_id
 router.put("/:showId/users/:userId/roles", showMembershipController.addRoles);
 

@@ -1,4 +1,5 @@
 import axios from "axios";
+import { data } from "react-router-dom";
 
 const API = axios.create({
 	baseURL: "http://localhost:8050/api",
@@ -103,3 +104,7 @@ export const createOrgEvent = (orgId, eventData) => API.post(`/schedule/orgs/${o
 export const updateOrgEvent = (orgId, eventId, eventData) => API.put(`/schedule/orgs/${orgId}/${eventId}`, eventData);
 export const deleteOrgEvent = (orgId, eventId) => API.delete(`/schedule/orgs/${orgId}/${eventId}`);
 export const assignOrgEventUsers = (orgId, eventId, assignData) => API.put(`/schedule/orgs/${orgId}/${eventId}/users`, assignData);
+
+// -- Membership --
+export const addUserToShow = (showId, userId) => API.post(`/shows/${showId}/join`, { userId });
+export const inviteUserToShow = (showId, data) => API.post(`/shows/${showId}/invite`, data);
