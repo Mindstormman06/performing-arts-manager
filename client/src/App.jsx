@@ -13,14 +13,16 @@ import OrgInventory from "./pages/OrgInventory.jsx";
 import OrgSchedule from "./pages/OrgSchedule.jsx";
 import ShowInventory from "./pages/ShowInventory.jsx";
 import ShowSchedule from "./pages/ShowSchedule.jsx";
+import Logo from "./components/ui/Logo.jsx";
+import Landing from "./pages/Landing.jsx";
 
 function App() {
 	const { token, logout } = useAuth();
 	const location = useLocation();
 
-	// Check if current route should be centered (login/signup)
 	const shouldCenter =
 		location.pathname === "/login" || location.pathname === "/signup";
+	const isLanding = location.pathname === "/";
 
 	useEffect(() => {
 		const validateSession = async () => {
@@ -46,8 +48,14 @@ function App() {
 			<nav className="bg-blue-600 text-white shadow-lg">
 				<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 					<div className="flex h-16 justify-between">
-						<div className="flex items-center">
-							<h1 className="font-bold text-xl">Performing Arts Manager</h1>
+
+						<div className="flex items-center gap-3">
+							<Link to={token ? "/" : "/"}>
+								<Logo className="h-10 w-auto drop-shadow-md hover:opacity-90 transition-opacity" />
+							</Link>
+							<h1 className="font-bold text-xl hidden sm:block">
+								Performing Arts Manager
+							</h1>
 						</div>
 						<div className="flex items-center space-x-4">
 							{!token ? (
@@ -89,15 +97,12 @@ function App() {
 
 			{/* Main Content */}
 			<main
-				className={`flex-1 bg-gray-100 ${shouldCenter ? "flex items-center justify-center" : ""}`}
+				className={`flex-1 ${isLanding ? "bg-black" : "bg-gray-100"} ${shouldCenter ? "flex items-center justify-center" : ""}`}
 			>
 				<Routes>
 					<Route path="/login" element={<LoginPage />} />
 					<Route path="/signup" element={<SignupPage />} />
-					<Route
-						path="/"
-						element={<h2>Welcome to Performing Arts Manager</h2>}
-					/>
+					<Route path="/" element={<Landing token={token} />} />
 					<Route
 						path="/organizations"
 						element={
