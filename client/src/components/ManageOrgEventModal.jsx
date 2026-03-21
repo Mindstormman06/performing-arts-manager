@@ -1,5 +1,17 @@
 import { useEffect, useState } from "react";
 import { assignOrgEventUsers, deleteOrgEvent, getOrganizationUsers, updateOrgEvent } from "../services/api";
+import {
+    ModalCancelButton,
+    ModalCheckbox,
+    ModalError,
+    ModalInput,
+    ModalLabel,
+    ModalSubHeader,
+    ModalSubsection,
+    ModalSubmitButton,
+    ModalTextarea,
+    ModalWrapper,
+} from "./ui/modals";
 
 export default function ManageOrgEventModal({ isOpen, onClose, orgId, event, onSuccess }) {
     const [activeTab, setActiveTab] = useState("details");
@@ -113,7 +125,7 @@ export default function ManageOrgEventModal({ isOpen, onClose, orgId, event, onS
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+        <ModalWrapper>
             <div className="flex max-h-[90vh] w-full max-w-2xl flex-col rounded-2xl bg-white p-6 shadow-xl">
                 <div className="mb-4 flex items-center justify-between">
                     <h2 className="text-2xl font-bold text-gray-800">Manage Event</h2>
@@ -125,32 +137,32 @@ export default function ManageOrgEventModal({ isOpen, onClose, orgId, event, onS
                     <button className={`px-4 py-2 font-medium transition-colors ${activeTab === "assignments" ? "border-b-2 border-blue-600 text-blue-600" : "text-gray-500 hover:text-gray-700"}`} onClick={() => setActiveTab("assignments")}>Assignments ({selectedUserIds.length})</button>
                 </div>
 
-                {error && <div className="mb-4 rounded bg-red-50 p-3 text-sm text-red-600">{error}</div>}
+                {error && <ModalError>{error}</ModalError>}
 
                 <div className="flex-1 overflow-y-auto">
                     {activeTab === "details" && (
                         <form id="update-org-event-form" onSubmit={handleUpdateDetails} className="space-y-4">
                             <div>
-                                <label className="mb-1 block text-sm font-medium text-gray-700">Event Title</label>
-                                <input type="text" required value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500" />
+                                <ModalLabel>Event Title</ModalLabel>
+                                <ModalInput type="text" required value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="mb-1 block text-sm font-medium text-gray-700">Start Time</label>
-                                    <input type="datetime-local" required value={formData.start_time} onChange={(e) => setFormData({ ...formData, start_time: e.target.value })} className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500" />
+                                    <ModalLabel>Start Time</ModalLabel>
+                                    <ModalInput type="datetime-local" required value={formData.start_time} onChange={(e) => setFormData({ ...formData, start_time: e.target.value })} />
                                 </div>
                                 <div>
-                                    <label className="mb-1 block text-sm font-medium text-gray-700">End Time</label>
-                                    <input type="datetime-local" required value={formData.end_time} onChange={(e) => setFormData({ ...formData, end_time: e.target.value })} className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500" />
+                                    <ModalLabel>End Time</ModalLabel>
+                                    <ModalInput type="datetime-local" required value={formData.end_time} onChange={(e) => setFormData({ ...formData, end_time: e.target.value })} />
                                 </div>
                             </div>
                             <div>
-                                <label className="mb-1 block text-sm font-medium text-gray-700">Location</label>
-                                <input type="text" value={formData.location} onChange={(e) => setFormData({ ...formData, location: e.target.value })} className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500" />
+                                <ModalLabel>Location</ModalLabel>
+                                <ModalInput type="text" value={formData.location} onChange={(e) => setFormData({ ...formData, location: e.target.value })} />
                             </div>
                             <div>
-                                <label className="mb-1 block text-sm font-medium text-gray-700">Notes / Description</label>
-                                <textarea rows="3" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500"></textarea>
+                                <ModalLabel>Notes / Description</ModalLabel>
+                                <ModalTextarea rows="3" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} />
                             </div>
                         </form>
                     )}
@@ -160,25 +172,25 @@ export default function ManageOrgEventModal({ isOpen, onClose, orgId, event, onS
                             <p className="text-sm text-gray-600">Select roles or specific individuals who are required to attend this event.</p>
 
                             {availableRoles.length > 0 && (
-                                <div className="rounded-lg border border-gray-200 p-4">
-                                    <h3 className="mb-3 font-semibold text-gray-800">Assign by Role</h3>
+                            <ModalSubsection>
+                                <ModalSubHeader>Assign by Role</ModalSubHeader>
                                     <div className="flex flex-wrap gap-3">
                                         {availableRoles.map((role) => (
                                             <label key={role} className="flex cursor-pointer items-center gap-2 rounded border border-gray-200 bg-gray-50 px-3 py-2 hover:bg-gray-100">
-                                                <input type="checkbox" checked={isRoleFullySelected(role)} onChange={() => toggleRole(role)} className="h-4 w-4 rounded text-blue-600" />
+                                                <ModalCheckbox checked={isRoleFullySelected(role)} onChange={() => toggleRole(role)} />
                                                 <span className="text-sm font-medium capitalize">{role}</span>
                                             </label>
                                         ))}
                                     </div>
-                                </div>
+                                </ModalSubsection>
                             )}
 
-                            <div className="rounded-lg border border-gray-200 p-4">
-                                <h3 className="mb-3 font-semibold text-gray-800">Assign Specific Individuals</h3>
+                            <ModalSubsection>
+                                <ModalSubHeader>Assign Specific Individuals</ModalSubHeader>
                                 <div className="grid max-h-48 grid-cols-1 gap-3 overflow-y-auto sm:grid-cols-2">
                                     {orgMembers.map((member) => (
                                         <label key={member.users_id} className="flex cursor-pointer items-center gap-3 rounded p-2 hover:bg-blue-50">
-                                            <input type="checkbox" checked={selectedUserIds.includes(member.users_id)} onChange={() => toggleUser(member.users_id)} className="h-4 w-4 rounded text-blue-600" />
+                                            <ModalCheckbox checked={selectedUserIds.includes(member.users_id)} onChange={() => toggleUser(member.users_id)} />
                                             <div>
                                                 <div className="text-sm font-medium">{member.User?.fname} {member.User?.lname}</div>
                                                 <div className="text-xs text-gray-500">{member.assignedRoles?.map((role) => role.name).join(", ")}</div>
@@ -186,7 +198,7 @@ export default function ManageOrgEventModal({ isOpen, onClose, orgId, event, onS
                                         </label>
                                     ))}
                                 </div>
-                            </div>
+                            </ModalSubsection>
                         </div>
                     )}
                 </div>
@@ -194,15 +206,15 @@ export default function ManageOrgEventModal({ isOpen, onClose, orgId, event, onS
                 <div className="mt-6 flex items-center justify-between border-t border-gray-100 pt-4">
                     <button type="button" onClick={handleDelete} className="text-sm font-medium text-red-600 transition-colors hover:text-red-800">Delete Event</button>
                     <div className="flex gap-3">
-                        <button type="button" onClick={onClose} className="rounded-lg px-4 py-2 font-medium text-gray-600 transition hover:bg-gray-100">Done</button>
+                        <ModalCancelButton onClick={onClose}>Done</ModalCancelButton>
                         {activeTab === "details" ? (
-                            <button type="submit" form="update-org-event-form" disabled={isLoading} className="rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition hover:bg-blue-700 disabled:opacity-50">{isLoading ? "Saving..." : "Save Details"}</button>
+                            <ModalSubmitButton type="submit" form="update-org-event-form" disabled={isLoading}>{isLoading ? "Saving..." : "Save Details"}</ModalSubmitButton>
                         ) : (
                             <button type="button" onClick={handleSaveAssignments} disabled={isLoading} className="rounded-lg bg-green-600 px-4 py-2 font-medium text-white transition hover:bg-green-700 disabled:opacity-50">{isLoading ? "Updating..." : "Update Assignments"}</button>
                         )}
                     </div>
                 </div>
             </div>
-        </div>
+        </ModalWrapper>
     );
 }

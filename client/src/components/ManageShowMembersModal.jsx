@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { removeUserFromShow, addUserToShow, getOrganizationUsers } from "../services/api";
 import ShowRoleModal from "./ShowRoleModal";
 import InviteMemberModal from "./InviteMemberModal";
+import { ModalWrapper, ModalSubWrapper } from "./ui/modals";
 
 export default function ManageShowMembersModal({ isOpen, onClose, members, orgId, showId, onSuccess }) {
 	const [orgMembers, setOrgMembers] = useState([]);
@@ -45,12 +46,12 @@ export default function ManageShowMembersModal({ isOpen, onClose, members, orgId
     const availableOrgMembers = orgMembers.filter(m => !showMemberIds.includes(m.users_id) && m.status === 'active');
 
 	return (
-		<div className="fixed inset-0 z-40 flex items-center justify-center p-4" style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
+		<ModalWrapper>
 			
             <ShowRoleModal isOpen={isRoleModalOpen} onClose={() => setIsRoleModalOpen(false)} user={selectedUser} showId={showId} onSuccess={onSuccess} />
             <InviteMemberModal isOpen={isInviteModalOpen} onClose={() => setIsInviteModalOpen(false)} orgId={orgId} showId={showId} onSuccess={onSuccess} />
 
-			<div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-lg bg-white p-6 shadow-xl relative">
+			<ModalSubWrapper>
 				<div className="flex items-center justify-between mb-6">
                     <h2 className="font-bold text-2xl text-gray-800">Manage Show Roster</h2>
                     <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
@@ -138,7 +139,7 @@ export default function ManageShowMembersModal({ isOpen, onClose, members, orgId
 						</tbody>
 					</table>
 				</div>
-			</div>
-		</div>
+			</ModalSubWrapper>
+		</ModalWrapper>
 	);
 }

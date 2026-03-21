@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth.js";
 import { login } from "../services/api.js";
+import PageInput from "../components/ui/PageInput.jsx";
 
 export default function LoginPage() {
 	const [email, setEmail] = useState("");
@@ -29,20 +30,18 @@ export default function LoginPage() {
 				<h2 className="mb-6 text-center font-bold text-2xl">Login</h2>
 				{error && <p className="mb-4 text-center text-red-500">{error}</p>}
 				<form onSubmit={handleSubmit} className="space-y-4">
-					<input
+					<PageInput
 						type="email"
 						placeholder="Email"
 						value={email}
 						onChange={(e) => setEmail(e.target.value)}
-						className="w-full rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
 						required
 					/>
-					<input
+					<PageInput
 						type="password"
 						placeholder="Password"
 						value={password}
 						onChange={(e) => setPassword(e.target.value)}
-						className="w-full rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
 						required
 					/>
 					<button

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { updateShowUserRoles } from "../services/api";
+import { ModalWrapper, ModalSubWrapper, ModalCheckbox, ModalSubmitButton, ModalCancelButton } from "./ui/modals";
 
 export default function ShowRoleModal({ isOpen, onClose, onSuccess, showId, user }) {
     const [loading, setLoading] = useState(false);
@@ -41,29 +42,27 @@ export default function ShowRoleModal({ isOpen, onClose, onSuccess, showId, user
     
 
     return (
-		<div className="fixed inset-0 z-60 flex items-center justify-center p-4" style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
-			<div className="w-80 rounded-lg bg-white p-6 shadow-xl">
+    <ModalWrapper>
+      <ModalSubWrapper>
 				<h3 className="mb-4 font-bold">Manage Roles for {user.User?.fname}</h3>
 				<div className="mb-6 space-y-2">
 					{availableRoles.map((role) => (
 						<label key={role} className="flex items-center space-x-2 capitalize">
-							<input
-								type="checkbox"
-								checked={selectedRoles.includes(role)}
-								onChange={() => handleToggle(role)}
-								className="form-checkbox h-5 w-5 cursor-pointer text-blue-600"
+              <ModalCheckbox
+                checked={selectedRoles.includes(role)}
+                onChange={() => handleToggle(role)}
 							/>
 							<span>{role}</span>
 						</label>
 					))}
 				</div>
 				<div className="flex justify-end gap-2">
-					<button onClick={onClose} disabled={loading} className="rounded px-4 py-2 text-gray-600 hover:bg-gray-100">Cancel</button>
-					<button onClick={handleSave} disabled={loading} className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
+          <ModalCancelButton onClick={onClose} disabled={loading}>Cancel</ModalCancelButton>
+          <ModalSubmitButton onClick={handleSave} disabled={loading} type="button">
 						{loading ? "Saving..." : "Save"}
-					</button>
+          </ModalSubmitButton>
 				</div>
-			</div>
-		</div>
+        </ModalSubWrapper>
+    </ModalWrapper>
 	);
 }

@@ -1,5 +1,14 @@
 import { useState } from "react";
 import { createGlobalInventoryItem } from "../services/api";
+import {
+    ModalCancelButton,
+    ModalDropdown,
+    ModalInput,
+    ModalLabel,
+    ModalSubmitButton,
+    ModalTextarea,
+    ModalWrapper,
+} from "./ui/modals";
 
 export default function CreateInventoryModal({ isOpen, onClose, orgId, departments, userRoles, onSuccess }) {
     const [formData, setFormData] = useState({
@@ -36,7 +45,7 @@ export default function CreateInventoryModal({ isOpen, onClose, orgId, departmen
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+        <ModalWrapper>
             <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
                 <h2 className="mb-4 text-2xl font-bold text-gray-800">Add Global Inventory Item</h2>
                 
@@ -49,61 +58,51 @@ export default function CreateInventoryModal({ isOpen, onClose, orgId, departmen
                         {error && <div className="rounded bg-red-50 p-3 text-sm text-red-600">{error}</div>}
                         
                         <div>
-                            <label className="mb-1 block text-sm font-medium text-gray-700">Item Name</label>
-                            <input
+                            <ModalLabel>Item Name</ModalLabel>
+                            <ModalInput
                                 type="text"
                                 required
                                 value={formData.name}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                             />
                         </div>
 
                         <div>
-                            <label className="mb-1 block text-sm font-medium text-gray-700">Department</label>
-                            <select
+                            <ModalLabel>Department</ModalLabel>
+                            <ModalDropdown
                                 required
                                 value={formData.dept_id}
                                 onChange={(e) => setFormData({ ...formData, dept_id: e.target.value })}
-                                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                             >
                                 <option value="" disabled>Select a department...</option>
                                 {allowedDepartments.map(dept => (
                                     <option key={dept.id} value={dept.id}>{dept.name}</option>
                                 ))}
-                            </select>
+                            </ModalDropdown>
                         </div>
 
                         <div>
-                            <label className="mb-1 block text-sm font-medium text-gray-700">Description</label>
-                            <textarea
+                            <ModalLabel>Description</ModalLabel>
+                            <ModalTextarea
                                 required
                                 rows="3"
                                 value={formData.description}
                                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                            ></textarea>
+                            />
                         </div>
 
                         <div className="mt-6 flex justify-end gap-3">
-                            <button
-                                type="button"
-                                onClick={onClose}
-                                className="rounded-lg px-4 py-2 font-medium text-gray-600 transition hover:bg-gray-100"
-                            >
-                                Cancel
-                            </button>
-                            <button
+                            <ModalCancelButton onClick={onClose}>Cancel</ModalCancelButton>
+                            <ModalSubmitButton
                                 type="submit"
                                 disabled={isLoading}
-                                className="rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition hover:bg-blue-700 disabled:opacity-50"
                             >
                                 {isLoading ? "Adding..." : "Add Item"}
-                            </button>
+                            </ModalSubmitButton>
                         </div>
                     </form>
                 )}
             </div>
-        </div>
+        </ModalWrapper>
     );
 }

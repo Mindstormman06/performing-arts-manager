@@ -1,5 +1,17 @@
 import { useEffect, useState } from "react";
 import { assignOrgEventUsers, createOrgEvent, getOrganizationUsers } from "../services/api";
+import {
+    ModalCancelButton,
+    ModalCheckbox,
+    ModalError,
+    ModalInput,
+    ModalLabel,
+    ModalSubHeader,
+    ModalSubsection,
+    ModalSubmitButton,
+    ModalTextarea,
+    ModalWrapper,
+} from "./ui/modals";
 
 export default function CreateOrgEventModal({ isOpen, onClose, orgId, onSuccess }) {
     const [activeTab, setActiveTab] = useState("details");
@@ -99,7 +111,7 @@ export default function CreateOrgEventModal({ isOpen, onClose, orgId, onSuccess 
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+        <ModalWrapper>
             <div className="flex max-h-[90vh] w-full max-w-2xl flex-col rounded-2xl bg-white p-6 shadow-xl">
                 <div className="mb-4 flex items-center justify-between">
                     <h2 className="text-2xl font-bold text-gray-800">Create Event</h2>
@@ -121,39 +133,39 @@ export default function CreateOrgEventModal({ isOpen, onClose, orgId, onSuccess 
                     </button>
                 </div>
 
-                {error && <div className="mb-4 rounded bg-red-50 p-3 text-sm text-red-600">{error}</div>}
+                {error && <ModalError>{error}</ModalError>}
 
                 <div className="flex-1 overflow-y-auto">
                     {activeTab === "details" && (
                         <div className="space-y-4">
                             <div>
-                                <label htmlFor="create-org-event-title" className="mb-1 block text-sm font-medium text-gray-700">Event Title</label>
-                                <input id="create-org-event-title" type="text" required value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500" />
+                                <ModalLabel htmlFor="create-org-event-title">Event Title</ModalLabel>
+                                <ModalInput id="create-org-event-title" type="text" required value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} />
                             </div>
 
                             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                                 <div>
-                                    <label htmlFor="create-org-event-date" className="mb-1 block text-sm font-medium text-gray-700">Date</label>
-                                    <input id="create-org-event-date" type="date" required value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })} className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500" />
+                                    <ModalLabel htmlFor="create-org-event-date">Date</ModalLabel>
+                                    <ModalInput id="create-org-event-date" type="date" required value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })} />
                                 </div>
                                 <div>
-                                    <label htmlFor="create-org-event-start-time" className="mb-1 block text-sm font-medium text-gray-700">Start Time</label>
-                                    <input id="create-org-event-start-time" type="time" required value={formData.start_time} onChange={(e) => setFormData({ ...formData, start_time: e.target.value })} className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500" />
+                                    <ModalLabel htmlFor="create-org-event-start-time">Start Time</ModalLabel>
+                                    <ModalInput id="create-org-event-start-time" type="time" required value={formData.start_time} onChange={(e) => setFormData({ ...formData, start_time: e.target.value })} />
                                 </div>
                                 <div>
-                                    <label htmlFor="create-org-event-end-time" className="mb-1 block text-sm font-medium text-gray-700">End Time</label>
-                                    <input id="create-org-event-end-time" type="time" required value={formData.end_time} onChange={(e) => setFormData({ ...formData, end_time: e.target.value })} className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500" />
+                                    <ModalLabel htmlFor="create-org-event-end-time">End Time</ModalLabel>
+                                    <ModalInput id="create-org-event-end-time" type="time" required value={formData.end_time} onChange={(e) => setFormData({ ...formData, end_time: e.target.value })} />
                                 </div>
                             </div>
 
                             <div>
-                                <label htmlFor="create-org-event-location" className="mb-1 block text-sm font-medium text-gray-700">Location</label>
-                                <input id="create-org-event-location" type="text" value={formData.location} onChange={(e) => setFormData({ ...formData, location: e.target.value })} className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500" placeholder="Optional" />
+                                <ModalLabel htmlFor="create-org-event-location">Location</ModalLabel>
+                                <ModalInput id="create-org-event-location" type="text" value={formData.location} onChange={(e) => setFormData({ ...formData, location: e.target.value })} placeholder="Optional" />
                             </div>
 
                             <div>
-                                <label htmlFor="create-org-event-description" className="mb-1 block text-sm font-medium text-gray-700">Notes / Description</label>
-                                <textarea id="create-org-event-description" rows="3" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500" placeholder="Optional notes..."></textarea>
+                                <ModalLabel htmlFor="create-org-event-description">Notes / Description</ModalLabel>
+                                <ModalTextarea id="create-org-event-description" rows="3" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} placeholder="Optional notes..." />
                             </div>
                         </div>
                     )}
@@ -163,25 +175,25 @@ export default function CreateOrgEventModal({ isOpen, onClose, orgId, onSuccess 
                             <p className="text-sm text-gray-600">Select roles or specific individuals who are required to attend this event.</p>
 
                             {availableRoles.length > 0 && (
-                                <div className="rounded-lg border border-gray-200 p-4">
-                                    <h3 className="mb-3 font-semibold text-gray-800">Assign by Role</h3>
+                            <ModalSubsection>
+                                <ModalSubHeader>Assign by Role</ModalSubHeader>
                                     <div className="flex flex-wrap gap-3">
                                         {availableRoles.map((role) => (
                                             <label key={role} className="flex cursor-pointer items-center gap-2 rounded border border-gray-200 bg-gray-50 px-3 py-2 hover:bg-gray-100">
-                                                <input type="checkbox" checked={isRoleFullySelected(role)} onChange={() => toggleRole(role)} className="h-4 w-4 rounded text-blue-600" />
+                                                <ModalCheckbox checked={isRoleFullySelected(role)} onChange={() => toggleRole(role)} />
                                                 <span className="text-sm font-medium capitalize">{role}</span>
                                             </label>
                                         ))}
                                     </div>
-                                </div>
+                                </ModalSubsection>
                             )}
 
-                            <div className="rounded-lg border border-gray-200 p-4">
-                                <h3 className="mb-3 font-semibold text-gray-800">Assign Specific Individuals</h3>
+                            <ModalSubsection>
+                                <ModalSubHeader>Assign Specific Individuals</ModalSubHeader>
                                 <div className="grid max-h-48 grid-cols-1 gap-3 overflow-y-auto sm:grid-cols-2">
                                     {orgMembers.map((member) => (
                                         <label key={member.users_id} className="flex cursor-pointer items-center gap-3 rounded p-2 hover:bg-blue-50">
-                                            <input type="checkbox" checked={selectedUserIds.includes(member.users_id)} onChange={() => toggleUser(member.users_id)} className="h-4 w-4 rounded text-blue-600" />
+                                            <ModalCheckbox checked={selectedUserIds.includes(member.users_id)} onChange={() => toggleUser(member.users_id)} />
                                             <div>
                                                 <div className="text-sm font-medium">{member.User?.fname} {member.User?.lname}</div>
                                                 <div className="text-xs text-gray-500">{member.assignedRoles?.map((role) => role.name).join(", ")}</div>
@@ -189,18 +201,18 @@ export default function CreateOrgEventModal({ isOpen, onClose, orgId, onSuccess 
                                         </label>
                                     ))}
                                 </div>
-                            </div>
+                            </ModalSubsection>
                         </div>
                     )}
                 </div>
 
                 <div className="mt-6 flex items-center justify-end gap-3 border-t border-gray-100 pt-4">
-                    <button type="button" onClick={onClose} className="rounded-lg px-4 py-2 font-medium text-gray-600 transition hover:bg-gray-100">Cancel</button>
-                    <button type="button" onClick={handleCreateEvent} disabled={isLoading} className="rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition hover:bg-blue-700 disabled:opacity-50">
+                    <ModalCancelButton onClick={onClose}>Cancel</ModalCancelButton>
+                    <ModalSubmitButton type="button" onClick={handleCreateEvent} disabled={isLoading}>
                         {isLoading ? "Creating..." : "Create Event"}
-                    </button>
+                    </ModalSubmitButton>
                 </div>
             </div>
-        </div>
+        </ModalWrapper>
     );
 }
