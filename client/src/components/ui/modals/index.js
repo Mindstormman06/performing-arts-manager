@@ -10,4 +10,9 @@ export { default as ModalSubmitButton } from "./ModalSubmitButton.jsx";
 export { default as ModalSubWrapper } from "./ModalSubWrapper.jsx";
 export { default as ModalTextarea } from "./ModalTextarea.jsx";
 export { default as ModalWrapper } from "./ModalWrapper.jsx";
-
+export { default as ModalHeader } from "./ModalHeader.jsx"
+export { default as ModalNav } from "./ModalNav.jsx"
+export { default as ModalNavItem } from "./ModalNavItem.jsx";
+export { default as ModalBody } from "./ModalBody.jsx";
+export { default as ModalBox } from "./ModalBox.jsx";
+export { default as ModalCheckboxItem } from "./ModalCheckboxItem.jsx";
