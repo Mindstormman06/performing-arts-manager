@@ -1,4 +1,4 @@
-export default function ModalSubWrapper({ children, ...props }) {
+export default function ModalNav({ children, ...props }) {
     return (
         <div { ...props } className="mb-4 flex border-b border-gray-200">
             { children }

@@ -12,7 +12,14 @@ import {
     ModalTextarea,
     ModalWrapper,
     ModalSubWrapper,
-    ModalHeader, ModalNav, ModalNavItem, ModalBody, ModalBox, ModalCheckboxItem
+    ModalHeader,
+    ModalNav,
+    ModalNavItem,
+    ModalBody,
+    ModalBox,
+    ModalCheckboxItem,
+    ModalFooter,
+    ModalInputContainer
 } from "./ui/modals";
 
 export default function CreateEventModal({ isOpen, onClose, showId, onSuccess }) {
@@ -131,7 +138,7 @@ export default function CreateEventModal({ isOpen, onClose, showId, onSuccess })
                 <ModalBody>
                     {activeTab === "details" && (
                         <div className="space-y-4">
-                            <div>
+                            <ModalInputContainer>
                                 <ModalLabel htmlFor="create-event-title">Event Title</ModalLabel>
                                 <ModalInput
                                     id="create-event-title"
@@ -140,9 +147,9 @@ export default function CreateEventModal({ isOpen, onClose, showId, onSuccess })
                                     value={formData.title}
                                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                                 />
-                            </div>
+                            </ModalInputContainer>
 
-                            <div className="grid gap-4 sm:grid-cols-3">
+                            <ModalInputContainer columns={3}>
                                 <div>
                                     <ModalLabel htmlFor="create-event-date">Date</ModalLabel>
                                     <ModalInput
@@ -173,9 +180,9 @@ export default function CreateEventModal({ isOpen, onClose, showId, onSuccess })
                                         onChange={(e) => setFormData({ ...formData, end_time: e.target.value })}
                                     />
                                 </div>
-                            </div>
+                            </ModalInputContainer>
 
-                            <div>
+                            <ModalInputContainer>
                                 <ModalLabel htmlFor="create-event-location">Location</ModalLabel>
                                 <ModalInput
                                     id="create-event-location"
@@ -184,9 +191,9 @@ export default function CreateEventModal({ isOpen, onClose, showId, onSuccess })
                                     onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                                     placeholder="Optional"
                                 />
-                            </div>
+                            </ModalInputContainer>
 
-                            <div>
+                            <ModalInputContainer>
                                 <ModalLabel htmlFor="create-event-description">Notes / Description</ModalLabel>
                                 <ModalTextarea
                                     id="create-event-description"
@@ -195,7 +202,7 @@ export default function CreateEventModal({ isOpen, onClose, showId, onSuccess })
                                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                     placeholder="Optional notes..."
                                 />
-                            </div>
+                            </ModalInputContainer>
                         </div>
                     )}
 
@@ -234,12 +241,12 @@ export default function CreateEventModal({ isOpen, onClose, showId, onSuccess })
                     )}
                 </ModalBody>
 
-                <div className="mt-6 flex items-center justify-end gap-3 border-t border-gray-100 pt-4">
+                <ModalFooter>
                     <ModalCancelButton onClick={onClose}>Cancel</ModalCancelButton>
                     <ModalSubmitButton type="button" onClick={handleCreateEvent} disabled={isLoading}>
                         {isLoading ? "Creating..." : "Create Event"}
                     </ModalSubmitButton>
-                </div>
+                </ModalFooter>
             </ModalSubWrapper>
         </ModalWrapper>
     );

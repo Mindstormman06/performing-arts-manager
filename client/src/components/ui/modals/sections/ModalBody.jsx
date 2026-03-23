@@ -1,4 +1,4 @@
-export default function ModalSubWrapper({ children, ...props }) {
+export default function ModalBody({ children, ...props }) {
     return (
         <div { ...props } className="flex-1 overflow-y-auto">
             { children }

@@ -1,4 +1,4 @@
-import { ModalCheckbox, ModalLabel } from "./index.js";
+import { ModalCheckbox, ModalLabel } from "../index.js";
 
 export default function ModalCheckboxItem({ role, isSelected, onToggle }) {
     return (
