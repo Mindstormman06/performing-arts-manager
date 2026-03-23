@@ -6,9 +6,37 @@ import sequelize from "./db.service.js";
 const { Show } = models;
 
 async function getAll(orgId) {
-	const whereClause = orgId ? { org_id: orgId } : {}; 
-    const shows = await Show.findAll({ where: whereClause });
-	return shows;
+    const whereClause = orgId ? { organization_id: orgId } : {}; 
+    const shows = await models.Show.findAll({ where: whereClause });
+    return shows;
+}
+
+async function getUserShows(orgId, userId) {
+    const whereClause = orgId ? { organization_id: orgId } : {};
+
+    if (orgId && userId) {
+        const orgMembership = await models.OrgMembership.findOne({
+            where: { org_id: orgId, users_id: userId },
+            include: [{ model: models.OrganizationRole, as: "assignedRoles" }]
+        });
+
+        const isSuperAdmin = orgMembership?.assignedRoles?.some(r => 
+            ["president", "board-member"].includes(r.name)
+        );
+
+        if (!isSuperAdmin) {
+            return await models.Show.findAll({
+                where: whereClause,
+                include: [{
+                    model: models.ShowMembership,
+                    where: { users_id: userId },
+                    attributes: []
+                }]
+            });
+        }
+    }
+
+    return await models.Show.findAll({ where: whereClause });
 }
 
 async function getById(id) {
@@ -17,14 +45,6 @@ async function getById(id) {
 		throw new Error("Show not found");
 	}
 	return show;
-}
-
-async function getByOrg(orgId) {
-	const shows = await Show.findAll({ where: { org_id: orgId } });
-	if (!show) {
-		throw new Error("No shows found for this organization");
-	}
-	return shows;
 }
 
 async function create(data) {
@@ -131,6 +151,7 @@ async function getDashboardSummary(showId) {
 
 export default {
 	getAll,
+	getUserShows,
 	getById,
 	create,
 	update,

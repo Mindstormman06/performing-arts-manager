@@ -1,10 +1,20 @@
 import { useState } from "react";
-import { inviteByEmail } from "../services/api";
+import { inviteByEmail, inviteUserToShow } from "../services/api";
+import {
+	ModalWrapper,
+	ModalLabel,
+	ModalInput,
+	ModalError,
+	ModalSubmitButton,
+	ModalCancelButton,
+	ModalSubHeader
+} from "./ui/modals";
 
 export default function InviteMemberModal({
 	isOpen,
 	onClose,
 	orgId,
+	showId,
 	onSuccess,
 }) {
 	const [email, setEmail] = useState("");
@@ -18,7 +28,11 @@ export default function InviteMemberModal({
 		setError("");
 		setLoading(true);
 		try {
-			await inviteByEmail(orgId, email);
+			if (showId) {
+				await inviteUserToShow(showId, { orgId, email });
+			} else {
+				await inviteByEmail(orgId, email);
+			}
 			setEmail("");
 			onSuccess();
 			onClose();
@@ -31,40 +45,30 @@ export default function InviteMemberModal({
 	};
 
 	return (
-		<div
-			className="fixed inset-0 z-50 flex items-center justify-center p-4"
-			style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
-		>
-			<div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
-				<h3 className="mb-4 font-bold text-lg">Invite New Member</h3>
-				{error && <p className="mb-4 text-red-500 text-sm">{error}</p>}
+		<ModalWrapper>
+			<ModalSubWrapper>
+				<ModalSubHeader>Invite New Member</ModalSubHeader>
+				{error && <ModalError>{error}</ModalError>}
 				<form onSubmit={handleInvite}>
-					<input
-						type="email"
-						placeholder="user@example.com"
-						className="mb-4 w-full rounded border p-2 outline-none focus:ring-2 focus:ring-blue-500"
-						value={email}
-						onChange={(e) => setEmail(e.target.value)}
-						required
-					/>
+					<div className="mb-4">
+						<ModalLabel>Email Address</ModalLabel>
+						<ModalInput
+							type="email"
+							placeholder="user@example.com"
+							value={email}
+							onChange={(e) => setEmail(e.target.value)}
+							required
+						/>
+					</div>
+
 					<div className="flex justify-end space-x-3">
-						<button
-							type="button"
-							onClick={onClose}
-							className="rounded px-4 py-2 text-gray-600 hover:bg-gray-100"
-						>
-							Cancel
-						</button>
-						<button
-							type="submit"
-							disabled={loading}
-							className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:bg-gray-400"
-						>
+						<ModalCancelButton onClick={onClose}>Cancel</ModalCancelButton>
+						<ModalSubmitButton type="submit" disabled={loading}>
 							{loading ? "Sending..." : "Send Invite"}
-						</button>
+						</ModalSubmitButton>
 					</div>
 				</form>
-			</div>
-		</div>
+			</ModalSubWrapper>
+		</ModalWrapper>
 	);
 }

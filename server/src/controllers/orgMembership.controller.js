@@ -1,3 +1,5 @@
+import { Op } from "sequelize";
+
 import models from "../models/index.js";
 import orgMembershipService from "../services/orgMembership.service.js";
 import orgRoleService from "../services/orgRole.service.js";
@@ -167,28 +169,69 @@ async function invite(req, res, next) {
 }
 
 async function respondToInvite(req, res, next) {
-	try {
-		const { orgId } = req.params;
-		const { action } = req.body;
-		const userId = req.user.id;
+    try {
+        const { orgId } = req.params;
+        const { action } = req.body;
+        const userId = req.user.id;
 
-		const membership = await models.OrgMembership.findOne({
-			where: { org_id: orgId, users_id: userId, status: "pending" },
-		});
+        const membership = await models.OrgMembership.findOne({
+            where: { org_id: orgId, users_id: userId, status: "pending" },
+        });
 
-		if (!membership)
-			return res.status(404).json({ message: "Invite not found." });
+        if (!membership) {
+            return res.status(404).json({ message: "Invite not found." });
+        }
 
-		if (action === "accept") {
-			await membership.update({ status: "active" });
-			return res.json({ success: true, message: "Invite accepted." });
-		} else {
-			await membership.destroy();
-			return res.json({ success: true, message: "Invite declined." });
-		}
-	} catch (error) {
-		next(error);
-	}
+        // 1. Get all shows belonging to this organization
+        const orgShows = await models.Show.findAll({
+            where: { organization_id: orgId }
+        });
+        const showIds = orgShows.map(show => show.id);
+
+        if (action === "accept") {
+            // Update the Organization membership
+            await membership.update({ status: "active" });
+
+            // Cascade the 'active' status to any pending Show memberships in this org
+            if (showIds.length > 0) {
+                await models.ShowMembership.update(
+                    { status: "active" },
+                    { 
+                        where: { 
+                            users_id: userId, 
+                            show_id: { [Op.in]: showIds }, 
+                            status: "pending" 
+                        } 
+                    }
+                );
+            }
+
+            return res.json({ success: true, message: "Invitation accepted!" });
+
+        } else if (action === "decline") {
+            // Remove the pending Organization membership entirely
+            await membership.destroy();
+
+            // Cascade the deletion to any pending Show memberships in this org
+            if (showIds.length > 0) {
+                await models.ShowMembership.destroy({ 
+                    where: { 
+                        users_id: userId, 
+                        show_id: { [Op.in]: showIds }, 
+                        status: "pending" 
+                    } 
+                });
+            }
+
+            return res.json({ success: true, message: "Invitation declined." });
+            
+        } else {
+            return res.status(400).json({ success: false, message: "Invalid action." });
+        }
+    } catch (error) {
+        console.error(error);
+        next(error);
+    }
 }
 
 export default {

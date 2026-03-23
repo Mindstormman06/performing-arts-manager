@@ -1,8 +1,20 @@
 import { useState, useEffect } from "react";
 import { updateShowEvent, deleteShowEvent, assignShowEventUsers, getShowUsers } from "../services/api";
+import {
+    ModalCancelButton,
+    ModalCheckbox,
+    ModalError,
+    ModalInput,
+    ModalLabel,
+    ModalSubHeader,
+    ModalSubsection,
+    ModalSubmitButton,
+    ModalTextarea,
+    ModalWrapper,
+} from "./ui/modals";
 
 export default function ManageEventModal({ isOpen, onClose, showId, event, onSuccess }) {
-    const [activeTab, setActiveTab] = useState("details"); // 'details' or 'assignments'
+    const [activeTab, setActiveTab] = useState("details");
     
     const [formData, setFormData] = useState({ title: "", start_time: "", end_time: "", location: "", description: "" });
     
@@ -123,7 +135,7 @@ export default function ManageEventModal({ isOpen, onClose, showId, event, onSuc
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+        <ModalWrapper>
             <div className="w-full max-w-2xl flex flex-col max-h-[90vh] rounded-2xl bg-white p-6 shadow-xl">
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-2xl font-bold text-gray-800">Manage Event</h2>
@@ -146,33 +158,33 @@ export default function ManageEventModal({ isOpen, onClose, showId, event, onSuc
                     </button>
                 </div>
 
-                {error && <div className="mb-4 rounded bg-red-50 p-3 text-sm text-red-600">{error}</div>}
+                {error && <ModalError>{error}</ModalError>}
 
                 <div className="flex-1 overflow-y-auto">
                     {/* DETAILS TAB */}
                     {activeTab === "details" && (
                         <form id="update-event-form" onSubmit={handleUpdateDetails} className="space-y-4">
                              <div>
-                                <label className="mb-1 block text-sm font-medium text-gray-700">Event Title</label>
-                                <input type="text" required value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500" />
+                                <ModalLabel>Event Title</ModalLabel>
+                                <ModalInput type="text" required value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="mb-1 block text-sm font-medium text-gray-700">Start Time</label>
-                                    <input type="datetime-local" required value={formData.start_time} onChange={(e) => setFormData({ ...formData, start_time: e.target.value })} className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500" />
+                                    <ModalLabel>Start Time</ModalLabel>
+                                    <ModalInput type="datetime-local" required value={formData.start_time} onChange={(e) => setFormData({ ...formData, start_time: e.target.value })} />
                                 </div>
                                 <div>
-                                    <label className="mb-1 block text-sm font-medium text-gray-700">End Time</label>
-                                    <input type="datetime-local" required value={formData.end_time} onChange={(e) => setFormData({ ...formData, end_time: e.target.value })} className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500" />
+                                    <ModalLabel>End Time</ModalLabel>
+                                    <ModalInput type="datetime-local" required value={formData.end_time} onChange={(e) => setFormData({ ...formData, end_time: e.target.value })} />
                                 </div>
                             </div>
                             <div>
-                                <label className="mb-1 block text-sm font-medium text-gray-700">Location</label>
-                                <input type="text" value={formData.location} onChange={(e) => setFormData({ ...formData, location: e.target.value })} className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500" />
+                                <ModalLabel>Location</ModalLabel>
+                                <ModalInput type="text" value={formData.location} onChange={(e) => setFormData({ ...formData, location: e.target.value })} />
                             </div>
                             <div>
-                                <label className="mb-1 block text-sm font-medium text-gray-700">Notes / Description</label>
-                                <textarea rows="3" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500"></textarea>
+                                <ModalLabel>Notes / Description</ModalLabel>
+                                <ModalTextarea rows="3" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} />
                             </div>
                         </form>
                     )}
@@ -184,26 +196,26 @@ export default function ManageEventModal({ isOpen, onClose, showId, event, onSuc
                             
                             {/* Role Selectors */}
                             {availableRoles.length > 0 && (
-                                <div className="rounded-lg border border-gray-200 p-4">
-                                    <h3 className="font-semibold text-gray-800 mb-3">Assign by Role</h3>
+                                <ModalSubsection>
+                                    <ModalSubHeader>Assign by Role</ModalSubHeader>
                                     <div className="flex flex-wrap gap-3">
                                         {availableRoles.map(role => (
                                             <label key={role} className="flex items-center gap-2 cursor-pointer bg-gray-50 px-3 py-2 rounded border border-gray-200 hover:bg-gray-100">
-                                                <input type="checkbox" checked={isRoleFullySelected(role)} onChange={() => toggleRole(role)} className="h-4 w-4 text-blue-600 rounded" />
+                                                <ModalCheckbox checked={isRoleFullySelected(role)} onChange={() => toggleRole(role)} />
                                                 <span className="capitalize text-sm font-medium">{role}</span>
                                             </label>
                                         ))}
                                     </div>
-                                </div>
+                                </ModalSubsection>
                             )}
 
                             {/* Individual Selectors */}
-                            <div className="rounded-lg border border-gray-200 p-4">
-                                <h3 className="font-semibold text-gray-800 mb-3">Assign Specific Individuals</h3>
+                            <ModalSubsection>
+                                <ModalSubHeader>Assign Specific Individuals</ModalSubHeader>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-48 overflow-y-auto">
                                     {showMembers.map(member => (
                                         <label key={member.users_id} className="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-blue-50">
-                                            <input type="checkbox" checked={selectedUserIds.includes(member.users_id)} onChange={() => toggleUser(member.users_id)} className="h-4 w-4 text-blue-600 rounded" />
+                                            <ModalCheckbox checked={selectedUserIds.includes(member.users_id)} onChange={() => toggleUser(member.users_id)} />
                                             <div>
                                                 <div className="text-sm font-medium">{member.User?.fname} {member.User?.lname}</div>
                                                 <div className="text-xs text-gray-500">
@@ -213,7 +225,7 @@ export default function ManageEventModal({ isOpen, onClose, showId, event, onSuc
                                         </label>
                                     ))}
                                 </div>
-                            </div>
+                            </ModalSubsection>
                         </div>
                     )}
                 </div>
@@ -225,12 +237,12 @@ export default function ManageEventModal({ isOpen, onClose, showId, event, onSuc
                     </button>
                     
                     <div className="flex gap-3">
-                        <button type="button" onClick={onClose} className="rounded-lg px-4 py-2 font-medium text-gray-600 transition hover:bg-gray-100">Done</button>
+                        <ModalCancelButton onClick={onClose}>Done</ModalCancelButton>
                         
                         {activeTab === "details" ? (
-                            <button type="submit" form="update-event-form" disabled={isLoading} className="rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition hover:bg-blue-700 disabled:opacity-50">
+                            <ModalSubmitButton type="submit" form="update-event-form" disabled={isLoading}>
                                 {isLoading ? "Saving..." : "Save Details"}
-                            </button>
+                            </ModalSubmitButton>
                         ) : (
                             <button type="button" onClick={handleSaveAssignments} disabled={isLoading} className="rounded-lg bg-green-600 px-4 py-2 font-medium text-white transition hover:bg-green-700 disabled:opacity-50">
                                 {isLoading ? "Updating..." : "Update Assignments"}
@@ -239,6 +251,6 @@ export default function ManageEventModal({ isOpen, onClose, showId, event, onSuc
                     </div>
                 </div>
             </div>
-        </div>
+        </ModalWrapper>
     );
 }

@@ -1,21 +1,37 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import { getShowDashboard } from "../services/api";
+import { Link, useParams, useNavigate } from "react-router-dom";
+import { getShowDashboard, getShowCalendar } from "../services/api";
 import DashboardSection from "../components/ui/DashboardSection";
 import MemberListItem from "../components/ui/users/MemberListItem";
+import ManageShowMembersModal from "../components/ManageShowMembersModal";
+import RoleModal from "../components/ShowRoleModal";
+import {IconButton} from "../components/ui/IconButton.jsx";
 
 export default function ShowOverview() {
 	const { orgId, showId } = useParams();
+	const navigate = useNavigate();
 
 	const [showData, setShowData] = useState(null);
+	const [events, setEvents] = useState([]);
 	const [isLoading, setIsLoading] = useState(true);
+
+	const [isManageMembersModalOpen, setIsManageMembersModalOpen] = useState(false);
+	const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
+	const [selectedUser, setSelectedUser] = useState(null);
+
+	// Calendar State
+	const [currentMonth, setCurrentMonth] = useState(new Date());
+	const [selectedDate, setSelectedDate] = useState(new Date());
 
 	const fetchData = useCallback(async () => {
 		try {
 			setIsLoading(true);
-			const res = await getShowDashboard(showId);
-			// Axios puts the response body in .data, and our controller sends { success: true, data: summary }
-			setShowData(res.data.data); 
+			const [dashboardRes, calendarRes] = await Promise.all([
+				getShowDashboard(showId),
+				getShowCalendar(showId)
+			]);
+			setShowData(dashboardRes.data.data);
+			setEvents(calendarRes.data.data || []);
 		} catch (err) {
 			console.error("Failed to fetch show data:", err);
 		} finally {
@@ -47,16 +63,80 @@ export default function ShowOverview() {
 		);
 	}
 
-	// Safe budget calculations to prevent division by zero
 	const budgetTotal = showData.budget?.total || 0;
 	const budgetSpent = showData.budget?.spent || 0;
 	const percentSpent = budgetTotal > 0 ? (budgetSpent / budgetTotal) * 100 : 0;
 	const isOverBudgetLimit = percentSpent > 85;
 
+	// Calendar Grid Rendering Logic (GCal Style)
+	const renderCalendarDays = () => {
+		const daysInMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0).getDate();
+		const firstDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1).getDay();
+		const days = [];
+
+		// Blank cells for alignment
+		for (let i = 0; i < firstDay; i++) {
+			days.push(<div key={`blank-${i}`} className="bg-gray-50/50 min-h-20"></div>);
+		}
+
+		// Actual day cells
+		for (let d = 1; d <= daysInMonth; d++) {
+			const dateObj = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), d);
+			const isSelected = selectedDate.toDateString() === dateObj.toDateString();
+			const isToday = new Date().toDateString() === dateObj.toDateString();
+
+			const dayEvents = events.filter(e => new Date(e.start_time).toDateString() === dateObj.toDateString());
+
+			days.push(
+				<div
+					key={d}
+					onClick={() => setSelectedDate(dateObj)}
+					className={`bg-white min-h-20 p-1 border-transparent cursor-pointer transition-colors flex flex-col items-center ${isSelected ? 'ring-2 ring-inset ring-blue-500 bg-blue-50/30 z-10' : 'hover:bg-gray-50'}`}
+				>
+					<span className={`w-6 h-6 flex items-center justify-center rounded-full text-xs mb-0.5 ${isToday ? 'bg-blue-600 text-white font-bold' : (isSelected ? 'text-blue-700 font-bold' : 'text-gray-700')}`}>
+						{d}
+					</span>
+					{/* GCal Style Event Text Blocks */}
+					<div className="flex flex-col gap-0.5 w-full px-0.5 overflow-hidden">
+						{dayEvents.slice(0, 3).map((e, i) => (
+							<div key={i} className="truncate text-[10px] leading-tight px-1 py-0.5 rounded bg-blue-100 text-blue-700 font-medium w-full text-left" title={e.title}>
+								{e.title}
+							</div>
+						))}
+						{dayEvents.length > 3 && (
+							<div className="text-[10px] text-gray-500 text-center font-medium">
+								+{dayEvents.length - 3} more
+							</div>
+						)}
+					</div>
+				</div>
+			);
+		}
+		return days;
+	};
+
+	const selectedDayEvents = events.filter(e => new Date(e.start_time).toDateString() === selectedDate.toDateString());
+
 	return (
-		<div className="mx-auto flex h-[calc(100vh-9rem)] max-w-[90rem] gap-6 p-4 sm:p-6 lg:p-8">
-			{/* Sidebar Navigation */}
-			<aside className="flex w-64 flex-shrink-0 flex-col overflow-hidden rounded-2xl bg-white shadow-xl ring-1 ring-gray-200">
+		<div className="mx-auto flex h-[calc(100vh-9rem)] max-w-360 gap-6 p-4 sm:p-6 lg:p-8">
+			<ManageShowMembersModal
+				isOpen={isManageMembersModalOpen}
+				onClose={() => setIsManageMembersModalOpen(false)}
+				orgId={orgId}
+				showId={showId}
+				members={showData?.members || []}
+				onSuccess={fetchData}
+			/>
+			<RoleModal
+				isOpen={isRoleModalOpen}
+				onClose={() => setIsRoleModalOpen(false)}
+				user={selectedUser}
+				showId={showId}
+				onSuccess={fetchData}
+			/>
+
+			{/* Sidebar Navigation - UNTOUCHED */}
+			<aside className="flex w-64 shrink-0 flex-col overflow-hidden rounded-2xl bg-white shadow-xl ring-1 ring-gray-200">
 				<div className="bg-gray-800 p-6 text-white">
 					<h2 className="truncate font-bold text-xl" title={showData.title}>
 						{showData.title}
@@ -80,40 +160,79 @@ export default function ShowOverview() {
 			{/* Main Widget Grid */}
 			<main className="flex-1 overflow-y-auto">
 				<div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+
 					{/* Left/Center Column: Primary Widgets */}
 					<div className="flex flex-col gap-6 xl:col-span-2">
-						{/* Up Next Widget */}
+
+						{/* Calendar Widget */}
 						<DashboardSection
-							title="Up Next"
+							title="Show Calendar"
 							actionTitle="View Full Calendar"
 							buttonColour="blue"
-							icon="→"
-							onActionClick={() => console.log("Navigate to schedule")}
+							buttonIcon="📅"
+							onActionClick={() => navigate(`/orgs/${orgId}/shows/${showId}/scheduling`)}
 						>
-							<ul className="divide-y divide-gray-100">
-								{showData.schedule?.length > 0 ? (
-									showData.schedule.map((event) => (
-										<li
-											key={event.id}
-											className="flex items-center justify-between py-3"
-										>
-											<span className="font-medium text-gray-800">
-												{event.title || "Scheduled Event"}
-											</span>
-											<span className="text-gray-500 text-sm">
-												{new Date(event.start_time).toLocaleString()}
-											</span>
-										</li>
-									))
-								) : (
-									<li className="py-4 text-center italic text-gray-500">
-										No upcoming events scheduled.
-									</li>
-								)}
-							</ul>
+							<div className="flex flex-col h-full">
+								{/* Month Navigation */}
+								<div className="flex items-center justify-between mb-4">
+									<IconButton
+										onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))}
+										icon="◀"
+										size="p1_5"
+										colour="custom"
+										customColour="hover:bg-gray-200 rounded text-gray-600"
+										classes="transition-colors"
+										shape="none"
+									/>
+									<h3 className="font-bold text-gray-800 text-lg">
+										{currentMonth.toLocaleDateString('default', { month: 'long', year: 'numeric' })}
+									</h3>
+									<IconButton
+										onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))}
+										icon="▶"
+										size="p1_5"
+										colour="custom"
+										customColour="hover:bg-gray-200 rounded text-gray-600"
+										classes="transition-colors"
+										shape="none"
+									/>
+								</div>
+
+								{/* Calendar Grid */}
+								<div className="grid grid-cols-7 gap-px mb-2 bg-gray-200 border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+									{['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+										<div key={day} className="bg-gray-50 py-2 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">{day}</div>
+									))}
+									{renderCalendarDays()}
+								</div>
+
+								{/* Selected Day Agenda */}
+								<div className="mt-2 flex-1 overflow-y-auto max-h-48">
+									<h4 className="text-sm font-bold text-gray-700 mb-2 border-b border-gray-200 pb-2 sticky top-0 bg-gray-50 pt-2">
+										{selectedDate.toLocaleDateString('default', { weekday: 'long', month: 'long', day: 'numeric' })}
+									</h4>
+									{selectedDayEvents.length > 0 ? (
+										<ul className="space-y-2">
+											{selectedDayEvents.map(event => (
+												<li key={event.id} className="flex flex-col p-3 bg-white rounded-lg border border-gray-200 shadow-sm hover:border-blue-300 transition-colors">
+													<span className="font-bold text-sm text-gray-900">{event.title}</span>
+													<div className="flex items-center justify-between mt-1">
+														<span className="text-xs font-medium text-blue-600">
+															{new Date(event.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {new Date(event.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+														</span>
+														{event.location && <span className="text-xs text-gray-500">📍 {event.location}</span>}
+													</div>
+												</li>
+											))}
+										</ul>
+									) : (
+										<p className="text-sm text-gray-500 italic py-3 text-center">No events scheduled.</p>
+									)}
+								</div>
+							</div>
 						</DashboardSection>
 
-						{/* Compact Budget Widget */}
+						{/* Compact Budget Widget - UNTOUCHED */}
 						<DashboardSection
 							title="Budget Overview"
 							actionTitle="Manage Budget"
@@ -137,13 +256,13 @@ export default function ShowOverview() {
 						</DashboardSection>
 					</div>
 
-					{/* Right Column: People */}
+					{/* Right Column: People - UNTOUCHED */}
 					<div className="flex flex-col gap-6">
 						<DashboardSection
 							title="Cast & Crew"
 							actionTitle="Manage Roster"
 							className="h-full"
-							onActionClick={() => console.log("Open roster modal/page")}
+							onActionClick={() => setIsManageMembersModalOpen(true)}
 						>
 							<ul className="space-y-3">
 								{showData.members?.length > 0 ? (
@@ -151,7 +270,10 @@ export default function ShowOverview() {
 										<MemberListItem
 											key={m.assignment_id || m.id}
 											member={m}
-											onClick={() => console.log("View member details", m)}
+											onClick={() => {
+												setSelectedUser(m);
+												setIsRoleModalOpen(true);
+											}}
 										/>
 									))
 								) : (

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { removeUserFromOrganization } from "../services/api";
 import RoleModal from "./OrgRoleModal";
+import { ModalWrapper, ModalSubWrapper } from "./ui/modals";
 
 export default function FullMembersModal({
 	isOpen,
@@ -29,10 +30,7 @@ export default function FullMembersModal({
 	};
 
 	return (
-		<div
-			className="fixed inset-0 z-40 flex items-center justify-center p-4"
-			style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
-		>
+		<ModalWrapper>
 			{/* We render the Role Modal inside here or keep it separate. Keeping it nested for hierarchy */}
 			<RoleModal
 				isOpen={isRoleModalOpen}
@@ -42,7 +40,7 @@ export default function FullMembersModal({
 				onSuccess={onSuccess}
 			/>
 
-			<div className="relative max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-lg bg-white p-6 shadow-xl">
+			<ModalSubWrapper>
 				<button
 					onClick={onClose}
 					type="button"
@@ -132,7 +130,7 @@ export default function FullMembersModal({
 						</div>
 					</section>
 				)}
-			</div>
-		</div>
+			</ModalSubWrapper>
+		</ModalWrapper>
 	);
 }

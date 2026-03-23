@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { createShow } from "../services/api";
+import { ModalWrapper, ModalSubWrapper, ModalLabel, ModalInput, ModalSubmitButton, ModalCancelButton } from "./ui/modals";
 
 export default function CreateShowModal({ isOpen, onClose, onSuccess, orgId }) {
 	const [title, setTitle] = useState("");
@@ -33,20 +34,14 @@ export default function CreateShowModal({ isOpen, onClose, onSuccess, orgId }) {
 	};
 
 	return (
-		<div
-			className="fixed inset-0 z-50 flex items-center justify-center p-4"
-			style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
-		>
-			<div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+		<ModalWrapper>
+			<ModalSubWrapper>
 				<h3 className="mb-4 font-bold text-gray-900 text-lg">Create New Show</h3>
 				<form onSubmit={handleSubmit}>
 					<div className="mb-4">
-						<label className="mb-1 block font-medium text-gray-700 text-sm">
-							Show Title
-						</label>
-						<input
+						<ModalLabel>Show Title</ModalLabel>
+						<ModalInput
 							type="text"
-							className="w-full rounded border border-gray-300 p-2 outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
 							value={title}
 							onChange={(e) => setTitle(e.target.value)}
 							required
@@ -56,24 +51,18 @@ export default function CreateShowModal({ isOpen, onClose, onSuccess, orgId }) {
 					
 					<div className="mb-6 grid grid-cols-2 gap-4">
 						<div>
-							<label className="mb-1 block font-medium text-gray-700 text-sm">
-								Start Date
-							</label>
-							<input
+							<ModalLabel>Start Date</ModalLabel>
+							<ModalInput
 								type="date"
-								className="w-full rounded border border-gray-300 p-2 outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
 								value={startDate}
 								onChange={(e) => setStartDate(e.target.value)}
 								required
 							/>
 						</div>
 						<div>
-							<label className="mb-1 block font-medium text-gray-700 text-sm">
-								End Date
-							</label>
-							<input
+							<ModalLabel>End Date</ModalLabel>
+							<ModalInput
 								type="date"
-								className="w-full rounded border border-gray-300 p-2 outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
 								value={endDate}
 								onChange={(e) => setEndDate(e.target.value)}
 								required
@@ -82,23 +71,13 @@ export default function CreateShowModal({ isOpen, onClose, onSuccess, orgId }) {
 					</div>
 
 					<div className="flex justify-end space-x-3">
-						<button
-							type="button"
-							onClick={onClose}
-							className="cursor-pointer rounded px-4 py-2 text-gray-600 transition-colors hover:bg-gray-100"
-						>
-							Cancel
-						</button>
-						<button
-							type="submit"
-							disabled={loading}
-							className="cursor-pointer rounded bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700 disabled:bg-gray-400"
-						>
+						<ModalCancelButton onClick={onClose}>Cancel</ModalCancelButton>
+						<ModalSubmitButton type="submit" disabled={loading}>
 							{loading ? "Creating..." : "Create Show"}
-						</button>
+						</ModalSubmitButton>
 					</div>
 				</form>
-			</div>
-		</div>
+			</ModalSubWrapper>
+		</ModalWrapper>
 	);
 }

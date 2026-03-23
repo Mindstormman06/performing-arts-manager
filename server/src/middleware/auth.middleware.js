@@ -27,7 +27,6 @@ export const authenticate = async (req, res, next) => {
 		req.user = decoded;
 		next();
 	} catch (error) {
-		// invalid or malformed token should be treated as bad request
 		const statusCode = error.name === "JsonWebTokenError" ? 400 : 401;
 		res
 			.status(statusCode)
@@ -40,8 +39,6 @@ export const authorizeOrg = (requiredRoles = []) => {
 		let orgId = req.params.orgId || req.params.id || req.body.organization_id;
 		const userId = req.user.id;
 
-		// guard against the literal string 'undefined' which can occur when test
-		// filters skip earlier setup and a template string gets passed an undefined
 		if (orgId === "undefined") {
 			orgId = undefined;
 		}
@@ -87,6 +84,23 @@ export const authorizeShow = (requiredRoles = []) => {
 		const showId = req.params.showId || req.params.id;
 		const userId = req.user.id;
 
+		const show = await models.Show.findByPk(showId);
+		if (!show) {
+			return res.status(404).json({ success: false, message: "Show not found." });
+		}
+
+		const orgMembership = await models.OrgMembership.findOne({
+			where: { org_id: show.organization_id, users_id: userId },
+			include: [{ model: models.OrganizationRole, as: "assignedRoles" }]
+		});
+
+		if (orgMembership) {
+			const orgRoles = orgMembership.assignedRoles.map(r => r.name);
+			if (orgRoles.includes("president") || orgRoles.includes("board-member")) {
+				return next();
+			}
+		}
+
 		const membership = await models.ShowMembership.findOne({
 			where: { show_id: showId, users_id: userId },
 			include: [{ model: models.ShowRole, as: "assignedRoles" }],
@@ -114,14 +128,12 @@ export const authorizeShow = (requiredRoles = []) => {
 	};
 };
 
-// --- NEW INVENTORY MIDDLEWARE ---
 export const authorizeInventoryDept = (level) => {
 	return async (req, res, next) => {
 		const userId = req.user.id;
 		let userRoles = [];
 		let entityId;
 
-		// 1. Fetch membership and roles based on context level
 		if (level === "org") {
 			entityId = req.params.orgId;
 			const membership = await models.OrgMembership.findOne({
@@ -140,18 +152,15 @@ export const authorizeInventoryDept = (level) => {
 			userRoles = membership.assignedRoles.map((r) => r.name);
 		}
 
-		// 2. Check for "Super" Roles that can manage everything
 		const allowedBaseRoles = level === "org" ? ["admin", "president"] : ["director", "stage-manager"];
 		const hasBaseRole = allowedBaseRoles.some((role) => userRoles.includes(role));
 
 		if (hasBaseRole) {
-			return next(); // Admins, Presidents, Directors, and Stage Managers get a free pass
+			return next();
 		}
 
-		// 3. Determine the Department ID involved in the request
-		let deptIdToCheck = req.body?.dept_id; // Usually available on POST (creation) routes
+		let deptIdToCheck = req.body?.dept_id;
 
-		// If it's a pull or delete route, we have to look up the item in the DB to find its department
 		if (!deptIdToCheck && req.params.inventoryId) {
 			const item = await models.Inventory.findByPk(req.params.inventoryId);
 			if (!item) {
@@ -160,14 +169,12 @@ export const authorizeInventoryDept = (level) => {
 			deptIdToCheck = item.dept_id;
 		}
 
-		// 4. Validate specific Department Role
 		if (deptIdToCheck) {
 			const dept = await models.Department.findByPk(deptIdToCheck);
 			if (dept) {
-				// Assumes your department names (e.g., "Costumes") match your role names (e.g., "costumes")
-				const deptRoleName = dept.name.toLowerCase(); 
+				const deptRoleName = dept.name.toLowerCase();
 				if (userRoles.includes(deptRoleName)) {
-					return next(); // They have the specific department role!
+					return next();
 				}
 			}
 		}

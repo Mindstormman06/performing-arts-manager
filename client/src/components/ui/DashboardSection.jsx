@@ -5,6 +5,7 @@ export default function DashboardSection({
     onActionClick, 
     actionTitle, 
     buttonColour = "blue",
+    buttonIcon = "+",
     isTitleClickable = false,
     onTitleClick = null,
     className = "flex-1",
@@ -26,12 +27,15 @@ export default function DashboardSection({
                         title
                     )}
                 </h2>
-                <IconButton
-                    onClick={onActionClick}
-                    title={actionTitle}
-                    colour={buttonColour}
-                    shape="circle"
-                />
+                {actionTitle && (
+                    <IconButton
+                        onClick={onActionClick}
+                        title={actionTitle}
+                        colour={buttonColour}
+                        shape="circle"
+                        icon={buttonIcon}
+                    />
+                )}
             </div>
 
             {/* Content Container */}
