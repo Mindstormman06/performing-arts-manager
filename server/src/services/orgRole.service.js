@@ -32,13 +32,13 @@ async function setRolesForAssignment(orgId, userId, roleNames) {
 	if (!membership) throw new Error("User is not a member of this organization");
 
 	// Remove all existing roles
-	await models.OrgRole.destroy({
+	await models.OrgRoleRelationship.destroy({
 		where: { assignment_id: membership.assignment_id },
 	});
 
 	// Add new roles if any
 	if (roleNames && roleNames.length > 0) {
-		const roles = await models.Role.findAll({
+		const roles = await models.OrganizationRole.findAll({
 			where: { name: roleNames },
 		});
 
@@ -47,7 +47,7 @@ async function setRolesForAssignment(orgId, userId, roleNames) {
 			role_id: role.id,
 		}));
 
-		await models.OrgRole.bulkCreate(roleEntries);
+		await models.OrgRoleRelationship.bulkCreate(roleEntries);
 	}
 
 	return await membership.getAssignedRoles();
@@ -61,7 +61,7 @@ async function getOrgUsers(orgId) {
 		where: { org_id: orgId },
 		include: [
 			{ model: models.User },
-			{ model: models.Role, as: "assignedRoles" },
+			{ model: models.OrganizationRole, as: "assignedRoles" },
 		],
 	});
 	if (!memberships.length)
@@ -77,7 +77,7 @@ async function getOrgUserById(orgId, userId) {
 		where: { org_id: orgId, users_id: userId },
 		include: [
 			{ model: models.User },
-			{ model: models.Role, as: "assignedRoles" },
+			{ model: models.OrganizationRole, as: "assignedRoles" },
 		],
 	});
 	if (!membership) throw new Error("User not found in this organization");
@@ -88,7 +88,7 @@ async function getUsersByRole(orgId, roleName) {
 	const org = await models.Organization.findOne({ where: { id: orgId } });
 	if (!org) throw new Error("Organization not found");
 
-	const role = await models.Role.findOne({ where: { name: roleName } });
+	const role = await models.OrganizationRole.findOne({ where: { name: roleName } });
 	if (!role) throw new Error("Role not found");
 
 	return await models.User.findAll({
@@ -98,7 +98,7 @@ async function getUsersByRole(orgId, roleName) {
 				where: { org_id: orgId },
 				include: [
 					{
-						model: models.Role,
+						model: models.OrganizationRole,
 						as: "assignedRoles",
 						where: { name: roleName }, // Filter by role name here
 					},
@@ -129,7 +129,7 @@ async function removeRolesFromUser(orgId, userId, roleNames) {
 		where: { org_id: orgId, users_id: userId },
 	});
 
-	const roles = await models.Role.findAll({
+	const roles = await models.OrganizationRole.findAll({
 		where: { name: namesArray },
 	});
 
@@ -138,7 +138,7 @@ async function removeRolesFromUser(orgId, userId, roleNames) {
 
 	const roleIds = roles.map((r) => r.id);
 
-	const deletedCount = await models.OrgRole.destroy({
+	const deletedCount = await models.OrgRoleRelationship.destroy({
 		where: {
 			assignment_id: membership.assignment_id,
 			role_id: roleIds,

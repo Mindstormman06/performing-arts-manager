@@ -1,19 +1,26 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { updateOrganizationUserRoles } from "../services/api";
+import { ModalWrapper, ModalSubWrapper, ModalCheckbox, ModalSubmitButton, ModalCancelButton } from "./ui/modals";
+
 
 export default function RoleModal({ isOpen, onClose, onSuccess, orgId, user }) {
-	// List of roles available in your system
+	const [loading, setLoading] = useState(false);
+
 	const availableRoles = [
-		"admin",
 		"board-member",
 		"costumes",
 		"props",
 		"sets",
-		"tech",
+		"tech"
 	];
-	const [selectedRoles, setSelectedRoles] = useState(
-		() => user?.assignedRoles?.map((r) => r.name) || [],
-	);
+	
+	const [selectedRoles, setSelectedRoles] = useState([]);
+
+	useEffect(() => {
+		if (isOpen && user) {
+			setSelectedRoles(user.assignedRoles?.map((r) => r.name) || []);
+		}
+	}, [isOpen, user]);
 
 	if (!isOpen) return null;
 
@@ -24,6 +31,7 @@ export default function RoleModal({ isOpen, onClose, onSuccess, orgId, user }) {
 	};
 
 	const handleSave = async () => {
+		setLoading(true);
 		try {
 			const hiddenRoles =
 				user?.assignedRoles
@@ -39,15 +47,14 @@ export default function RoleModal({ isOpen, onClose, onSuccess, orgId, user }) {
 			alert(
 				`Failed to update roles: ${err.response?.data?.message || err.message}`,
 			);
+		} finally {
+			setLoading(false);
 		}
 	};
 
 	return (
-		<div
-			className="fixed inset-0 z-50 flex items-center justify-center p-4"
-			style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
-		>
-			<div className="w-80 rounded-lg bg-white p-6 shadow-xl">
+		<ModalWrapper>
+			<ModalSubWrapper>
 				<h3 className="mb-4 font-bold">Manage Roles for {user.User.fname}</h3>
 				<div className="mb-6 space-y-2">
 					{availableRoles.map((role) => (
@@ -55,33 +62,21 @@ export default function RoleModal({ isOpen, onClose, onSuccess, orgId, user }) {
 							key={role}
 							className="flex items-center space-x-2 capitalize"
 						>
-							<input
-								type="checkbox"
+							<ModalCheckbox
 								checked={selectedRoles.includes(role)}
 								onChange={() => handleToggle(role)}
-								className="form-checkbox h-5 w-5 cursor-pointer text-blue-600"
 							/>
 							<span>{role}</span>
 						</label>
 					))}
 				</div>
 				<div className="flex justify-end gap-2">
-					<button
-						onClick={onClose}
-						type="button"
-						className="cursor-pointer text-gray-500 hover:text-gray-700"
-					>
-						Cancel
-					</button>
-					<button
-						onClick={handleSave}
-						type="button"
-						className="cursor-pointer rounded bg-blue-600 px-4 py-1 text-white hover:bg-blue-700"
-					>
-						Save
-					</button>
+					<ModalCancelButton onClick={onClose}>Cancel</ModalCancelButton>
+					<ModalSubmitButton onClick={handleSave} type="button" disabled={loading}>
+						{loading ? "Saving..." : "Save"}
+					</ModalSubmitButton>
 				</div>
-			</div>
-		</div>
+			</ModalSubWrapper>
+		</ModalWrapper>
 	);
 }

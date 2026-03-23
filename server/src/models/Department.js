@@ -14,6 +14,7 @@ export default (sequelize, DataTypes) => {
 		},
 		{
 			tableName: "departments",
+            timestamps: false
 		},
 	);
 

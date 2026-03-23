@@ -15,4 +15,17 @@ async function login(req, res) {
 	}
 }
 
-export default { login };
+async function verify(req, res) {
+	try {
+		const user = await authService.verify(req.user.id);
+		
+		res.json({
+			success: true,
+			user: user,
+		});
+	} catch (error) {
+		res.status(401).json({ success: false, message: error.message });
+	}
+}
+
+export default { login, verify };

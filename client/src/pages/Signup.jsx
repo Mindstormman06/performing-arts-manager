@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { signup } from "../services/api";
+import PageInput from "../components/ui/PageInput.jsx";
 
 export default function SignupPage() {
 	const [formData, setFormData] = useState({
@@ -39,42 +40,37 @@ export default function SignupPage() {
 				<h2 className="mb-6 text-center font-bold text-2xl">Create Account</h2>
 				{error && <p className="mb-4 text-center text-red-500">{error}</p>}
 				<form onSubmit={handleSubmit} className="space-y-4">
-					<input
+					<PageInput
 						name="fname"
 						placeholder="First Name"
 						onChange={handleChange}
-						className="w-full rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
 						required
 					/>
-					<input
+					<PageInput
 						name="lname"
 						placeholder="Last Name"
 						onChange={handleChange}
-						className="w-full rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
 						required
 					/>
-					<input
+					<PageInput
 						name="email"
 						type="email"
 						placeholder="Email"
 						onChange={handleChange}
-						className="w-full rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
 						required
 					/>
-					<input
+					<PageInput
 						name="password"
 						type="password"
 						placeholder="Password"
 						onChange={handleChange}
-						className="w-full rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
 						required
 					/>
-					<input
+					<PageInput
 						type="password"
 						placeholder="Confirm Password"
 						value={confirmPassword}
 						onChange={(e) => setConfirmPassword(e.target.value)}
-						className="w-full rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
 						required
 					/>
 					<button

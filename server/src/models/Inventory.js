@@ -27,6 +27,10 @@ export default (sequelize, DataTypes) => {
 				type: DataTypes.INTEGER,
 				allowNull: false,
 			},
+			org_id: {
+				type: DataTypes.INTEGER,
+				allowNull: false,
+			}
 		},
 		{
 			tableName: "inventory",

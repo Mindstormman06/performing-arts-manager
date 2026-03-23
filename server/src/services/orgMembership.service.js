@@ -6,7 +6,7 @@ async function getUserOrganizations(userId) {
 		include: [
 			{ model: models.Organization },
 			{
-				model: models.Role,
+				model: models.OrganizationRole,
 				as: "assignedRoles",
 				through: { attributes: [] }, // Don't include junction table attributes
 			},

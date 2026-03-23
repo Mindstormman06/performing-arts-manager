@@ -19,6 +19,10 @@ export default (sequelize, DataTypes) => {
 				type: DataTypes.DATE,
 				allowNull: false,
 			},
+			organization_id: {
+				type: DataTypes.INTEGER,
+				references: { model: "organizations", key: "id" },
+			},
 		},
 		{
 			tableName: "shows",

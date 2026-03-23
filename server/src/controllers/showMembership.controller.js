@@ -24,6 +24,26 @@ async function join(req, res, next) {
 	}
 }
 
+async function invite(req, res, next) {
+	try {
+		const { showId } = req.params;
+		const { orgId, email } = req.body;
+
+		const invitation = await showMembershipService.inviteByEmail(orgId, showId, email);
+
+		return res.status(201).json({
+			success: true,
+			message: "Invitation sent",
+			data: invitation,
+		});
+	} catch (error) {
+		if (error.message.includes("already in") || error.message.includes("No user found")) {
+			return res.status(400).json({ success: false, message: error.message });
+		}
+		next(error);
+	}
+}
+
 async function addRoles(req, res, next) {
 	try {
 		const { showId, userId } = req.params;
@@ -141,6 +161,7 @@ async function removeRole(req, res, next) {
 
 export default {
 	join,
+	invite,
 	addRoles,
 	getAllUsers,
 	getUser,
