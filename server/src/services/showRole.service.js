@@ -1,6 +1,6 @@
 import models from "../models/index.js";
 
-async function setRolesForAssignment(showId, userId, roleNames) {
+async function appendRolesToAssignment(showId, userId, roleNames) {
 	const show = await models.Show.findOne({ where: { id: showId } });
 	if (!show) throw new Error("Show not found");
 	
@@ -14,6 +14,7 @@ async function setRolesForAssignment(showId, userId, roleNames) {
         roles = await models.ShowRole.findAll({
             where: { name: roleNames },
         });
+        if (!roles.length) throw new Error("No valid roles provided");
     }
 
 	await membership.setAssignedRoles(roles);
@@ -122,7 +123,7 @@ async function removeRolesFromUser(showId, userId, roleNames) {
 }
 
 export default {
-	setRolesForAssignment,
+	appendRolesToAssignment,
 	getShowUsers,
 	getShowUserById,
 	getUsersByRole,

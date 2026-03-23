@@ -148,6 +148,7 @@ async function getPersonalSchedule(userId) {
         include: [
             {
                 model: models.User,
+                as: "attendees",
                 where: { id: userId },
                 attributes: [],
                 through: { attributes: [] }

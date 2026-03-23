@@ -7,7 +7,8 @@ import {
 	ModalError,
 	ModalSubmitButton,
 	ModalCancelButton,
-	ModalSubHeader
+	ModalSubHeader,
+	ModalSubWrapper
 } from "./ui/modals";
 
 export default function InviteMemberModal({

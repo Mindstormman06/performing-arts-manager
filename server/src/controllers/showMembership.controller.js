@@ -49,7 +49,7 @@ async function addRoles(req, res, next) {
 		const { showId, userId } = req.params;
 		const { roles } = req.body; // Expecting ["admin", "tech"]
 
-		const updatedRoles = await showRoleService.setRolesForAssignment(
+		const updatedRoles = await showRoleService.appendRolesToAssignment(
 			showId,
 			userId,
 			roles,
