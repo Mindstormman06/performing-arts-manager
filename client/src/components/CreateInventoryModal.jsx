@@ -3,11 +3,18 @@ import { createGlobalInventoryItem } from "../services/api";
 import {
     ModalCancelButton,
     ModalDropdown,
+    ModalError,
+    ModalHeader,
     ModalInput,
     ModalLabel,
     ModalSubmitButton,
+    ModalSubWrapper,
     ModalTextarea,
     ModalWrapper,
+    ModalBody,
+    ModalFooter,
+    ModalInputContainer,
+    ModalInputParent
 } from "./ui/modals";
 
 export default function CreateInventoryModal({ isOpen, onClose, orgId, departments, userRoles, onSuccess }) {
@@ -19,18 +26,20 @@ export default function CreateInventoryModal({ isOpen, onClose, orgId, departmen
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
-    if (!isOpen) return null;
-
     // Filter departments based on user permissions
     const isSuperAdmin = userRoles.includes("admin") || userRoles.includes("president");
     const allowedDepartments = departments.filter(dept => 
         isSuperAdmin || userRoles.includes(dept.name.toLowerCase())
     );
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError("");
+    const handleCreateItem = async () => {
+        if (!formData.name || !formData.dept_id || !formData.description) {
+            setError("Please fill in all required fields.");
+            return;
+        }
+
         setIsLoading(true);
+        setError("");
 
         try {
             await createGlobalInventoryItem(orgId, formData);
@@ -44,32 +53,43 @@ export default function CreateInventoryModal({ isOpen, onClose, orgId, departmen
         }
     };
 
+    if (!isOpen) return null;
+
+    if (allowedDepartments.length === 0) {
+        return (
+            <ModalWrapper>
+                <ModalSubWrapper>
+                    <ModalHeader>Add Global Inventory Item</ModalHeader>
+                    <ModalError>You do not have permission to add inventory to any departments.</ModalError>
+                </ModalSubWrapper>
+            </ModalWrapper>
+        );
+    }
+
     return (
         <ModalWrapper>
-            <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-                <h2 className="mb-4 text-2xl font-bold text-gray-800">Add Global Inventory Item</h2>
-                
-                {allowedDepartments.length === 0 ? (
-                    <div className="mb-4 rounded bg-red-50 p-4 text-red-600">
-                        You do not have permission to add inventory to any departments.
-                    </div>
-                ) : (
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        {error && <div className="rounded bg-red-50 p-3 text-sm text-red-600">{error}</div>}
-                        
-                        <div>
-                            <ModalLabel>Item Name</ModalLabel>
+            <ModalSubWrapper>
+                <ModalHeader onClick={onClose}>Add Global Inventory Item</ModalHeader>
+
+                {error && <ModalError>{error}</ModalError>}
+
+                <ModalBody>
+                    <ModalInputParent>
+                        <ModalInputContainer>
+                            <ModalLabel htmlFor="create-inventory-name">Item Name</ModalLabel>
                             <ModalInput
+                                id="create-inventory-name"
                                 type="text"
                                 required
                                 value={formData.name}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                             />
-                        </div>
+                        </ModalInputContainer>
 
-                        <div>
-                            <ModalLabel>Department</ModalLabel>
+                        <ModalInputContainer>
+                            <ModalLabel htmlFor="create-inventory-department">Department</ModalLabel>
                             <ModalDropdown
+                                id="create-inventory-department"
                                 required
                                 value={formData.dept_id}
                                 onChange={(e) => setFormData({ ...formData, dept_id: e.target.value })}
@@ -79,30 +99,32 @@ export default function CreateInventoryModal({ isOpen, onClose, orgId, departmen
                                     <option key={dept.id} value={dept.id}>{dept.name}</option>
                                 ))}
                             </ModalDropdown>
-                        </div>
+                        </ModalInputContainer>
 
-                        <div>
-                            <ModalLabel>Description</ModalLabel>
+                        <ModalInputContainer>
+                            <ModalLabel htmlFor="create-inventory-description">Description</ModalLabel>
                             <ModalTextarea
+                                id="create-inventory-description"
                                 required
                                 rows="3"
                                 value={formData.description}
                                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                             />
-                        </div>
+                        </ModalInputContainer>
+                    </ModalInputParent>
+                </ModalBody>
 
-                        <div className="mt-6 flex justify-end gap-3">
-                            <ModalCancelButton onClick={onClose}>Cancel</ModalCancelButton>
-                            <ModalSubmitButton
-                                type="submit"
-                                disabled={isLoading}
-                            >
-                                {isLoading ? "Adding..." : "Add Item"}
-                            </ModalSubmitButton>
-                        </div>
-                    </form>
-                )}
-            </div>
+                <ModalFooter>
+                    <ModalCancelButton onClick={onClose}>Cancel</ModalCancelButton>
+                    <ModalSubmitButton
+                        type="button"
+                        onClick={handleCreateItem}
+                        disabled={isLoading}
+                    >
+                        {isLoading ? "Adding..." : "Add Item"}
+                    </ModalSubmitButton>
+                </ModalFooter>
+            </ModalSubWrapper>
         </ModalWrapper>
     );
 }

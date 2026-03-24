@@ -9,22 +9,38 @@ import {
     ModalSubmitButton,
     ModalTextarea,
     ModalWrapper,
+    ModalSubWrapper,
+    ModalHeader,
+    ModalNav,
+    ModalNavItem,
+    ModalBody,
+    ModalFooter,
+    ModalInputContainer,
+    ModalInputParent,
+    ModalBox,
 } from "./ui/modals";
 
 export default function ManageShowInventoryModal({ isOpen, onClose, showId, orgId, departments, userRoles, currentInventory, onSuccess }) {
     const [activeTab, setActiveTab] = useState("pull"); // 'pull' or 'create'
     const [globalItems, setGlobalItems] = useState([]);
-    
-    // Create Form State
+
     const [formData, setFormData] = useState({ name: "", description: "", dept_id: "" });
-    
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
-    // Fetch global items when the "Pull" tab is active
+    useEffect(() => {
+        if (isOpen) {
+            setActiveTab("pull");
+            setFormData({ name: "", description: "", dept_id: "" });
+            setError("");
+        }
+    }, [isOpen]);
+
     useEffect(() => {
         if (isOpen && activeTab === "pull") {
-            getGlobalInventory(orgId).then(res => setGlobalItems(res.data)).catch(console.error);
+            getGlobalInventory(orgId)
+                .then((res) => setGlobalItems(res.data))
+                .catch(() => setError("Failed to load global inventory"));
         }
     }, [isOpen, activeTab, orgId]);
 
@@ -35,15 +51,19 @@ export default function ManageShowInventoryModal({ isOpen, onClose, showId, orgI
         isSuperAdmin || userRoles.includes(dept.name.toLowerCase())
     );
 
-    // Filter out global items that are already in the show, OR that the user doesn't have dept access to
     const availableGlobalItems = globalItems.filter(item => {
         const isAlreadyInShow = currentInventory.some(showItem => showItem.id === item.id);
         const hasDeptAccess = isSuperAdmin || userRoles.includes(item.Department?.name?.toLowerCase());
         return !isAlreadyInShow && hasDeptAccess;
     });
 
-    const handleCreateSubmit = async (e) => {
-        e.preventDefault();
+    const handleCreateItem = async () => {
+        if (!formData.name || !formData.dept_id || !formData.description) {
+            setError("Please fill in all required fields.");
+            setActiveTab("create");
+            return;
+        }
+
         setError("");
         setIsLoading(true);
         try {
@@ -59,6 +79,7 @@ export default function ManageShowInventoryModal({ isOpen, onClose, showId, orgI
     };
 
     const handlePullItem = async (itemId) => {
+        setIsLoading(true);
         setError("");
         try {
             await pullGlobalItemToShow(showId, itemId);
@@ -66,100 +87,93 @@ export default function ManageShowInventoryModal({ isOpen, onClose, showId, orgI
             onClose();
         } catch (err) {
             setError(err.response?.data?.message || "Failed to pull item");
+        } finally {
+            setIsLoading(false);
         }
     };
 
     return (
         <ModalWrapper>
-            <div className="w-full max-w-2xl flex flex-col max-h-[90vh] rounded-2xl bg-white p-6 shadow-xl">
-                <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-2xl font-bold text-gray-800">Add to Show Inventory</h2>
-                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
-                </div>
+            <ModalSubWrapper>
+                <ModalHeader onClick={onClose}>Add to Show Inventory</ModalHeader>
 
-                {/* Tabs */}
-                <div className="flex border-b border-gray-200 mb-4">
-                    <button 
-                        className={`py-2 px-4 font-medium transition-colors ${activeTab === "pull" ? "border-b-2 border-blue-600 text-blue-600" : "text-gray-500 hover:text-gray-700"}`}
-                        onClick={() => setActiveTab("pull")}
-                    >
+                <ModalNav>
+                    <ModalNavItem isActive={activeTab === "pull"} onClick={() => setActiveTab("pull")}>
                         Pull from Global Stock
-                    </button>
-                    <button 
-                        className={`py-2 px-4 font-medium transition-colors ${activeTab === "create" ? "border-b-2 border-blue-600 text-blue-600" : "text-gray-500 hover:text-gray-700"}`}
-                        onClick={() => setActiveTab("create")}
-                    >
+                    </ModalNavItem>
+                    <ModalNavItem isActive={activeTab === "create"} onClick={() => setActiveTab("create")}>
                         Create Custom/Consumable Item
-                    </button>
-                </div>
+                    </ModalNavItem>
+                </ModalNav>
 
                 {error && <ModalError>{error}</ModalError>}
 
-                <div className="flex-1 overflow-y-auto">
-                    {/* --- PULL TAB --- */}
+                <ModalBody>
                     {activeTab === "pull" && (
-                        <div className="space-y-2 pr-2">
+                        <ModalBox>
                             {availableGlobalItems.length > 0 ? (
                                 availableGlobalItems.map(item => (
-                                    <div key={item.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
+                                    <div key={item.id} className="flex items-center justify-between rounded-lg border border-gray-200 p-3 hover:bg-gray-50">
                                         <div>
                                             <div className="font-semibold text-gray-800">{item.name}</div>
                                             <div className="text-sm text-gray-500">{item.Department?.name} • {item.description}</div>
                                         </div>
-                                        <button 
+                                        <button
+                                            type="button"
                                             onClick={() => handlePullItem(item.id)}
-                                            className="px-3 py-1 bg-blue-100 text-blue-700 font-medium rounded hover:bg-blue-200 transition-colors"
+                                            disabled={isLoading}
+                                            className="rounded bg-blue-100 px-3 py-1 font-medium text-blue-700 transition-colors hover:bg-blue-200 disabled:cursor-not-allowed disabled:opacity-50"
                                         >
                                             Pull
                                         </button>
                                     </div>
                                 ))
                             ) : (
-                                <p className="text-gray-500 italic text-center py-8">No available global stock to pull for your departments.</p>
+                                <p className="py-8 text-center text-gray-500 italic">No available global stock to pull for your departments.</p>
                             )}
-                        </div>
+                        </ModalBox>
                     )}
 
-                    {/* --- CREATE TAB --- */}
                     {activeTab === "create" && (
                         allowedDepartments.length === 0 ? (
-                            <div className="rounded bg-red-50 p-4 text-red-600">
+                            <ModalError>
                                 You do not have permission to add inventory to any departments.
-                            </div>
+                            </ModalError>
                         ) : (
-                            <form id="create-item-form" onSubmit={handleCreateSubmit} className="space-y-4">
-                                <div>
-                                    <ModalLabel>Item Name</ModalLabel>
-                                    <ModalInput type="text" required value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
-                                </div>
-                                <div>
-                                    <ModalLabel>Department</ModalLabel>
-                                    <ModalDropdown required value={formData.dept_id} onChange={(e) => setFormData({ ...formData, dept_id: e.target.value })}>
+                            <ModalInputParent>
+                                <ModalInputContainer>
+                                    <ModalLabel htmlFor="create-show-item-name">Item Name</ModalLabel>
+                                    <ModalInput id="create-show-item-name" type="text" required value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
+                                </ModalInputContainer>
+
+                                <ModalInputContainer>
+                                    <ModalLabel htmlFor="create-show-item-department">Department</ModalLabel>
+                                    <ModalDropdown id="create-show-item-department" required value={formData.dept_id} onChange={(e) => setFormData({ ...formData, dept_id: e.target.value })}>
                                         <option value="" disabled>Select a department...</option>
                                         {allowedDepartments.map(dept => (
                                             <option key={dept.id} value={dept.id}>{dept.name}</option>
                                         ))}
                                     </ModalDropdown>
-                                </div>
-                                <div>
-                                    <ModalLabel>Description</ModalLabel>
-                                    <ModalTextarea required rows="3" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} />
-                                </div>
-                            </form>
+                                </ModalInputContainer>
+
+                                <ModalInputContainer>
+                                    <ModalLabel htmlFor="create-show-item-description">Description</ModalLabel>
+                                    <ModalTextarea id="create-show-item-description" required rows="3" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} />
+                                </ModalInputContainer>
+                            </ModalInputParent>
                         )
                     )}
-                </div>
+                </ModalBody>
 
-                {/* Footer Buttons (Only needed for Create tab since Pull has inline buttons) */}
-                {activeTab === "create" && allowedDepartments.length > 0 && (
-                    <div className="mt-6 flex justify-end gap-3 pt-4 border-t border-gray-100">
-                        <ModalCancelButton onClick={onClose}>Cancel</ModalCancelButton>
-                        <ModalSubmitButton type="submit" form="create-item-form" disabled={isLoading}>
+                <ModalFooter>
+                    <ModalCancelButton onClick={onClose}>Cancel</ModalCancelButton>
+                    {activeTab === "create" && allowedDepartments.length > 0 && (
+                        <ModalSubmitButton type="button" onClick={handleCreateItem} disabled={isLoading}>
                             {isLoading ? "Creating..." : "Create Show Item"}
                         </ModalSubmitButton>
-                    </div>
-                )}
-            </div>
+                    )}
+                </ModalFooter>
+            </ModalSubWrapper>
         </ModalWrapper>
     );
 }

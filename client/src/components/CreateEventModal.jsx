@@ -19,7 +19,8 @@ import {
     ModalBox,
     ModalCheckboxItem,
     ModalFooter,
-    ModalInputContainer
+    ModalInputContainer,
+    ModalInputParent
 } from "./ui/modals";
 
 export default function CreateEventModal({ isOpen, onClose, showId, onSuccess }) {
@@ -137,7 +138,7 @@ export default function CreateEventModal({ isOpen, onClose, showId, onSuccess })
 
                 <ModalBody>
                     {activeTab === "details" && (
-                        <div className="space-y-4">
+                        <ModalInputParent>
                             <ModalInputContainer>
                                 <ModalLabel htmlFor="create-event-title">Event Title</ModalLabel>
                                 <ModalInput
@@ -203,11 +204,11 @@ export default function CreateEventModal({ isOpen, onClose, showId, onSuccess })
                                     placeholder="Optional notes..."
                                 />
                             </ModalInputContainer>
-                        </div>
+                        </ModalInputParent>
                     )}
 
                     {activeTab === "assignments" && (
-                        <div className="space-y-4">
+                        <ModalInputParent>
                             <p className="text-sm text-gray-600">Select roles or specific individuals who are required to attend this event.</p>
 
                             {availableRoles.length > 0 && (
@@ -237,7 +238,7 @@ export default function CreateEventModal({ isOpen, onClose, showId, onSuccess })
                                     ))}
                                 </ModalBox>
                             </ModalSubsection>
-                        </div>
+                        </ModalInputParent>
                     )}
                 </ModalBody>
 

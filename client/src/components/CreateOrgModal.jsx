@@ -1,18 +1,36 @@
 import { useState } from "react";
 import { createOrganization } from "../services/api";
-import { ModalWrapper, ModalSubWrapper, ModalLabel, ModalInput, ModalSubmitButton, ModalCancelButton } from "./ui/modals";
+import {
+	ModalWrapper,
+	ModalSubWrapper,
+	ModalHeader,
+	ModalLabel,
+	ModalInput,
+	ModalSubmitButton,
+	ModalCancelButton,
+	ModalError,
+	ModalBody,
+	ModalFooter,
+	ModalInputContainer,
+	ModalInputParent,
+} from "./ui/modals";
 
 export default function CreateOrgModal({ isOpen, onClose, onSuccess }) {
 	const [name, setName] = useState("");
-	const [_error, setError] = useState("");
+	const [error, setError] = useState("");
 	const [loading, setLoading] = useState(false);
 
 	if (!isOpen) return null;
 
-	const handleSubmit = async (e) => {
-		e.preventDefault();
+	const handleCreateOrg = async () => {
+		if (!name.trim()) {
+			setError("Please enter an organization name.");
+			return;
+		}
+
 		setError("");
 		setLoading(true);
+
 		try {
 			await createOrganization({ name });
 			setName("");
@@ -28,23 +46,32 @@ export default function CreateOrgModal({ isOpen, onClose, onSuccess }) {
 	return (
 		<ModalWrapper>
 			<ModalSubWrapper>
-				<h3 className="mb-4 font-bold text-lg">Create New Organization</h3>
-				<form onSubmit={handleSubmit}>
-					<ModalLabel>Organization Name</ModalLabel>
-					<ModalInput
-						type="text"
-						placeholder="Organization Name (e.g., VIU Theatre)"
-						value={name}
-						onChange={(e) => setName(e.target.value)}
-						required
-					/>
-					<div className="flex justify-end space-x-3">
-						<ModalCancelButton onClick={onClose}>Cancel</ModalCancelButton>
-						<ModalSubmitButton type="submit" disabled={loading}>
-							{loading ? "Creating..." : "Create"}
-						</ModalSubmitButton>
-					</div>
-				</form>
+				<ModalHeader onClick={onClose}>Create New Organization</ModalHeader>
+
+				{error && <ModalError>{error}</ModalError>}
+
+				<ModalBody>
+					<ModalInputParent>
+						<ModalInputContainer>
+							<ModalLabel htmlFor="create-org-name">Organization Name</ModalLabel>
+							<ModalInput
+								id="create-org-name"
+								type="text"
+								placeholder="Organization Name (e.g., VIU Theatre)"
+								value={name}
+								onChange={(e) => setName(e.target.value)}
+								required
+							/>
+						</ModalInputContainer>
+					</ModalInputParent>
+				</ModalBody>
+
+				<ModalFooter>
+					<ModalCancelButton onClick={onClose}>Cancel</ModalCancelButton>
+					<ModalSubmitButton type="button" onClick={handleCreateOrg} disabled={loading}>
+						{loading ? "Creating..." : "Create"}
+					</ModalSubmitButton>
+				</ModalFooter>
 			</ModalSubWrapper>
 		</ModalWrapper>
 	);

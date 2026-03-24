@@ -1,9 +1,23 @@
 import { useEffect, useState } from "react";
 import { updateOrganization } from "../services/api";
-import { ModalWrapper, ModalSubWrapper, ModalLabel, ModalInput, ModalSubmitButton, ModalCancelButton } from "./ui/modals";
+import {
+	ModalWrapper,
+	ModalSubWrapper,
+	ModalHeader,
+	ModalLabel,
+	ModalInput,
+	ModalSubmitButton,
+	ModalCancelButton,
+	ModalError,
+	ModalBody,
+	ModalFooter,
+	ModalInputContainer,
+	ModalInputParent,
+} from "./ui/modals";
 
 export default function EditOrgModal({ isOpen, onClose, onSuccess, org }) {
 	const [name, setName] = useState("");
+	const [error, setError] = useState("");
 	const [loading, setLoading] = useState(false);
 
 	useEffect(() => {
@@ -12,15 +26,21 @@ export default function EditOrgModal({ isOpen, onClose, onSuccess, org }) {
 
 	if (!isOpen) return null;
 
-	const handleSubmit = async (e) => {
-		e.preventDefault();
+	const handleUpdateOrg = async () => {
+		if (!name.trim()) {
+			setError("Please enter an organization name.");
+			return;
+		}
+
+		setError("");
 		setLoading(true);
+
 		try {
-			await updateOrganization(org.id, { name }); //
+			await updateOrganization(org.id, { name });
 			onSuccess();
 			onClose();
 		} catch (err) {
-			alert(err.response?.data?.message || "Update failed");
+			setError(err.response?.data?.message || "Update failed");
 		} finally {
 			setLoading(false);
 		}
@@ -29,24 +49,31 @@ export default function EditOrgModal({ isOpen, onClose, onSuccess, org }) {
 	return (
 		<ModalWrapper>
 			<ModalSubWrapper>
-				<h3 className="mb-4 font-bold text-lg">Edit Organization</h3>
-				<form onSubmit={handleSubmit}>
+				<ModalHeader>Edit Organization</ModalHeader>
 
-					<ModalLabel>Organization Name</ModalLabel>
-					<ModalInput
-						type="text"
-						value={name}
-						onChange={(e) => setName(e.target.value)}
-						required
-					/>
+				{error && <ModalError>{error}</ModalError>}
 
-					<div className="flex justify-end space-x-3">
-						<ModalCancelButton onClick={onClose}>Cancel</ModalCancelButton>
-						<ModalSubmitButton type="submit" disabled={loading}>
-							{loading ? "Saving..." : "Save Changes"}
-						</ModalSubmitButton>
-					</div>
-				</form>
+				<ModalBody>
+					<ModalInputParent>
+						<ModalInputContainer>
+							<ModalLabel htmlFor="edit-org-name">Organization Name</ModalLabel>
+							<ModalInput
+								id="edit-org-name"
+								type="text"
+								value={name}
+								onChange={(e) => setName(e.target.value)}
+								required
+							/>
+						</ModalInputContainer>
+					</ModalInputParent>
+				</ModalBody>
+
+				<ModalFooter>
+					<ModalCancelButton onClick={onClose}>Cancel</ModalCancelButton>
+					<ModalSubmitButton type="button" onClick={handleUpdateOrg} disabled={loading}>
+						{loading ? "Saving..." : "Save Changes"}
+					</ModalSubmitButton>
+				</ModalFooter>
 			</ModalSubWrapper>
 		</ModalWrapper>
 	);

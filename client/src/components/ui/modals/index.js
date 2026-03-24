@@ -18,3 +18,4 @@ export { default as ModalBox } from "./sections/ModalBox.jsx";
 export { default as ModalCheckboxItem } from "./interactive/ModalCheckboxItem.jsx";
 export { default as ModalFooter } from "./sections/ModalFooter.jsx";
 export { default as ModalInputContainer } from "./sections/ModalInputContainer.jsx";
+export { default as ModalInputParent } from "./sections/ModalInputParent.jsx";

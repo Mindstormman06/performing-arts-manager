@@ -11,25 +11,32 @@ import {
     ModalSubmitButton,
     ModalTextarea,
     ModalWrapper,
+    ModalSubWrapper,
+    ModalHeader,
+    ModalNav,
+    ModalNavItem,
+    ModalBody,
+    ModalBox,
+    ModalCheckboxItem,
+    ModalFooter,
+    ModalInputContainer,
+    ModalInputParent,
 } from "./ui/modals";
 
 export default function ManageEventModal({ isOpen, onClose, showId, event, onSuccess }) {
     const [activeTab, setActiveTab] = useState("details");
-    
     const [formData, setFormData] = useState({ title: "", start_time: "", end_time: "", location: "", description: "" });
-    
-    // Assignment State
     const [showMembers, setShowMembers] = useState([]);
     const [availableRoles, setAvailableRoles] = useState([]);
     const [selectedUserIds, setSelectedUserIds] = useState([]);
-    
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
 
-    // Initialize data when modal opens
     useEffect(() => {
         if (isOpen && event) {
-            // Helper to format DB dates for the <input type="datetime-local">
+            setActiveTab("details");
+            setError("");
+
             const formatForInput = (dateString) => {
                 if (!dateString) return "";
                 const d = new Date(dateString);
@@ -44,54 +51,56 @@ export default function ManageEventModal({ isOpen, onClose, showId, event, onSuc
                 location: event.location || "",
                 description: event.description || ""
             });
-            
-            // Pre-select currently assigned users
+
             const currentAssignees = (event.attendees || event.Users || []).map(user => user.id);
             setSelectedUserIds(currentAssignees);
-            
-            // Fetch show members to populate checkboxes
+
             getShowUsers(showId).then(res => {
                 const members = res.data;
                 setShowMembers(members);
-                
+
                 const roles = new Set();
                 members.forEach(m => {
                     if (m.assignedRoles) m.assignedRoles.forEach(r => roles.add(r.name));
                 });
                 setAvailableRoles(Array.from(roles));
-            }).catch(console.error);
+            }).catch(() => {
+                setError("Failed to load show members");
+            });
         }
     }, [isOpen, event, showId]);
 
     if (!isOpen || !event) return null;
 
-    const handleUpdateDetails = async (e) => {
-        e.preventDefault();
+    const handleSaveEvent = async () => {
+        if (!formData.title || !formData.start_time || !formData.end_time) {
+            setError("Complete the required event details before saving the event.");
+            setActiveTab("details");
+            return;
+        }
+
+        if (new Date(formData.end_time) <= new Date(formData.start_time)) {
+            setError("End time must be after start time.");
+            setActiveTab("details");
+            return;
+        }
+
         setIsLoading(true);
         setError("");
+
         try {
             await updateShowEvent(showId, event.id, formData);
-            onSuccess();
-            alert("Event details updated!");
-        } catch {
-            setError("Failed to update event details");
-        } finally {
-            setIsLoading(false);
-        }
-    };
 
-    const handleSaveAssignments = async () => {
-        setIsLoading(true);
-        setError("");
-        try {
+            // Always persist assignments so removals (empty array) are saved too.
             await assignShowEventUsers(showId, event.id, {
                 type: "specific",
                 userIds: selectedUserIds
             });
+
             onSuccess();
             onClose();
         } catch {
-            setError("Failed to update assignments");
+            setError("Failed to save event changes");
         } finally {
             setIsLoading(false);
         }
@@ -136,85 +145,71 @@ export default function ManageEventModal({ isOpen, onClose, showId, event, onSuc
 
     return (
         <ModalWrapper>
-            <div className="w-full max-w-2xl flex flex-col max-h-[90vh] rounded-2xl bg-white p-6 shadow-xl">
-                <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-2xl font-bold text-gray-800">Manage Event</h2>
-                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
-                </div>
+            <ModalSubWrapper>
+                <ModalHeader onClick={onClose}>Manage Event</ModalHeader>
 
-                {/* Tabs */}
-                <div className="flex border-b border-gray-200 mb-4">
-                    <button 
-                        className={`py-2 px-4 font-medium transition-colors ${activeTab === "details" ? "border-b-2 border-blue-600 text-blue-600" : "text-gray-500 hover:text-gray-700"}`}
-                        onClick={() => setActiveTab("details")}
-                    >
+                <ModalNav>
+                    <ModalNavItem isActive={activeTab === "details"} onClick={() => setActiveTab("details")}>
                         Event Details
-                    </button>
-                    <button 
-                        className={`py-2 px-4 font-medium transition-colors ${activeTab === "assignments" ? "border-b-2 border-blue-600 text-blue-600" : "text-gray-500 hover:text-gray-700"}`}
-                        onClick={() => setActiveTab("assignments")}
-                    >
+                    </ModalNavItem>
+                    <ModalNavItem isActive={activeTab === "assignments"} onClick={() => setActiveTab("assignments")}>
                         Assignments ({selectedUserIds.length})
-                    </button>
-                </div>
+                    </ModalNavItem>
+                </ModalNav>
 
                 {error && <ModalError>{error}</ModalError>}
 
-                <div className="flex-1 overflow-y-auto">
-                    {/* DETAILS TAB */}
+                <ModalBody>
                     {activeTab === "details" && (
-                        <form id="update-event-form" onSubmit={handleUpdateDetails} className="space-y-4">
-                             <div>
-                                <ModalLabel>Event Title</ModalLabel>
-                                <ModalInput type="text" required value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} />
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
+                        <ModalInputParent>
+                            <ModalInputContainer>
+                                <ModalLabel htmlFor="manage-event-title">Event Title</ModalLabel>
+                                <ModalInput id="manage-event-title" type="text" required value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} />
+                            </ModalInputContainer>
+
+                            <ModalInputContainer columns={2}>
                                 <div>
-                                    <ModalLabel>Start Time</ModalLabel>
-                                    <ModalInput type="datetime-local" required value={formData.start_time} onChange={(e) => setFormData({ ...formData, start_time: e.target.value })} />
+                                    <ModalLabel htmlFor="manage-event-start-time">Start Time</ModalLabel>
+                                    <ModalInput id="manage-event-start-time" type="datetime-local" required value={formData.start_time} onChange={(e) => setFormData({ ...formData, start_time: e.target.value })} />
                                 </div>
                                 <div>
-                                    <ModalLabel>End Time</ModalLabel>
-                                    <ModalInput type="datetime-local" required value={formData.end_time} onChange={(e) => setFormData({ ...formData, end_time: e.target.value })} />
+                                    <ModalLabel htmlFor="manage-event-end-time">End Time</ModalLabel>
+                                    <ModalInput id="manage-event-end-time" type="datetime-local" required value={formData.end_time} onChange={(e) => setFormData({ ...formData, end_time: e.target.value })} />
                                 </div>
-                            </div>
-                            <div>
-                                <ModalLabel>Location</ModalLabel>
-                                <ModalInput type="text" value={formData.location} onChange={(e) => setFormData({ ...formData, location: e.target.value })} />
-                            </div>
-                            <div>
-                                <ModalLabel>Notes / Description</ModalLabel>
-                                <ModalTextarea rows="3" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} />
-                            </div>
-                        </form>
+                            </ModalInputContainer>
+
+                            <ModalInputContainer>
+                                <ModalLabel htmlFor="manage-event-location">Location</ModalLabel>
+                                <ModalInput id="manage-event-location" type="text" value={formData.location} onChange={(e) => setFormData({ ...formData, location: e.target.value })} placeholder="Optional" />
+                            </ModalInputContainer>
+
+                            <ModalInputContainer>
+                                <ModalLabel htmlFor="manage-event-description">Notes / Description</ModalLabel>
+                                <ModalTextarea id="manage-event-description" rows="3" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} placeholder="Optional notes..." />
+                            </ModalInputContainer>
+                        </ModalInputParent>
                     )}
 
-                    {/* ASSIGNMENTS TAB */}
                     {activeTab === "assignments" && (
-                        <div className="space-y-6">
+                        <ModalInputParent>
                             <p className="text-sm text-gray-600">Select roles or specific individuals who are required to attend this event.</p>
-                            
-                            {/* Role Selectors */}
+
                             {availableRoles.length > 0 && (
                                 <ModalSubsection>
                                     <ModalSubHeader>Assign by Role</ModalSubHeader>
-                                    <div className="flex flex-wrap gap-3">
+                                    <ModalBox>
                                         {availableRoles.map(role => (
-                                            <label key={role} className="flex items-center gap-2 cursor-pointer bg-gray-50 px-3 py-2 rounded border border-gray-200 hover:bg-gray-100">
-                                                <ModalCheckbox checked={isRoleFullySelected(role)} onChange={() => toggleRole(role)} />
-                                                <span className="capitalize text-sm font-medium">{role}</span>
-                                            </label>
+                                            <ModalCheckboxItem key={role} role={role} isSelected={isRoleFullySelected(role)} onToggle={() => toggleRole(role)} />
                                         ))}
-                                    </div>
+                                    </ModalBox>
                                 </ModalSubsection>
                             )}
 
-                            {/* Individual Selectors */}
                             <ModalSubsection>
                                 <ModalSubHeader>Assign Specific Individuals</ModalSubHeader>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-48 overflow-y-auto">
+                                <ModalBox>
                                     {showMembers.map(member => (
-                                        <label key={member.users_id} className="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-blue-50">
+                                        <ModalLabel key={member.users_id} variant="checkbox">
                                             <ModalCheckbox checked={selectedUserIds.includes(member.users_id)} onChange={() => toggleUser(member.users_id)} />
                                             <div>
                                                 <div className="text-sm font-medium">{member.User?.fname} {member.User?.lname}</div>
@@ -222,35 +217,24 @@ export default function ManageEventModal({ isOpen, onClose, showId, event, onSuc
                                                     {member.assignedRoles?.map(r => r.name).join(', ')}
                                                 </div>
                                             </div>
-                                        </label>
+                                        </ModalLabel>
                                     ))}
-                                </div>
+                                </ModalBox>
                             </ModalSubsection>
-                        </div>
+                        </ModalInputParent>
                     )}
-                </div>
+                </ModalBody>
 
-                {/* Footer Buttons */}
-                <div className="mt-6 flex items-center justify-between pt-4 border-t border-gray-100">
-                    <button type="button" onClick={handleDelete} className="text-red-600 hover:text-red-800 font-medium text-sm transition-colors">
+                <ModalFooter>
+                    <button type="button" onClick={handleDelete} className="mr-auto font-medium text-red-600 text-sm transition-colors hover:text-red-800">
                         Delete Event
                     </button>
-                    
-                    <div className="flex gap-3">
-                        <ModalCancelButton onClick={onClose}>Done</ModalCancelButton>
-                        
-                        {activeTab === "details" ? (
-                            <ModalSubmitButton type="submit" form="update-event-form" disabled={isLoading}>
-                                {isLoading ? "Saving..." : "Save Details"}
-                            </ModalSubmitButton>
-                        ) : (
-                            <button type="button" onClick={handleSaveAssignments} disabled={isLoading} className="rounded-lg bg-green-600 px-4 py-2 font-medium text-white transition hover:bg-green-700 disabled:opacity-50">
-                                {isLoading ? "Updating..." : "Update Assignments"}
-                            </button>
-                        )}
-                    </div>
-                </div>
-            </div>
+                    <ModalCancelButton onClick={onClose}>Done</ModalCancelButton>
+                    <ModalSubmitButton type="button" onClick={handleSaveEvent} disabled={isLoading}>
+                        {isLoading ? "Saving..." : "Save Event"}
+                    </ModalSubmitButton>
+                </ModalFooter>
+            </ModalSubWrapper>
         </ModalWrapper>
     );
 }

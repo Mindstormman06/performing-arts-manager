@@ -7,8 +7,12 @@ import {
 	ModalError,
 	ModalSubmitButton,
 	ModalCancelButton,
-	ModalSubHeader,
-	ModalSubWrapper
+	ModalSubWrapper,
+	ModalHeader,
+	ModalBody,
+	ModalFooter,
+	ModalInputContainer,
+	ModalInputParent,
 } from "./ui/modals";
 
 export default function InviteMemberModal({
@@ -24,8 +28,12 @@ export default function InviteMemberModal({
 
 	if (!isOpen) return null;
 
-	const handleInvite = async (e) => {
-		e.preventDefault();
+	const handleInvite = async () => {
+		if (!email.trim()) {
+			setError("Please enter an email address.");
+			return;
+		}
+
 		setError("");
 		setLoading(true);
 		try {
@@ -37,7 +45,6 @@ export default function InviteMemberModal({
 			setEmail("");
 			onSuccess();
 			onClose();
-			alert("Invitation sent successfully!");
 		} catch (err) {
 			setError(err.response?.data?.message || "Failed to send invitation");
 		} finally {
@@ -48,27 +55,32 @@ export default function InviteMemberModal({
 	return (
 		<ModalWrapper>
 			<ModalSubWrapper>
-				<ModalSubHeader>Invite New Member</ModalSubHeader>
+				<ModalHeader onClick={onClose}>Invite New Member</ModalHeader>
+				
 				{error && <ModalError>{error}</ModalError>}
-				<form onSubmit={handleInvite}>
-					<div className="mb-4">
-						<ModalLabel>Email Address</ModalLabel>
-						<ModalInput
-							type="email"
-							placeholder="user@example.com"
-							value={email}
-							onChange={(e) => setEmail(e.target.value)}
-							required
-						/>
-					</div>
+				
+				<ModalBody>
+					<ModalInputParent>
+						<ModalInputContainer>
+							<ModalLabel htmlFor="invite-member-email">Email Address</ModalLabel>
+							<ModalInput
+								id="invite-member-email"
+								type="email"
+								placeholder="user@example.com"
+								value={email}
+								onChange={(e) => setEmail(e.target.value)}
+								required
+							/>
+						</ModalInputContainer>
+					</ModalInputParent>
+				</ModalBody>
 
-					<div className="flex justify-end space-x-3">
-						<ModalCancelButton onClick={onClose}>Cancel</ModalCancelButton>
-						<ModalSubmitButton type="submit" disabled={loading}>
-							{loading ? "Sending..." : "Send Invite"}
-						</ModalSubmitButton>
-					</div>
-				</form>
+				<ModalFooter>
+					<ModalCancelButton onClick={onClose}>Cancel</ModalCancelButton>
+					<ModalSubmitButton type="button" onClick={handleInvite} disabled={loading}>
+						{loading ? "Sending..." : "Send Invite"}
+					</ModalSubmitButton>
+				</ModalFooter>
 			</ModalSubWrapper>
 		</ModalWrapper>
 	);

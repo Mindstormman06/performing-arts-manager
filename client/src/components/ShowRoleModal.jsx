@@ -1,9 +1,24 @@
 import { useState, useEffect } from "react";
 import { updateShowUserRoles } from "../services/api";
-import { ModalWrapper, ModalSubWrapper, ModalCheckbox, ModalSubmitButton, ModalCancelButton } from "./ui/modals";
+import {
+    ModalBody,
+    ModalBox,
+    ModalCancelButton,
+    ModalCheckbox,
+    ModalError,
+    ModalFooter,
+    ModalHeader,
+    ModalLabel,
+    ModalSubHeader,
+    ModalSubsection,
+    ModalSubmitButton,
+    ModalSubWrapper,
+    ModalWrapper
+} from "./ui/modals";
 
 export default function ShowRoleModal({ isOpen, onClose, onSuccess, showId, user }) {
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
 
     const availableRoles = ["director", "stage-manager", "actor", "costumes", "props", "sets", "tech"];
 
@@ -12,6 +27,7 @@ export default function ShowRoleModal({ isOpen, onClose, onSuccess, showId, user
     useEffect(() => {
         if (isOpen && user) {
             setSelectedRoles(user.assignedRoles?.map((r) => r.name) || []);
+            setError("");
         }
     }, [isOpen, user]);
 
@@ -24,7 +40,9 @@ export default function ShowRoleModal({ isOpen, onClose, onSuccess, showId, user
     };
 
     const handleSave = async () => {
+        setError("");
         setLoading(true);
+
         try {
             const hiddenRoles = user?.assignedRoles?.map((r) => r.name).filter((name) => !availableRoles.includes(name)) || [];
 
@@ -34,35 +52,43 @@ export default function ShowRoleModal({ isOpen, onClose, onSuccess, showId, user
             onSuccess();
             onClose();
         } catch (err) {
-            alert(`Failed to update roles: ${err.response?.data?.message || err.message}`);
+            setError(err.response?.data?.message || "Failed to update roles");
         } finally {
             setLoading(false);
         }
     };
-    
 
     return (
-    <ModalWrapper>
-      <ModalSubWrapper>
-				<h3 className="mb-4 font-bold">Manage Roles for {user.User?.fname}</h3>
-				<div className="mb-6 space-y-2">
-					{availableRoles.map((role) => (
-						<label key={role} className="flex items-center space-x-2 capitalize">
-              <ModalCheckbox
-                checked={selectedRoles.includes(role)}
-                onChange={() => handleToggle(role)}
-							/>
-							<span>{role}</span>
-						</label>
-					))}
-				</div>
-				<div className="flex justify-end gap-2">
-          <ModalCancelButton onClick={onClose} disabled={loading}>Cancel</ModalCancelButton>
-          <ModalSubmitButton onClick={handleSave} disabled={loading} type="button">
-						{loading ? "Saving..." : "Save"}
-          </ModalSubmitButton>
-				</div>
+        <ModalWrapper>
+            <ModalSubWrapper>
+                <ModalHeader onClick={onClose}>Manage Roles for {user.User?.fname}</ModalHeader>
+
+                {error && <ModalError>{error}</ModalError>}
+
+                <ModalBody>
+                    <ModalSubsection>
+                        <ModalSubHeader>Available Roles</ModalSubHeader>
+                        <ModalBox>
+                            {availableRoles.map((role) => (
+                                <ModalLabel key={role} variant="checkbox">
+                                    <ModalCheckbox
+                                        checked={selectedRoles.includes(role)}
+                                        onChange={() => handleToggle(role)}
+                                    />
+                                    <span className="capitalize">{role}</span>
+                                </ModalLabel>
+                            ))}
+                        </ModalBox>
+                    </ModalSubsection>
+                </ModalBody>
+
+                <ModalFooter>
+                    <ModalCancelButton onClick={onClose} disabled={loading}>Cancel</ModalCancelButton>
+                    <ModalSubmitButton onClick={handleSave} disabled={loading} type="button">
+                        {loading ? "Saving..." : "Save"}
+                    </ModalSubmitButton>
+                </ModalFooter>
         </ModalSubWrapper>
-    </ModalWrapper>
-	);
+        </ModalWrapper>
+    );
 }

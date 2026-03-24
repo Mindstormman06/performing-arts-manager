@@ -1,10 +1,24 @@
 import { useState, useEffect } from "react";
 import { updateOrganizationUserRoles } from "../services/api";
-import { ModalWrapper, ModalSubWrapper, ModalCheckbox, ModalSubmitButton, ModalCancelButton } from "./ui/modals";
-
+import {
+	ModalBody,
+	ModalBox,
+	ModalCancelButton,
+	ModalCheckbox,
+	ModalError,
+	ModalFooter,
+	ModalHeader,
+	ModalLabel,
+	ModalSubHeader,
+	ModalSubsection,
+	ModalSubmitButton,
+	ModalSubWrapper,
+	ModalWrapper
+} from "./ui/modals";
 
 export default function RoleModal({ isOpen, onClose, onSuccess, orgId, user }) {
 	const [loading, setLoading] = useState(false);
+	const [error, setError] = useState("");
 
 	const availableRoles = [
 		"board-member",
@@ -19,6 +33,7 @@ export default function RoleModal({ isOpen, onClose, onSuccess, orgId, user }) {
 	useEffect(() => {
 		if (isOpen && user) {
 			setSelectedRoles(user.assignedRoles?.map((r) => r.name) || []);
+			setError("");
 		}
 	}, [isOpen, user]);
 
@@ -31,6 +46,7 @@ export default function RoleModal({ isOpen, onClose, onSuccess, orgId, user }) {
 	};
 
 	const handleSave = async () => {
+		setError("");
 		setLoading(true);
 		try {
 			const hiddenRoles =
@@ -44,9 +60,7 @@ export default function RoleModal({ isOpen, onClose, onSuccess, orgId, user }) {
 			onSuccess();
 			onClose();
 		} catch (err) {
-			alert(
-				`Failed to update roles: ${err.response?.data?.message || err.message}`,
-			);
+			setError(err.response?.data?.message || "Failed to update roles");
 		} finally {
 			setLoading(false);
 		}
@@ -55,27 +69,33 @@ export default function RoleModal({ isOpen, onClose, onSuccess, orgId, user }) {
 	return (
 		<ModalWrapper>
 			<ModalSubWrapper>
-				<h3 className="mb-4 font-bold">Manage Roles for {user.User.fname}</h3>
-				<div className="mb-6 space-y-2">
-					{availableRoles.map((role) => (
-						<label
-							key={role}
-							className="flex items-center space-x-2 capitalize"
-						>
-							<ModalCheckbox
-								checked={selectedRoles.includes(role)}
-								onChange={() => handleToggle(role)}
-							/>
-							<span>{role}</span>
-						</label>
-					))}
-				</div>
-				<div className="flex justify-end gap-2">
+				<ModalHeader onClick={onClose}>Manage Roles for {user.User.fname}</ModalHeader>
+
+				{error && <ModalError>{error}</ModalError>}
+
+				<ModalBody>
+					<ModalSubsection>
+						<ModalSubHeader>Available Roles</ModalSubHeader>
+						<ModalBox>
+							{availableRoles.map((role) => (
+								<ModalLabel key={role} variant="checkbox">
+									<ModalCheckbox
+										checked={selectedRoles.includes(role)}
+										onChange={() => handleToggle(role)}
+									/>
+									<span className="capitalize">{role}</span>
+								</ModalLabel>
+							))}
+						</ModalBox>
+					</ModalSubsection>
+				</ModalBody>
+
+				<ModalFooter>
 					<ModalCancelButton onClick={onClose}>Cancel</ModalCancelButton>
 					<ModalSubmitButton onClick={handleSave} type="button" disabled={loading}>
 						{loading ? "Saving..." : "Save"}
 					</ModalSubmitButton>
-				</div>
+				</ModalFooter>
 			</ModalSubWrapper>
 		</ModalWrapper>
 	);

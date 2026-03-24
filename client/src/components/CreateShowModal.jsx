@@ -1,20 +1,47 @@
 import { useState } from "react";
 import { createShow } from "../services/api";
-import { ModalWrapper, ModalSubWrapper, ModalLabel, ModalInput, ModalSubmitButton, ModalCancelButton } from "./ui/modals";
+import {
+	ModalWrapper,
+	ModalSubWrapper,
+	ModalHeader,
+	ModalLabel,
+	ModalInput,
+	ModalSubmitButton,
+	ModalCancelButton,
+	ModalError,
+	ModalBody,
+	ModalFooter,
+	ModalInputContainer,
+	ModalInputParent,
+} from "./ui/modals";
 
 export default function CreateShowModal({ isOpen, onClose, onSuccess, orgId }) {
 	const [title, setTitle] = useState("");
 	const [startDate, setStartDate] = useState("");
 	const [endDate, setEndDate] = useState("");
+	const [error, setError] = useState("");
 	const [loading, setLoading] = useState(false);
 
 	if (!isOpen) return null;
 
-	const handleSubmit = async (e) => {
-		e.preventDefault();
+	const handleCreateShow = async () => {
+		if (!title.trim() || !startDate || !endDate) {
+			setError("Please fill in all required fields.");
+			return;
+		}
+
+		const start = new Date(startDate);
+		const end = new Date(endDate);
+
+		if (end < start) {
+			setError("End date must be after start date.");
+			return;
+		}
+
+		setError("");
 		setLoading(true);
+
 		try {
-			// Sending both org_id (for the database) and orgId (in case auth middleware needs it)
 			await createShow({
 				title: title,
 				start_date: startDate,
@@ -24,10 +51,10 @@ export default function CreateShowModal({ isOpen, onClose, onSuccess, orgId }) {
 			setTitle("");
 			setStartDate("");
 			setEndDate("");
-			onSuccess(); // Refresh the dashboard data
+			onSuccess();
 			onClose();
 		} catch (err) {
-			alert(err.response?.data?.message || "Failed to create show");
+			setError(err.response?.data?.message || "Failed to create show");
 		} finally {
 			setLoading(false);
 		}
@@ -36,47 +63,55 @@ export default function CreateShowModal({ isOpen, onClose, onSuccess, orgId }) {
 	return (
 		<ModalWrapper>
 			<ModalSubWrapper>
-				<h3 className="mb-4 font-bold text-gray-900 text-lg">Create New Show</h3>
-				<form onSubmit={handleSubmit}>
-					<div className="mb-4">
-						<ModalLabel>Show Title</ModalLabel>
-						<ModalInput
-							type="text"
-							value={title}
-							onChange={(e) => setTitle(e.target.value)}
-							required
-							placeholder="e.g. The Phantom of the Opera"
-						/>
-					</div>
-					
-					<div className="mb-6 grid grid-cols-2 gap-4">
-						<div>
-							<ModalLabel>Start Date</ModalLabel>
-							<ModalInput
-								type="date"
-								value={startDate}
-								onChange={(e) => setStartDate(e.target.value)}
-								required
-							/>
-						</div>
-						<div>
-							<ModalLabel>End Date</ModalLabel>
-							<ModalInput
-								type="date"
-								value={endDate}
-								onChange={(e) => setEndDate(e.target.value)}
-								required
-							/>
-						</div>
-					</div>
+				<ModalHeader onClick={onClose}>Create New Show</ModalHeader>
 
-					<div className="flex justify-end space-x-3">
-						<ModalCancelButton onClick={onClose}>Cancel</ModalCancelButton>
-						<ModalSubmitButton type="submit" disabled={loading}>
-							{loading ? "Creating..." : "Create Show"}
-						</ModalSubmitButton>
-					</div>
-				</form>
+				{error && <ModalError>{error}</ModalError>}
+
+				<ModalBody>
+					<ModalInputParent>
+						<ModalInputContainer>
+							<ModalLabel htmlFor="create-show-title">Show Title</ModalLabel>
+							<ModalInput
+								id="create-show-title"
+								type="text"
+								value={title}
+								onChange={(e) => setTitle(e.target.value)}
+								required
+								placeholder="e.g. The Phantom of the Opera"
+							/>
+						</ModalInputContainer>
+						
+						<ModalInputContainer columns={2}>
+							<div>
+								<ModalLabel htmlFor="create-show-start-date">Start Date</ModalLabel>
+								<ModalInput
+									id="create-show-start-date"
+									type="date"
+									value={startDate}
+									onChange={(e) => setStartDate(e.target.value)}
+									required
+								/>
+							</div>
+							<div>
+								<ModalLabel htmlFor="create-show-end-date">End Date</ModalLabel>
+								<ModalInput
+									id="create-show-end-date"
+									type="date"
+									value={endDate}
+									onChange={(e) => setEndDate(e.target.value)}
+									required
+								/>
+							</div>
+						</ModalInputContainer>
+					</ModalInputParent>
+				</ModalBody>
+
+				<ModalFooter>
+					<ModalCancelButton onClick={onClose}>Cancel</ModalCancelButton>
+					<ModalSubmitButton type="button" onClick={handleCreateShow} disabled={loading}>
+						{loading ? "Creating..." : "Create Show"}
+					</ModalSubmitButton>
+				</ModalFooter>
 			</ModalSubWrapper>
 		</ModalWrapper>
 	);
