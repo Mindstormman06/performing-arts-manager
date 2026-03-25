@@ -13,11 +13,11 @@ async function join(req, res, next) {
 
 		return res.status(201).json({
 			success: true,
-			message: "User added to organization",
+			message: "User added to organizations",
 			data: membership,
 		});
 	} catch (error) {
-		if (error.message === "User already in organization") {
+		if (error.message === "User already in organizations") {
 			return res.status(409).json({ success: false, message: error.message });
 		}
 		next(error);
@@ -182,7 +182,7 @@ async function respondToInvite(req, res, next) {
             return res.status(404).json({ message: "Invite not found." });
         }
 
-        // 1. Get all shows belonging to this organization
+        // 1. Get all shows belonging to this organizations
         const orgShows = await models.Show.findAll({
             where: { organization_id: orgId }
         });

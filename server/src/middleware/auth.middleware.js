@@ -57,7 +57,7 @@ export const authorizeOrg = (requiredRoles = []) => {
 		if (!membership) {
 			return res.status(403).json({
 				success: false,
-				message: "Not a member of this organization.",
+				message: "Not a member of this organizations.",
 			});
 		}
 
@@ -140,7 +140,7 @@ export const authorizeInventoryDept = (level) => {
 				where: { org_id: entityId, users_id: userId },
 				include: [{ model: models.OrganizationRole, as: "assignedRoles" }],
 			});
-			if (!membership) return res.status(403).json({ success: false, message: "Not a member of this organization." });
+			if (!membership) return res.status(403).json({ success: false, message: "Not a member of this organizations." });
 			userRoles = membership.assignedRoles.map((r) => r.name);
 		} else if (level === "show") {
 			entityId = req.params.showId;

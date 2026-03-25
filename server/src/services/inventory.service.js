@@ -25,15 +25,16 @@ async function getGlobalInventory(orgId) {
 	});
 }
 
-async function createGlobalItem(orgId, data, userId) {
+async function createGlobalItem(orgId, data, userId, photoPath) {
 	const dept = await models.Department.findByPk(data.dept_id);
 	if (!dept) throw new Error("Invalid department");
 
 	const newItem = await models.Inventory.create({
 		...data,
+		photo_path: photoPath || null,
 		is_global: 1, 
 		added_by: userId,
-		org_id: orgId // Ensure it is tied to the organization
+		org_id: orgId // Ensure it is tied to the organizations
 	});
 
 	return newItem;
@@ -46,7 +47,7 @@ async function removeGlobalItem(orgId, inventoryId) {
 	});
 
 	if (!item) {
-		throw new Error("Global item not found in this organization");
+		throw new Error("Global item not found in this organizations");
 	}
 
 	// 2. Delete any links to shows so we don't get Foreign Key constraint errors
@@ -78,13 +79,14 @@ async function getShowInventory(showId) {
 	});
 }
 
-async function createShowItem(showId, data, userId) {
+async function createShowItem(showId, data, userId, photoPath) {
 	// We need to know which org this show belongs to so we can assign the org_id to the inventory item
 	const show = await models.Show.findByPk(showId);
 	if (!show) throw new Error("Show not found");
 
 	const newItem = await models.Inventory.create({
 		...data,
+		photo_path: photoPath || null,
 		added_by: userId,
 		is_global: 0,
 		org_id: show.organization_id // Inherit the org_id from the show

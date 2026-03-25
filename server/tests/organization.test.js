@@ -32,7 +32,7 @@ describe("Organization API & Permissions", () => {
 		});
 		authToken = loginRes.body.token;
 
-		// ensure we have an organization before any individual test runs
+		// ensure we have an organizations before any individual test runs
 		const orgRes = await request(app)
 			.post("/api/orgs")
 			.set("Authorization", `Bearer ${authToken}`)
@@ -52,7 +52,7 @@ describe("Organization API & Permissions", () => {
 			expect(res.statusCode).toEqual(401);
 		});
 
-		it("POST /api/orgs - should create organization when authenticated", async () => {
+		it("POST /api/orgs - should create organizations when authenticated", async () => {
 			// This route is also exercised in beforeAll; we simply verify it still works
 			const res = await request(app)
 				.post("/api/orgs")
@@ -70,7 +70,7 @@ describe("Organization API & Permissions", () => {
 			expect(Array.isArray(res.body)).toBe(true);
 		});
 
-		it("PUT /api/orgs/:id - should update organization details", async () => {
+		it("PUT /api/orgs/:id - should update organizations details", async () => {
 			const res = await request(app)
 				.put(`/api/orgs/${testOrgId}`)
 				.set("Authorization", `Bearer ${authToken}`)
@@ -80,7 +80,7 @@ describe("Organization API & Permissions", () => {
 	});
 
 	describe("Organization Membership & Roles", () => {
-		it("Should allow a new user to join an organization", async () => {
+		it("Should allow a new user to join an organizations", async () => {
 			// Create a brand new user who isn't in the org yet
 			const newUserRes = await request(app)
 				.post("/api/users")
@@ -147,7 +147,7 @@ describe("Organization API & Permissions", () => {
 			expect(res.statusCode).toEqual(200);
 		});
 
-		it("DELETE /api/orgs/:orgId/users/:userId - should remove user from organization (Line 96)", async () => {
+		it("DELETE /api/orgs/:orgId/users/:userId - should remove user from organizations (Line 96)", async () => {
 			// Create another user to leave
 			const leaveUserRes = await request(app)
 				.post("/api/users")
@@ -206,7 +206,7 @@ describe("Organization API & Permissions", () => {
 			expect(res.statusCode).toEqual(201);
 		});
 
-		it("Should accept an organization invite", async () => {
+		it("Should accept an organizations invite", async () => {
 			// Mocking the DB call to simulate an active invitation
 			const mockMembership = { update: vi.fn(), destroy: vi.fn() };
 			const spy = vi
@@ -235,7 +235,7 @@ describe("Organization API & Permissions", () => {
 			expect(res.statusCode).toEqual(400);
 			expect(res.body.success).toBe(false);
 			expect(res.body.message).toContain(
-				"already in this organization or pending",
+				"already in this organizations or pending",
 			);
 		});
 	});
@@ -313,7 +313,7 @@ describe("Organization API & Permissions", () => {
 			const spy = vi
 				.spyOn(orgRoleService, "setRolesForAssignment")
 				.mockRejectedValue(
-					new Error("User is not a member of this organization"),
+					new Error("User is not a member of this organizations"),
 				);
 			const res = await request(app)
 				.put(`/api/orgs/${testOrgId}/users/${testUserId}/roles`)
@@ -430,7 +430,7 @@ describe("Organization API & Permissions", () => {
 		it("POST /api/orgs/:orgId/invite - should return 400 for user already in org", async () => {
 			const spy = vi
 				.spyOn(orgMembershipService, "inviteByEmail")
-				.mockRejectedValue(new Error("already in this organization"));
+				.mockRejectedValue(new Error("already in this organizations"));
 			const res = await request(app)
 				.post(`/api/orgs/${testOrgId}/invite`)
 				.set("Authorization", `Bearer ${authToken}`)
@@ -481,10 +481,10 @@ describe("Organization API & Permissions", () => {
 			spy.mockRestore();
 		});
 
-		it("POST /api/orgs/:orgId/join - should catch 'User already in organization' (Line 21)", async () => {
+		it("POST /api/orgs/:orgId/join - should catch 'User already in organizations' (Line 21)", async () => {
 			const spy = vi
 				.spyOn(orgMembershipService, "addUserToOrg")
-				.mockRejectedValue(new Error("User already in organization"));
+				.mockRejectedValue(new Error("User already in organizations"));
 			const res = await request(app)
 				.post(`/api/orgs/${testOrgId}/join`)
 				.send({ userId: testUserId });
@@ -616,7 +616,7 @@ describe("Organization API & Permissions", () => {
 			expect(res.statusCode).toEqual(500);
 			spy.mockRestore();
 		});
-		it("GET /api/orgs/:id - should return 404 for organization not found", async () => {
+		it("GET /api/orgs/:id - should return 404 for organizations not found", async () => {
 			const spy = vi
 				.spyOn(organizationService, "getById")
 				.mockRejectedValue(new Error("Organization not found"));
@@ -632,7 +632,7 @@ describe("Organization API & Permissions", () => {
 			expect(res.statusCode).toEqual(500);
 			spy.mockRestore();
 		});
-		it("PUT /api/orgs/:id - should return 404 for organization not found", async () => {
+		it("PUT /api/orgs/:id - should return 404 for organizations not found", async () => {
 			const spy = vi
 				.spyOn(organizationService, "update")
 				.mockRejectedValue(new Error("Organization not found"));
@@ -654,7 +654,7 @@ describe("Organization API & Permissions", () => {
 			expect(res.statusCode).toEqual(500);
 			spy.mockRestore();
 		});
-		it("DELETE /api/orgs/:id - should return 404 for organization not found", async () => {
+		it("DELETE /api/orgs/:id - should return 404 for organizations not found", async () => {
 			const spy = vi
 				.spyOn(organizationService, "remove")
 				.mockRejectedValue(new Error("Organization not found"));
@@ -682,7 +682,7 @@ describe("Organization API & Permissions", () => {
 			});
 
 			await expect(orgRoleService.getOrgUsers(emptyOrg.id)).rejects.toThrow(
-				"No users found for this organization",
+				"No users found for this organizations",
 			);
 		});
 
@@ -735,7 +735,7 @@ describe("Organization API & Permissions", () => {
 		it("setRolesForAssignment - should throw 'User is not a member'", async () => {
 			await expect(
 				orgRoleService.setRolesForAssignment(testOrgId, 99999, ["admin"]),
-			).rejects.toThrow("User is not a member of this organization");
+			).rejects.toThrow("User is not a member of this organizations");
 		});
 
 		it("getOrgUserById - should throw 'Organization not found'", async () => {
@@ -744,10 +744,10 @@ describe("Organization API & Permissions", () => {
 			).rejects.toThrow("Organization not found");
 		});
 
-		it("getOrgUserById - should throw 'User not found in this organization'", async () => {
+		it("getOrgUserById - should throw 'User not found in this organizations'", async () => {
 			await expect(
 				orgRoleService.getOrgUserById(testOrgId, 99999),
-			).rejects.toThrow("User not found in this organization");
+			).rejects.toThrow("User not found in this organizations");
 		});
 
 		it("getUsersByRole - should throw 'Organization not found'", async () => {
@@ -765,7 +765,7 @@ describe("Organization API & Permissions", () => {
 		it("removeUserFromOrg - should throw 'User is not a member'", async () => {
 			await expect(
 				orgRoleService.removeUserFromOrg(testOrgId, 99999),
-			).rejects.toThrow("User is not a member of this organization");
+			).rejects.toThrow("User is not a member of this organizations");
 		});
 
 		it("setRolesForAssignment - should clear all roles when passing an empty array (Line 40)", async () => {
@@ -783,7 +783,7 @@ describe("Organization API & Permissions", () => {
 			]);
 		});
 
-		describe("organization.service.js - Direct Service Tests", () => {
+		describe("organizations.service.js - Direct Service Tests", () => {
 			it("getById - should throw 'Organization not found' (Line 14)", async () => {
 				await expect(organizationService.getById(99999)).rejects.toThrow(
 					"Organization not found",
@@ -816,7 +816,7 @@ describe("Organization API & Permissions", () => {
 				spy.mockRestore();
 			});
 
-			it("getById - should return organization successfully (Line 16)", async () => {
+			it("getById - should return organizations successfully (Line 16)", async () => {
 				// Directly calling the service's happy path
 				const org = await organizationService.getById(testOrgId);
 				expect(org).toBeDefined();
@@ -837,9 +837,9 @@ describe("Organization API & Permissions", () => {
 			});
 		});
 
-		it("DELETE /api/orgs/:id - should delete organization", async () => {
+		it("DELETE /api/orgs/:id - should delete organizations", async () => {
 			// Because the testUser retained their admin role, we can safely
-			// delete the main test organization to finish the file!
+			// delete the main test organizations to finish the file!
 			const res = await request(app)
 				.delete(`/api/orgs/${testOrgId}`)
 				.set("Authorization", `Bearer ${authToken}`);

@@ -16,6 +16,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Serve uploaded files statically
+app.use("/uploads", express.static("uploads"));
+
 /* v8 ignore start */
 if (process.env.NODE_ENV !== "test") {
 	sequelize

@@ -416,7 +416,7 @@ describe("Show Management API", () => {
 					organization_id: testOrgId,
 				});
 			expect(res.statusCode).toEqual(403);
-			expect(res.body.message).toBe("Not a member of this organization.");
+			expect(res.body.message).toBe("Not a member of this organizations.");
 		});
 
 		it("authorizeOrg - should return 403 for insufficient org permissions (Line 54)", async () => {

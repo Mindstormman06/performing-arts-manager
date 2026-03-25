@@ -9,7 +9,7 @@ import { closeDatabase, setupTestDatabase } from "./utils/test-setup.js";
  * End-to-end coverage for the schedule endpoints mounted at /api/schedule.
  *
  * The happy‑path portion exercises every route in the router with a real
- * database, creating an organization and a show, elevating the primary test
+ * database, creating an organizations and a show, elevating the primary test
  * user to the required roles, and then manipulating events in both scopes.
  *
  * A second user is created so we can verify assignment logic and personal
@@ -46,7 +46,7 @@ describe("Schedule Routes", () => {
 		});
 		authToken = loginRes.body.token;
 
-		// create an organization and give our user org admin permissions
+		// create an organizations and give our user org admin permissions
 		const orgRes = await request(app)
 			.post("/api/orgs")
 			.set("Authorization", `Bearer ${authToken}`)
@@ -98,7 +98,7 @@ describe("Schedule Routes", () => {
 	});
 
 	describe("Happy path operations", () => {
-		it("POST /api/schedule/orgs/:orgId - create organization event", async () => {
+		it("POST /api/schedule/orgs/:orgId - create organizations event", async () => {
 			const res = await request(app)
 				.post(`/api/schedule/orgs/${testOrgId}`)
 				.set("Authorization", `Bearer ${authToken}`)

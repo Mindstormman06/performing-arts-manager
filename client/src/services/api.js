@@ -84,8 +84,16 @@ export const deleteGlobalInventoryItem = (orgId, itemId) => API.delete(`/invento
 // Show Inventory
 export const getShowInventory = (showId) => API.get(`/inventory/shows/${showId}`);
 export const createShowItem = (showId, data) => API.post(`/inventory/shows/${showId}`, data);
+export const createShowItemWithPhoto = (showId, formData) => API.post(`/inventory/shows/${showId}`, formData, {
+	headers: { "Content-Type": "multipart/form-data" }
+});
 export const pullGlobalItemToShow = (showId, itemId) => API.post(`/inventory/shows/${showId}/pull/${itemId}`);
 export const removeShowItem = (showId, itemId) => API.delete(`/inventory/shows/${showId}/items/${itemId}`);
+
+// Global Org Inventory
+export const createGlobalInventoryItemWithPhoto = (orgId, formData) => API.post(`/inventory/orgs/${orgId}`, formData, {
+	headers: { "Content-Type": "multipart/form-data" }
+});
 
 // -- Schedules --
 

@@ -31,16 +31,16 @@ router.post("/:orgId/join", orgMembershipController.join);
 // PUT /api/organizations/1/users/1/roles -> Appends roles to that assignment_id
 router.put("/:orgId/users/:userId/roles", orgMembershipController.addRoles);
 
-// GET all users in an organization
+// GET all users in an organizations
 router.get("/:orgId/users", orgMembershipController.getAllUsers);
 
 // GET all users with a specific role (usage: /api/organizations/1/users/role?role=admin)
 router.get("/:orgId/users/role", orgMembershipController.getByRole);
 
-// GET a specific user by ID in an organization
+// GET a specific user by ID in an organizations
 router.get("/:orgId/users/:userId", orgMembershipController.getUser);
 
-// DELETE user from organization (Leave)
+// DELETE user from organizations (Leave)
 router.delete("/:orgId/users/:userId", orgMembershipController.leave);
 
 // DELETE a specific role from a user

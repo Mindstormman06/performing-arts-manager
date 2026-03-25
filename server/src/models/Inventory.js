@@ -30,6 +30,10 @@ export default (sequelize, DataTypes) => {
 			org_id: {
 				type: DataTypes.INTEGER,
 				allowNull: false,
+			},
+			photo_path: {
+				type: DataTypes.STRING(500),
+				allowNull: true,
 			}
 		},
 		{

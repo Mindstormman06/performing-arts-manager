@@ -59,7 +59,7 @@ export default async function seed() {
         console.log("🏢 Seeding Organizations & Memberships...");
         const org = await models.Organization.create({ id: 1, name: "Cowichan Valley Players" });
 
-        // Add all 10 users to the organization
+        // Add all 10 users to the organizations
         const orgMembershipsData = usersData.map(u => ({
             users_id: u.id,
             org_id: org.id,
@@ -67,7 +67,7 @@ export default async function seed() {
         }));
         const orgMemberships = await models.OrgMembership.bulkCreate(orgMembershipsData, { returning: true });
 
-        // Assign specific organization roles
+        // Assign specific organizations roles
         await models.OrgRoleRelationship.bulkCreate([
             { assignment_id: orgMemberships.find(m => m.users_id === 4).assignment_id, role_id: 1 }, // Sarah: President
             { assignment_id: orgMemberships.find(m => m.users_id === 5).assignment_id, role_id: 2 }, // Marcus: Board

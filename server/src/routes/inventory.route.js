@@ -1,11 +1,13 @@
 import Router from "express";
 
+import upload from "../config/multer.config.js";
 import inventoryController from "../controllers/inventory.controller.js";
 import {
 	authenticate,
-	authorizeInventoryDept, // <-- Import the new dynamic checker
+	authorizeInventoryDept,
 	authorizeOrg,
-	authorizeShow} from "../middleware/auth.middleware.js";
+	authorizeShow,
+} from "../middleware/auth.middleware.js";
 
 const router = Router();
 
@@ -34,6 +36,7 @@ router.post(
 	"/orgs/:orgId",
 	authenticate,
 	authorizeInventoryDept("org"), // <-- Updated
+	upload.single("photo"),
 	inventoryController.createGlobal
 );
 
@@ -61,6 +64,7 @@ router.post(
 	"/shows/:showId",
 	authenticate,
 	authorizeInventoryDept("show"), // <-- Updated
+	upload.single("photo"),
 	inventoryController.createShowItem
 );
 

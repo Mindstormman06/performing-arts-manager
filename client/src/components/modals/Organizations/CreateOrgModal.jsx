@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { updateOrganization } from "../services/api";
+import { useState } from "react";
+import { createOrganization } from "../../../services/api.js";
 import {
 	ModalWrapper,
 	ModalSubWrapper,
@@ -13,22 +13,18 @@ import {
 	ModalFooter,
 	ModalInputContainer,
 	ModalInputParent,
-} from "./ui/modals";
+} from "../../ui/modals/index.js";
 
-export default function EditOrgModal({ isOpen, onClose, onSuccess, org }) {
+export default function CreateOrgModal({ isOpen, onClose, onSuccess }) {
 	const [name, setName] = useState("");
 	const [error, setError] = useState("");
 	const [loading, setLoading] = useState(false);
 
-	useEffect(() => {
-		if (org) setName(org.name);
-	}, [org]);
-
 	if (!isOpen) return null;
 
-	const handleUpdateOrg = async () => {
+	const handleCreateOrg = async () => {
 		if (!name.trim()) {
-			setError("Please enter an organization name.");
+			setError("Please enter an organizations name.");
 			return;
 		}
 
@@ -36,11 +32,12 @@ export default function EditOrgModal({ isOpen, onClose, onSuccess, org }) {
 		setLoading(true);
 
 		try {
-			await updateOrganization(org.id, { name });
+			await createOrganization({ name });
+			setName("");
 			onSuccess();
 			onClose();
 		} catch (err) {
-			setError(err.response?.data?.message || "Update failed");
+			setError(err.response?.data?.message || "Failed to create organizations");
 		} finally {
 			setLoading(false);
 		}
@@ -49,17 +46,18 @@ export default function EditOrgModal({ isOpen, onClose, onSuccess, org }) {
 	return (
 		<ModalWrapper>
 			<ModalSubWrapper>
-				<ModalHeader>Edit Organization</ModalHeader>
+				<ModalHeader onClick={onClose}>Create New Organization</ModalHeader>
 
 				{error && <ModalError>{error}</ModalError>}
 
 				<ModalBody>
 					<ModalInputParent>
 						<ModalInputContainer>
-							<ModalLabel htmlFor="edit-org-name">Organization Name</ModalLabel>
+							<ModalLabel htmlFor="create-org-name">Organization Name</ModalLabel>
 							<ModalInput
-								id="edit-org-name"
+								id="create-org-name"
 								type="text"
+								placeholder="Organization Name (e.g., VIU Theatre)"
 								value={name}
 								onChange={(e) => setName(e.target.value)}
 								required
@@ -70,8 +68,8 @@ export default function EditOrgModal({ isOpen, onClose, onSuccess, org }) {
 
 				<ModalFooter>
 					<ModalCancelButton onClick={onClose}>Cancel</ModalCancelButton>
-					<ModalSubmitButton type="button" onClick={handleUpdateOrg} disabled={loading}>
-						{loading ? "Saving..." : "Save Changes"}
+					<ModalSubmitButton type="button" onClick={handleCreateOrg} disabled={loading}>
+						{loading ? "Creating..." : "Create"}
 					</ModalSubmitButton>
 				</ModalFooter>
 			</ModalSubWrapper>

@@ -3,6 +3,7 @@ export { default as ModalCheckbox } from "./interactive/ModalCheckbox.jsx";
 export { default as ModalDropdown } from "./interactive/ModalDropdown.jsx";
 export { default as ModalError } from "./text/ModalError.jsx";
 export { default as ModalInput } from "./interactive/ModalInput.jsx";
+export { default as ModalImageInput } from "./interactive/ModalImageInput.jsx";
 export { default as ModalLabel } from "./text/ModalLabel.jsx";
 export { default as ModalSubHeader } from "./text/ModalSubHeader.jsx";
 export { default as ModalSubsection } from "./sections/ModalSubsection.jsx";

@@ -18,10 +18,12 @@ async function getGlobal(req, res, next) {
 
 async function createGlobal(req, res, next) {
 	try {
+		const photoPath = req.file ? `/uploads/${req.file.filename}` : null;
 		const item = await inventoryService.createGlobalItem(
 			req.params.orgId,
 			req.body,
-			req.user.id
+			req.user.id,
+			photoPath
 		);
 		res.status(201).json({ success: true, data: item });
 	} catch (error) {
@@ -57,10 +59,12 @@ async function getShowInventory(req, res, next) {
 
 async function createShowItem(req, res, next) {
 	try {
+		const photoPath = req.file ? `/uploads/${req.file.filename}` : null;
 		const item = await inventoryService.createShowItem(
 			req.params.showId,
 			req.body,
-			req.user.id
+			req.user.id,
+			photoPath
 		);
 		res.status(201).json({ success: true, data: item });
 	} catch (error) {
