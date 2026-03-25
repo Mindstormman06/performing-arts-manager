@@ -9,13 +9,12 @@ import {
 	ModalError,
 	ModalFooter,
 	ModalHeader,
-	ModalInputContainer,
-	ModalInputParent,
-	ModalSubHeader,
+	ModalSubHeader, ModalSubmitButton,
 	ModalSubsection,
 	ModalSubWrapper,
 	ModalWrapper
 } from "./ui/modals";
+import MembersList from "./ui/modals/sections/MembersList.jsx";
 
 export default function ManageShowMembersModal({ isOpen, onClose, members, orgId, showId, onSuccess }) {
 	const [orgMembers, setOrgMembers] = useState([]);
@@ -87,34 +86,29 @@ export default function ManageShowMembersModal({ isOpen, onClose, members, orgId
 				{error && <ModalError>{error}</ModalError>}
 
 				<ModalBody>
-					<ModalInputParent>
-						<ModalSubsection>
+					<ModalSubsection>
 							<ModalSubHeader>Add New Members</ModalSubHeader>
 							<div className="flex items-center justify-between gap-4 rounded-lg border border-gray-200 bg-gray-50 p-4 sm:flex-row flex-col">
-								<div className="flex w-full flex-1 gap-2">
-									<ModalInputContainer>
-										<ModalDropdown
-											value={selectedOrgUserId}
-											onChange={(e) => setSelectedOrgUserId(e.target.value)}
-										>
-											<option value="">-- Add from Organization --</option>
-											{availableOrgMembers.map((m) => (
-												<option key={m.users_id} value={m.users_id}>
-													{m.User?.fname} {m.User?.lname} ({m.User?.email})
-												</option>
-											))}
-										</ModalDropdown>
-									</ModalInputContainer>
+								<ModalDropdown
+									value={selectedOrgUserId}
+									onChange={(e) => setSelectedOrgUserId(e.target.value)}
+									className="flex-1"
+								>
+									<option value="">-- Add from Organization --</option>
+									{availableOrgMembers.map((m) => (
+										<option key={m.users_id} value={m.users_id}>
+											{m.User?.fname} {m.User?.lname} ({m.User?.email})
+										</option>
+									))}
+								</ModalDropdown>
 
-									<button
-										type="button"
-										onClick={handleAddOrgMember}
-										disabled={!selectedOrgUserId || isLoading}
-										className="rounded bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
-									>
-										{isLoading ? "Adding..." : "Add"}
-									</button>
-								</div>
+								<ModalSubmitButton
+									type="button"
+									onClick={handleAddOrgMember}
+									disabled={!selectedOrgUserId || isLoading}
+								>
+									{isLoading ? "Adding..." : "Add"}
+								</ModalSubmitButton>
 
 								<div className="hidden font-medium text-gray-400 sm:block">OR</div>
 
@@ -123,72 +117,24 @@ export default function ManageShowMembersModal({ isOpen, onClose, members, orgId
 									onClick={() => setIsInviteModalOpen(true)}
 									className="w-full whitespace-nowrap rounded bg-green-600 px-4 py-2 font-medium text-white transition-colors hover:bg-green-700 sm:w-auto"
 								>
-									+ Invite via Email
+									+ Email Invite
 								</button>
 							</div>
 						</ModalSubsection>
 
-						<ModalSubsection>
-							<ModalSubHeader>Current Roster</ModalSubHeader>
-							<div className="overflow-hidden rounded-lg border border-gray-200 shadow-sm">
-								<table className="w-full text-left text-sm">
-									<thead className="bg-gray-50">
-										<tr>
-											<th className="px-6 py-4 font-bold text-gray-900">Name</th>
-											<th className="px-6 py-4 font-bold text-gray-900">Email</th>
-											<th className="px-6 py-4 font-bold text-gray-900">Roles</th>
-											<th className="px-6 py-4 text-right font-bold text-gray-900">Actions</th>
-										</tr>
-									</thead>
-									<tbody className="divide-y divide-gray-200 bg-white">
-										{members.map((m) => (
-											<tr key={m.users_id} className="transition-colors hover:bg-gray-50">
-												<td className="px-6 py-4 font-medium text-gray-900">
-													{m.User?.fname} {m.User?.lname}
-													{m.status === "pending" && <span className="ml-2 rounded-full bg-amber-100 px-2 py-1 text-amber-800 text-xs">Pending</span>}
-												</td>
-												<td className="px-6 py-4 text-gray-500">{m.User?.email}</td>
-												<td className="px-6 py-4 text-gray-500">
-													<div className="flex flex-wrap gap-1">
-														{m.assignedRoles?.map((role) => (
-															<span key={role.id} className="rounded-full bg-blue-100 px-2.5 py-0.5 font-medium text-blue-800 text-xs capitalize">
-																{role.name}
-															</span>
-														))}
-													</div>
-												</td>
-												<td className="flex justify-end space-x-3 p-4">
-													<button
-														type="button"
-														onClick={() => {
-															setSelectedUser(m);
-															setIsRoleModalOpen(true);
-														}}
-														className="font-medium text-blue-600 hover:text-blue-800"
-													>
-														Edit Roles
-													</button>
-													<button
-														type="button"
-														onClick={() => handleRemove(m.users_id)}
-														disabled={isLoading}
-														className="font-medium text-red-600 hover:text-red-800 disabled:opacity-50"
-													>
-														Remove
-													</button>
-												</td>
-											</tr>
-										))}
-										{members.length === 0 && (
-											<tr>
-												<td colSpan="4" className="py-8 text-center text-gray-500 italic">No members in this show yet.</td>
-											</tr>
-										)}
-									</tbody>
-								</table>
-							</div>
-						</ModalSubsection>
-					</ModalInputParent>
+					<ModalSubsection>
+						<ModalSubHeader>Current Roster</ModalSubHeader>
+						<MembersList
+							members={members}
+							onEditRoles={(member) => {
+								setSelectedUser(member);
+								setIsRoleModalOpen(true);
+							}}
+							onRemove={handleRemove}
+							emptyMessage="No members in this show yet."
+							showStatus={true}
+						/>
+					</ModalSubsection>
 				</ModalBody>
 
 				<ModalFooter>
