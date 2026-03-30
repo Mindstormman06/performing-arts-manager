@@ -41,6 +41,12 @@ export const setupTestDatabase = async () => {
 		for (const roleName of showRoles) {
 			await models.ShowRole.findOrCreate({ where: { name: roleName } });
 		}
+
+		// Seed departments
+		const departments = ["Costumes", "Props", "Sets", "Tech"];
+		for (const deptName of departments) {
+			await models.Department.findOrCreate({ where: { name: deptName } });
+		}
 	} catch (error) {
 		/* v8 ignore next */ console.error(
 			"Unable to connect to the database:",

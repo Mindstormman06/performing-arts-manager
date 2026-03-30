@@ -91,10 +91,6 @@ app.get("/crash-test-minimal", (_req, _res, next) => {
 	next({});
 });
 
-app.get("/test", (_req, res) => {
-	res.json({ message: "This is a test route." });
-});
-
 app.use("/api/users", userRouter);
 app.use("/api/orgs", organzationRouter);
 app.use("/api/shows", showRouter);
