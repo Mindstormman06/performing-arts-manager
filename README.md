@@ -1,6 +1,9 @@
 # Performing Arts Manager
 Performing Arts Manager is a web app for managing your shows. It allows you to keep track of all parts of a performance, including actors, props, costumes, rehearsals, and more, all in a clean and easy to use interface.
 
+## Branch
+This branch is a frozen copy of sprint2 being used for ITAS276 Assignment02
+
 ## Tech Stack
 - Database: MySQL. A relational database is ideal for this project because the data links are complex and highly structures. Sequelize will be used as an ORM for managing the relationships.
 - Backend: Node.js + Express. This will serve as a RESTful API, handling database logic, user authentication (using JWT), permission checks, and serving data.
