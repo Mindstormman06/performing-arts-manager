@@ -4,9 +4,11 @@ import {
 	getShowInventory,
 	getDepartments,
 	getShowUsers,
+	getShowCasting,
 	verifyToken,
 	removeShowItem,
 	updateShowInventoryItem,
+	assignShowInventoryItem,
 } from "../../services/api.js";
 import DashboardSection from "../../components/ui/DashboardSection.jsx";
 import ManageShowInventoryModal from "../../components/modals/Shows/ManageShowInventoryModal.jsx";
@@ -18,9 +20,12 @@ export default function ShowInventory() {
 	const [items, setItems] = useState([]);
 	const [departments, setDepartments] = useState([]);
 	const [userRoles, setUserRoles] = useState([]);
+	const [showMembers, setShowMembers] = useState([]);
+	const [characters, setCharacters] = useState([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [isManageModalOpen, setIsManageModalOpen] = useState(false);
 	const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+	const [assigningItemId, setAssigningItemId] = useState(null);
 	const [selectedItem, setSelectedItem] = useState(null);
 
 	const [searchTerm, setSearchTerm] = useState("");
@@ -32,14 +37,17 @@ export default function ShowInventory() {
 			const authRes = await verifyToken();
 			const currentUserId = authRes.data.user.id;
 
-			const [itemsRes, deptsRes, usersRes] = await Promise.all([
+			const [itemsRes, deptsRes, usersRes, castingRes] = await Promise.all([
 				getShowInventory(showId),
 				getDepartments(),
-				getShowUsers(showId)
+				getShowUsers(showId),
+				getShowCasting(showId),
 			]);
 
 			setItems(itemsRes.data);
 			setDepartments(deptsRes.data);
+			setShowMembers(usersRes.data || []);
+			setCharacters(castingRes.data?.data || []);
 
 			const myMembership = usersRes.data.find(u => u.User?.id === currentUserId || u.users_id === currentUserId);
 			if (myMembership && myMembership.assignedRoles) {
@@ -60,6 +68,63 @@ export default function ShowInventory() {
 		if (!deptName) return false;
 		if (userRoles.includes("director") || userRoles.includes("stage-manager") || userRoles.includes("admin")) return true;
 		return userRoles.includes(deptName.toLowerCase());
+	};
+
+	const getMemberOptionsForDept = (deptName) => {
+		const dept = String(deptName || "").toLowerCase();
+		return showMembers.filter((member) => {
+			const roles = (member.assignedRoles || []).map((r) =>
+				String(r.name || "").toLowerCase(),
+			);
+			if (roles.includes("director") || roles.includes("stage-manager")) return true;
+			if (roles.includes(dept)) return true;
+			if ((dept === "costumes" || dept === "props") && roles.includes("actor")) return true;
+			return false;
+		});
+	};
+
+	const getCharacterOptionsForDept = (deptName) => {
+		const dept = String(deptName || "").toLowerCase();
+		if (dept !== "costumes" && dept !== "props") return [];
+		return characters;
+	};
+
+	const getAssignmentValue = (item) => {
+		if (item.assigned_character_id) return `character-${item.assigned_character_id}`;
+		if (item.assigned_user_id) return `user-${item.assigned_user_id}`;
+		return "";
+	};
+
+	const getAssignmentDisplay = (item) => {
+		if (item.assignedCharacter?.name) return item.assignedCharacter.name;
+		if (item.assignedUser) {
+			return `${item.assignedUser.fname || ""} ${item.assignedUser.lname || ""}`.trim();
+		}
+		return "Unassigned";
+	};
+
+	const handleAssignChange = async (item, value) => {
+		try {
+			setAssigningItemId(item.id);
+			if (!value) {
+				await assignShowInventoryItem(showId, item.id, { users_id: null, casting_id: null });
+			} else if (value.startsWith("user-")) {
+				await assignShowInventoryItem(showId, item.id, {
+					users_id: Number(value.replace("user-", "")),
+					casting_id: null,
+				});
+			} else if (value.startsWith("character-")) {
+				await assignShowInventoryItem(showId, item.id, {
+					users_id: null,
+					casting_id: Number(value.replace("character-", "")),
+				});
+			}
+			await fetchData();
+		} catch (err) {
+			alert(err.response?.data?.message || "Failed to assign inventory item");
+		} finally {
+			setAssigningItemId(null);
+		}
 	};
 
 	const handleRemove = async (itemId, itemName, isGlobal) => {
@@ -157,6 +222,7 @@ export default function ShowInventory() {
 								<th className="px-6 py-4 font-semibold">Photo</th>
 								<th className="px-6 py-4 font-semibold">Item Name</th>
 								<th className="px-6 py-4 font-semibold">Department</th>
+								<th className="px-6 py-4 font-semibold">Assigned To</th>
 								<th className="px-6 py-4 font-semibold">Origin</th>
 								<th className="px-6 py-4 font-semibold text-right">Actions</th>
 							</tr>
@@ -169,6 +235,42 @@ export default function ShowInventory() {
 									</td>
 									<td className="px-6 py-4 font-medium text-gray-900">{item.name}</td>
 									<td className="px-6 py-4"><span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 border border-blue-100">{item.Department?.name || "Unknown"}</span></td>
+									<td className="px-6 py-4">
+										{canManageDept(item.Department?.name) ? (
+											<select
+												value={getAssignmentValue(item)}
+												onChange={(e) => handleAssignChange(item, e.target.value)}
+												disabled={assigningItemId === item.id}
+												className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+											>
+												<option value="">Unassigned</option>
+												{getMemberOptionsForDept(item.Department?.name).length > 0 && (
+													<optgroup label="People">
+														{getMemberOptionsForDept(item.Department?.name).map((member) => {
+															const userId = member.User?.id ?? member.users_id;
+															const label = `${member.User?.fname || ""} ${member.User?.lname || ""}`.trim();
+															return (
+																<option key={`user-${userId}`} value={`user-${userId}`}>
+																	{label}
+																</option>
+															);
+														})}
+													</optgroup>
+												)}
+												{getCharacterOptionsForDept(item.Department?.name).length > 0 && (
+													<optgroup label="Characters">
+														{getCharacterOptionsForDept(item.Department?.name).map((character) => (
+															<option key={`character-${character.id}`} value={`character-${character.id}`}>
+																{character.name}
+															</option>
+														))}
+													</optgroup>
+												)}
+											</select>
+										) : (
+											<span className="text-sm text-gray-600">{getAssignmentDisplay(item)}</span>
+										)}
+									</td>
 									<td className="px-6 py-4">
 										{item.is_global ? 
 											<span className="text-purple-600 font-medium text-xs bg-purple-50 px-2 py-1 rounded">Global Stock</span> : 
@@ -196,7 +298,7 @@ export default function ShowInventory() {
 										)}
 									</td>
 								</tr>
-							)) : <tr><td colSpan="5" className="px-6 py-8 text-center italic text-gray-500">No inventory items assigned to this show.</td></tr>}
+							)) : <tr><td colSpan="6" className="px-6 py-8 text-center italic text-gray-500">No inventory items assigned to this show.</td></tr>}
 						</tbody>
 					</table>
 				</div>

@@ -1,5 +1,10 @@
 import { useState, useEffect } from "react";
-import { createShowEvent, getShowUsers, assignShowEventUsers } from "../../../services/api.js";
+import {
+    createShowEvent,
+    getShowUsers,
+    getShowCasting,
+    assignShowEventUsers,
+} from "../../../services/api.js";
 import {
     ModalCancelButton,
     ModalCheckbox,
@@ -27,22 +32,58 @@ export default function CreateEventModal({ isOpen, onClose, showId, onSuccess })
     const [activeTab, setActiveTab] = useState("details");
     const [formData, setFormData] = useState({ title: "", date: "", start_time: "", end_time: "", location: "", description: "" });
     const [showMembers, setShowMembers] = useState([]);
+    const [unassignedCharacters, setUnassignedCharacters] = useState([]);
     const [availableRoles, setAvailableRoles] = useState([]);
     const [selectedUserIds, setSelectedUserIds] = useState([]);
+    const [selectedCharacterIds, setSelectedCharacterIds] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
+
+    const getMemberDisplayName = (member) => {
+        const baseName = `${member.User?.fname || ""} ${member.User?.lname || ""}`.trim();
+        const characterName = member.characterName;
+        return characterName ? `${baseName} - ${characterName}` : baseName;
+    };
+
+    const getValidUserIds = (ids) =>
+        ids
+            .map((id) => Number(id))
+            .filter((id) => Number.isInteger(id) && id > 0);
 
     useEffect(() => {
         if (isOpen) {
             setActiveTab("details");
             setFormData({ title: "", date: "", start_time: "", end_time: "", location: "", description: "" });
             setSelectedUserIds([]);
+            setSelectedCharacterIds([]);
             setError("");
 
-            getShowUsers(showId).then(res => {
-                setShowMembers(res.data);
+            Promise.all([getShowUsers(showId), getShowCasting(showId)]).then(([usersRes, castingRes]) => {
+                const charactersByUser = new Map();
+                (castingRes.data?.data || []).forEach((character) => {
+                    if (!character.users_id) return;
+                    if (!charactersByUser.has(character.users_id)) {
+                        charactersByUser.set(character.users_id, []);
+                    }
+                    charactersByUser.get(character.users_id).push(character.name);
+                });
+
+                const membersWithCharacterLabels = usersRes.data.map((member) => {
+                    const characterNames = charactersByUser.get(member.users_id) || [];
+                    return {
+                        ...member,
+                        characterName: characterNames[0] || null,
+                    };
+                });
+
+                const uncastCharacters = (castingRes.data?.data || [])
+                    .filter((character) => !character.users_id)
+                    .map((character) => ({ id: character.id, name: character.name }));
+
+                setShowMembers(membersWithCharacterLabels);
+                setUnassignedCharacters(uncastCharacters);
                 const roles = new Set();
-                res.data.forEach(m => m.assignedRoles?.forEach(r => roles.add(r.name)));
+                usersRes.data.forEach(m => m.assignedRoles?.forEach(r => roles.add(r.name)));
                 setAvailableRoles(Array.from(roles));
             }).catch(() => {
                 setError("Failed to load show members");
@@ -78,9 +119,17 @@ export default function CreateEventModal({ isOpen, onClose, showId, onSuccess })
             const res = await createShowEvent(showId, payload);
 
             if (selectedUserIds.length > 0) {
+                const validUserIds = getValidUserIds(selectedUserIds);
                 await assignShowEventUsers(showId, res.data.data.id, {
                     type: "specific",
-                    userIds: selectedUserIds
+                    userIds: validUserIds,
+                    characterIds: selectedCharacterIds,
+                });
+            } else if (selectedCharacterIds.length > 0) {
+                await assignShowEventUsers(showId, res.data.data.id, {
+                    type: "specific",
+                    userIds: [],
+                    characterIds: selectedCharacterIds,
                 });
             }
 
@@ -118,6 +167,14 @@ export default function CreateEventModal({ isOpen, onClose, showId, onSuccess })
         setSelectedUserIds(prev => prev.includes(userId) ? prev.filter(id => id !== userId) : [...prev, userId]);
     };
 
+    const toggleCharacter = (characterId) => {
+        setSelectedCharacterIds((prev) =>
+            prev.includes(characterId)
+                ? prev.filter((id) => id !== characterId)
+                : [...prev, characterId],
+        );
+    };
+
     if (!isOpen) return null;
 
     return (
@@ -130,7 +187,7 @@ export default function CreateEventModal({ isOpen, onClose, showId, onSuccess })
                         Event Details
                     </ModalNavItem>
                     <ModalNavItem isActive={activeTab === "assignments"} onClick={() => setActiveTab("assignments")}>
-                        Assignments ({selectedUserIds.length})
+                        Assignments ({selectedUserIds.length + selectedCharacterIds.length})
                     </ModalNavItem>
                 </ModalNav>
 
@@ -229,13 +286,35 @@ export default function CreateEventModal({ isOpen, onClose, showId, onSuccess })
                                         <ModalLabel key={member.users_id} variant="checkbox">
                                             <ModalCheckbox checked={selectedUserIds.includes(member.users_id)} onChange={() => toggleUser(member.users_id)} />
                                             <div>
-                                                <div className="text-sm font-medium capitalize">{member.User?.fname} {member.User?.lname}</div>
+                                                <div className="text-sm font-medium capitalize">{getMemberDisplayName(member)}</div>
                                                 <div className="text-xs text-gray-500">
                                                     {member.assignedRoles?.map(r => r.name).join(', ')}
                                                 </div>
                                             </div>
                                         </ModalLabel>
                                     ))}
+                                </ModalBox>
+                            </ModalSubsection>
+
+                            <ModalSubsection>
+                                <ModalSubHeader>Assign Uncast Characters</ModalSubHeader>
+                                <ModalBox>
+                                    {unassignedCharacters.length > 0 ? (
+                                        unassignedCharacters.map((character) => (
+                                            <ModalLabel key={character.id} variant="checkbox">
+                                                <ModalCheckbox
+                                                    checked={selectedCharacterIds.includes(character.id)}
+                                                    onChange={() => toggleCharacter(character.id)}
+                                                />
+                                                <div>
+                                                    <div className="text-sm font-medium">{character.name}</div>
+                                                    <div className="text-xs text-gray-500">Uncast character</div>
+                                                </div>
+                                            </ModalLabel>
+                                        ))
+                                    ) : (
+                                        <p className="text-sm text-gray-500 italic">No uncast characters available.</p>
+                                    )}
                                 </ModalBox>
                             </ModalSubsection>
                         </ModalInputParent>

@@ -1,5 +1,11 @@
 import { useState, useEffect } from "react";
-import { updateShowEvent, deleteShowEvent, assignShowEventUsers, getShowUsers } from "../../../services/api.js";
+import {
+    updateShowEvent,
+    deleteShowEvent,
+    assignShowEventUsers,
+    getShowUsers,
+    getShowCasting,
+} from "../../../services/api.js";
 import {
     ModalCancelButton,
     ModalCheckbox,
@@ -27,10 +33,23 @@ export default function ManageEventModal({ isOpen, onClose, showId, event, onSuc
     const [activeTab, setActiveTab] = useState("details");
     const [formData, setFormData] = useState({ title: "", start_time: "", end_time: "", location: "", description: "" });
     const [showMembers, setShowMembers] = useState([]);
+    const [unassignedCharacters, setUnassignedCharacters] = useState([]);
     const [availableRoles, setAvailableRoles] = useState([]);
     const [selectedUserIds, setSelectedUserIds] = useState([]);
+    const [selectedCharacterIds, setSelectedCharacterIds] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
+
+    const getMemberDisplayName = (member) => {
+        const baseName = `${member.User?.fname || ""} ${member.User?.lname || ""}`.trim();
+        const characterName = member.characterName;
+        return characterName ? `${baseName} - ${characterName}` : baseName;
+    };
+
+    const getValidUserIds = (ids) =>
+        ids
+            .map((id) => Number(id))
+            .filter((id) => Number.isInteger(id) && id > 0);
 
     useEffect(() => {
         if (isOpen && event) {
@@ -54,10 +73,32 @@ export default function ManageEventModal({ isOpen, onClose, showId, event, onSuc
 
             const currentAssignees = (event.attendees || event.Users || []).map(user => user.id);
             setSelectedUserIds(currentAssignees);
+            setSelectedCharacterIds((event.requiredCharacters || []).map((c) => c.id));
 
-            getShowUsers(showId).then(res => {
-                const members = res.data;
+            Promise.all([getShowUsers(showId), getShowCasting(showId)]).then(([usersRes, castingRes]) => {
+                const charactersByUser = new Map();
+                (castingRes.data?.data || []).forEach((character) => {
+                    if (!character.users_id) return;
+                    if (!charactersByUser.has(character.users_id)) {
+                        charactersByUser.set(character.users_id, []);
+                    }
+                    charactersByUser.get(character.users_id).push(character.name);
+                });
+
+                const members = usersRes.data.map((member) => {
+                    const characterNames = charactersByUser.get(member.users_id) || [];
+                    return {
+                        ...member,
+                        characterName: characterNames[0] || null,
+                    };
+                });
+
+                const uncastCharacters = (castingRes.data?.data || [])
+                    .filter((character) => !character.users_id)
+                    .map((character) => ({ id: character.id, name: character.name }));
+
                 setShowMembers(members);
+                setUnassignedCharacters(uncastCharacters);
 
                 const roles = new Set();
                 members.forEach(m => {
@@ -94,7 +135,8 @@ export default function ManageEventModal({ isOpen, onClose, showId, event, onSuc
             // Always persist assignments so removals (empty array) are saved too.
             await assignShowEventUsers(showId, event.id, {
                 type: "specific",
-                userIds: selectedUserIds
+                userIds: getValidUserIds(selectedUserIds),
+                characterIds: selectedCharacterIds,
             });
 
             onSuccess();
@@ -143,6 +185,14 @@ export default function ManageEventModal({ isOpen, onClose, showId, event, onSuc
         setSelectedUserIds(prev => prev.includes(userId) ? prev.filter(id => id !== userId) : [...prev, userId]);
     };
 
+    const toggleCharacter = (characterId) => {
+        setSelectedCharacterIds((prev) =>
+            prev.includes(characterId)
+                ? prev.filter((id) => id !== characterId)
+                : [...prev, characterId],
+        );
+    };
+
     return (
         <ModalWrapper>
             <ModalSubWrapper>
@@ -153,7 +203,7 @@ export default function ManageEventModal({ isOpen, onClose, showId, event, onSuc
                         Event Details
                     </ModalNavItem>
                     <ModalNavItem isActive={activeTab === "assignments"} onClick={() => setActiveTab("assignments")}>
-                        Assignments ({selectedUserIds.length})
+                        Assignments ({selectedUserIds.length + selectedCharacterIds.length})
                     </ModalNavItem>
                 </ModalNav>
 
@@ -212,13 +262,35 @@ export default function ManageEventModal({ isOpen, onClose, showId, event, onSuc
                                         <ModalLabel key={member.users_id} variant="checkbox">
                                             <ModalCheckbox checked={selectedUserIds.includes(member.users_id)} onChange={() => toggleUser(member.users_id)} />
                                             <div>
-                                                <div className="text-sm font-medium">{member.User?.fname} {member.User?.lname}</div>
+                                                <div className="text-sm font-medium">{getMemberDisplayName(member)}</div>
                                                 <div className="text-xs text-gray-500">
                                                     {member.assignedRoles?.map(r => r.name).join(', ')}
                                                 </div>
                                             </div>
                                         </ModalLabel>
                                     ))}
+                                </ModalBox>
+                            </ModalSubsection>
+
+                            <ModalSubsection>
+                                <ModalSubHeader>Assign Uncast Characters</ModalSubHeader>
+                                <ModalBox>
+                                    {unassignedCharacters.length > 0 ? (
+                                        unassignedCharacters.map((character) => (
+                                            <ModalLabel key={character.id} variant="checkbox">
+                                                <ModalCheckbox
+                                                    checked={selectedCharacterIds.includes(character.id)}
+                                                    onChange={() => toggleCharacter(character.id)}
+                                                />
+                                                <div>
+                                                    <div className="text-sm font-medium">{character.name}</div>
+                                                    <div className="text-xs text-gray-500">Uncast character</div>
+                                                </div>
+                                            </ModalLabel>
+                                        ))
+                                    ) : (
+                                        <p className="text-sm text-gray-500 italic">No uncast characters available.</p>
+                                    )}
                                 </ModalBox>
                             </ModalSubsection>
                         </ModalInputParent>

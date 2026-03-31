@@ -92,6 +92,14 @@ router.put(
 	inventoryController.updateItem
 );
 
+// PUT /api/inventory/shows/1/items/5/assign
+router.put(
+	"/shows/:showId/items/:inventoryId/assign",
+	authenticate,
+	authorizeInventoryDept("show"),
+	inventoryController.assignItem
+);
+
 // DELETE /api/inventory/shows/1/items/5
 router.delete(
 	"/shows/:showId/items/:inventoryId",

@@ -73,6 +73,19 @@ export const removeShowUserRole = (showId, userId, roles) =>
 	API.delete(`/shows/${showId}/users/${userId}/roles`, { roles });
 export const getShowDashboard = (id) => API.get(`/shows/${id}/dashboard`);
 
+// Casting
+export const getShowCasting = (showId) => API.get(`/shows/${showId}/casting`);
+export const getShowCharacter = (showId, characterId) =>
+	API.get(`/shows/${showId}/casting/${characterId}`);
+export const createShowCharacter = (showId, data) =>
+	API.post(`/shows/${showId}/casting`, data);
+export const updateShowCharacter = (showId, characterId, data) =>
+	API.put(`/shows/${showId}/casting/${characterId}`, data);
+export const assignShowCharacter = (showId, characterId, users_id) =>
+	API.put(`/shows/${showId}/casting/${characterId}/assign`, { users_id });
+export const deleteShowCharacter = (showId, characterId) =>
+	API.delete(`/shows/${showId}/casting/${characterId}`);
+
 // --- Inventory ---
 export const getDepartments = () => API.get("/inventory/departments");
 
@@ -86,6 +99,7 @@ export const deleteGlobalInventoryItem = (orgId, itemId) => API.delete(`/invento
 export const getShowInventory = (showId) => API.get(`/inventory/shows/${showId}`);
 export const createShowItem = (showId, data) => API.post(`/inventory/shows/${showId}`, data);
 export const updateShowInventoryItem = (showId, itemId, data) => API.put(`/inventory/shows/${showId}/items/${itemId}`, data);
+export const assignShowInventoryItem = (showId, itemId, data) => API.put(`/inventory/shows/${showId}/items/${itemId}/assign`, data);
 export const createShowItemWithPhoto = (showId, formData) => API.post(`/inventory/shows/${showId}`, formData, {
 	headers: { "Content-Type": "multipart/form-data" }
 });

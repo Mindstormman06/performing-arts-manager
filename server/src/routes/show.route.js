@@ -1,5 +1,6 @@
 import Router from "express";
 
+import castingController from "../controllers/casting.controller.js";
 import showController from "../controllers/show.controller.js";
 import showMembershipController from "../controllers/showMembership.controller.js";
 import {
@@ -67,6 +68,49 @@ router.delete("/:showId/users/:userId", showMembershipController.leave);
 router.delete(
 	"/:showId/users/:userId/roles",
 	showMembershipController.removeRole,
+);
+
+// Casting (characters)
+router.get(
+	"/:showId/casting",
+	authenticate,
+	authorizeShow(),
+	castingController.getAll,
+);
+
+router.get(
+	"/:showId/casting/:characterId",
+	authenticate,
+	authorizeShow(),
+	castingController.getById,
+);
+
+router.post(
+	"/:showId/casting",
+	authenticate,
+	authorizeShow(["director", "stage-manager"]),
+	castingController.create,
+);
+
+router.put(
+	"/:showId/casting/:characterId",
+	authenticate,
+	authorizeShow(["director", "stage-manager"]),
+	castingController.update,
+);
+
+router.put(
+	"/:showId/casting/:characterId/assign",
+	authenticate,
+	authorizeShow(["director", "stage-manager"]),
+	castingController.assign,
+);
+
+router.delete(
+	"/:showId/casting/:characterId",
+	authenticate,
+	authorizeShow(["director", "stage-manager"]),
+	castingController.remove,
 );
 
 export default router;

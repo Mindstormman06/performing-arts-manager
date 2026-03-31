@@ -11,9 +11,25 @@ export default (sequelize, DataTypes) => {
 				type: DataTypes.STRING(100),
 				allowNull: false,
 			},
+			show_id: {
+				type: DataTypes.INTEGER,
+				allowNull: false,
+			},
+			users_id: {
+				type: DataTypes.INTEGER,
+				allowNull: true,
+			},
 		},
 		{
 			tableName: "casting",
+			indexes: [
+				{
+					fields: ["show_id"],
+				},
+				{
+					fields: ["users_id"],
+				},
+			],
 		},
 	);
 

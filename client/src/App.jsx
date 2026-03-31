@@ -13,6 +13,7 @@ import OrgInventory from "./pages/organizations/OrgInventory.jsx";
 import OrgSchedule from "./pages/organizations/OrgSchedule.jsx";
 import ShowInventory from "./pages/shows/ShowInventory.jsx";
 import ShowSchedule from "./pages/shows/ShowSchedule.jsx";
+import ShowCasting from "./pages/shows/ShowCasting.jsx";
 import Logo from "./components/ui/Logo.jsx";
 import Landing from "./pages/Landing.jsx";
 
@@ -157,6 +158,14 @@ function App() {
 						element={
 							<PrivateRoute>
 								<ShowSchedule />
+							</PrivateRoute>
+						}
+					/>
+					<Route
+						path="/orgs/:orgId/shows/:showId/casting"
+						element={
+							<PrivateRoute>
+								<ShowCasting />
 							</PrivateRoute>
 						}
 					/>
