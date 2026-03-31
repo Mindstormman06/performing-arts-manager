@@ -79,11 +79,13 @@ export const getDepartments = () => API.get("/inventory/departments");
 // Global Org Inventory
 export const getGlobalInventory = (orgId) => API.get(`/inventory/orgs/${orgId}`);
 export const createGlobalInventoryItem = (orgId, data) => API.post(`/inventory/orgs/${orgId}`, data);
+export const updateGlobalInventoryItem = (orgId, itemId, data) => API.put(`/inventory/orgs/${orgId}/items/${itemId}`, data);
 export const deleteGlobalInventoryItem = (orgId, itemId) => API.delete(`/inventory/orgs/${orgId}/items/${itemId}`);
 
 // Show Inventory
 export const getShowInventory = (showId) => API.get(`/inventory/shows/${showId}`);
 export const createShowItem = (showId, data) => API.post(`/inventory/shows/${showId}`, data);
+export const updateShowInventoryItem = (showId, itemId, data) => API.put(`/inventory/shows/${showId}/items/${itemId}`, data);
 export const createShowItemWithPhoto = (showId, formData) => API.post(`/inventory/shows/${showId}`, formData, {
 	headers: { "Content-Type": "multipart/form-data" }
 });

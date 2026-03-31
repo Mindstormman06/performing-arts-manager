@@ -29,15 +29,13 @@ async function createGlobalItem(orgId, data, userId, photoPath) {
 	const dept = await models.Department.findByPk(data.dept_id);
 	if (!dept) throw new Error("Invalid department");
 
-	const newItem = await models.Inventory.create({
+	return await models.Inventory.create({
 		...data,
 		photo_path: photoPath || null,
-		is_global: 1, 
+		is_global: 1,
 		added_by: userId,
-		org_id: orgId // Ensure it is tied to the organizations
+		org_id: orgId
 	});
-
-	return newItem;
 }
 
 async function removeGlobalItem(orgId, inventoryId) {
@@ -59,6 +57,26 @@ async function removeGlobalItem(orgId, inventoryId) {
 	await item.destroy();
 
 	return { message: "Global item permanently deleted" };
+}
+
+async function updateGlobalItem(orgId, inventoryId, data) {
+	const item = await models.Inventory.findOne({
+		where: { id: inventoryId, org_id: orgId, is_global: 1 },
+	});
+	if (!item) throw new Error("Global item not found in this organizations");
+
+	if (data.dept_id) {
+		const dept = await models.Department.findByPk(data.dept_id);
+		if (!dept) throw new Error("Invalid department");
+	}
+
+	await item.update({
+		name: data.name ?? item.name,
+		description: data.description ?? item.description,
+		dept_id: data.dept_id ?? item.dept_id,
+	});
+
+	return item;
 }
 
 // --- Show Inventory ---
@@ -129,13 +147,38 @@ async function removeShowItem(showId, inventoryId) {
 	return { message: "Item removed from show successfully" };
 }
 
+async function updateShowItem(showId, inventoryId, data) {
+	const showInventoryLink = await models.ShowInventory.findOne({
+		where: { inventory_id: inventoryId, shows_id: showId },
+	});
+	if (!showInventoryLink) throw new Error("Item not found in show inventory");
+
+	const item = await models.Inventory.findByPk(inventoryId);
+	if (!item) throw new Error("Item not found in show inventory");
+
+	if (data.dept_id) {
+		const dept = await models.Department.findByPk(data.dept_id);
+		if (!dept) throw new Error("Invalid department");
+	}
+
+	await item.update({
+		name: data.name ?? item.name,
+		description: data.description ?? item.description,
+		dept_id: data.dept_id ?? item.dept_id,
+	});
+
+	return item;
+}
+
 export default {
 	getDepartments,
 	getGlobalInventory,
 	createGlobalItem,
     removeGlobalItem,
+	updateGlobalItem,
 	getShowInventory,
 	createShowItem,
 	pullGlobalItemToShow,
 	removeShowItem,
+	updateShowItem,
 };

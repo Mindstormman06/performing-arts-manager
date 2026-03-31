@@ -40,6 +40,14 @@ router.post(
 	inventoryController.createGlobal
 );
 
+// PUT /api/inventory/orgs/1/items/5
+router.put(
+	"/orgs/:orgId/items/:inventoryId",
+	authenticate,
+	authorizeInventoryDept("org"),
+	inventoryController.updateGlobal
+);
+
 // DELETE /api/inventory/orgs/1/items/5
 router.delete(
 	"/orgs/:orgId/items/:inventoryId",
@@ -74,6 +82,14 @@ router.post(
 	authenticate,
 	authorizeInventoryDept("show"), // <-- Updated
 	inventoryController.pullItem
+);
+
+// PUT /api/inventory/shows/1/items/5
+router.put(
+	"/shows/:showId/items/:inventoryId",
+	authenticate,
+	authorizeInventoryDept("show"),
+	inventoryController.updateItem
 );
 
 // DELETE /api/inventory/shows/1/items/5
