@@ -3,7 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { getShowInventory, getDepartments, getShowUsers, verifyToken, removeShowItem } from "../../services/api.js";
 import DashboardSection from "../../components/ui/DashboardSection.jsx";
 import ManageShowInventoryModal from "../../components/modals/Shows/ManageShowInventoryModal.jsx";
-import InventoryPhotoCell from "../../components/inventory/InventoryPhotoCell.jsx";
+import InventoryPhotoCell from "../../components/ui/InventoryPhotoCell.jsx";
 
 export default function ShowInventory() {
     const { orgId, showId } = useParams();

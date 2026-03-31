@@ -134,11 +134,11 @@ export default async function seed() {
         // ------------------------
         console.log("📦 Seeding Inventory...");
         await models.Inventory.bulkCreate([
-            { id: 1, name: "ETC Source Four 36°", description: "Standard ellipsoidal reflector spotlight.", dept_id: 1, is_global: 1, added_by: 1, org_id: 1 },
-            { id: 2, name: "Chauvet ColorSource PAR", description: "LED wash fixture.", dept_id: 1, is_global: 1, added_by: 1, org_id: 1 },
-            { id: 3, name: "Shure SM58", description: "Dynamic vocal microphone.", dept_id: 2, is_global: 1, added_by: 1, org_id: 1 },
-            { id: 4, name: "Vintage Leather Jacket", description: "Studded 80s jacket.", dept_id: 3, is_global: 0, added_by: 4, org_id: 1 },
-            { id: 5, name: "Fake Electric Guitar", description: "Prop Gibson Les Paul replica.", dept_id: 4, is_global: 0, added_by: 2, org_id: 1 }
+            { id: 1, name: "ETC Source Four 36°", description: "Standard ellipsoidal reflector spotlight.", dept_id: 1, is_global: 1, added_by: 1, org_id: 1, photo_path: "/uploads/spotlight.png" },
+            { id: 2, name: "Chauvet ColorSource PAR", description: "LED wash fixture.", dept_id: 1, is_global: 1, added_by: 1, org_id: 1, photo_path: "/uploads/ledwash.jpg" },
+            { id: 3, name: "Shure SM58", description: "Dynamic vocal microphone.", dept_id: 2, is_global: 1, added_by: 1, org_id: 1, photo_path: "/uploads/mic.jpg" },
+            { id: 4, name: "Vintage Leather Jacket", description: "Studded 80s jacket.", dept_id: 3, is_global: 0, added_by: 4, org_id: 1, photo_path: "/uploads/leatherjacket.webp" },
+            { id: 5, name: "Fake Electric Guitar", description: "Prop Gibson Les Paul replica.", dept_id: 4, is_global: 0, added_by: 2, org_id: 1, photo_path: "/uploads/guitar.webp" }
         ]);
 
         // Link specific items to Rock of Ages

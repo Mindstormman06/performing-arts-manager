@@ -10,7 +10,8 @@
 		"coverage": "vitest run tests/ --coverage",
 		"dev": "nodemon ./server.js",
 		"test": "vitest run tests/",
-		"retire": "npx retire"
+		"retire": "npx retire",
+		"seed": "node ./seed.js"
 	},
 	"keywords": [],
 	"author": "Aiden Adzich",

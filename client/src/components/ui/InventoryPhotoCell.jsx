@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { BACKEND_URL } from "../../services/config.js";
 
 export default function InventoryPhotoCell({ photoPath, itemName }) {
 	const [showModal, setShowModal] = useState(false);
@@ -11,6 +12,8 @@ export default function InventoryPhotoCell({ photoPath, itemName }) {
 		);
 	}
 
+	const fullImageUrl = `${BACKEND_URL}${photoPath}`;
+
 	return (
 		<>
 			<button
@@ -19,7 +22,7 @@ export default function InventoryPhotoCell({ photoPath, itemName }) {
 				className="overflow-hidden rounded-lg border border-gray-200 transition-transform hover:scale-105"
 			>
 				<img
-					src={photoPath}
+					src={fullImageUrl}
 					alt={itemName}
 					className="h-12 w-12 object-cover"
 				/>
@@ -36,7 +39,7 @@ export default function InventoryPhotoCell({ photoPath, itemName }) {
 							✕
 						</button>
 						<img
-							src={photoPath}
+							src={fullImageUrl}
 							alt={itemName}
 							className="max-h-screen rounded-lg object-contain"
 						/>

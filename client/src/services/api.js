@@ -1,8 +1,8 @@
 import axios from "axios";
-import { data } from "react-router-dom";
+import { API_BASE_URL } from "./config.js";
 
 const API = axios.create({
-	baseURL: "http://localhost:8050/api",
+	baseURL: API_BASE_URL,
 });
 
 API.interceptors.request.use((config) => {

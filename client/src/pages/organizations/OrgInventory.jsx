@@ -9,6 +9,7 @@ import {
 } from "../../services/api.js";
 import DashboardSection from "../../components/ui/DashboardSection.jsx";
 import CreateInventoryModal from "../../components/modals/Organizations/CreateInventoryModal.jsx";
+import InventoryPhotoCell from "../../components/ui/InventoryPhotoCell.jsx";
 
 export default function OrgInventory() {
     const { orgId } = useParams();
@@ -147,6 +148,7 @@ export default function OrgInventory() {
                     <table className="w-full text-left text-sm text-gray-600">
                         <thead className="bg-gray-50 text-gray-700">
                             <tr>
+                                <th className="px-6 py-4 font-semibold">Photo</th>
                                 <th className="px-6 py-4 font-semibold">Item Name</th>
                                 <th className="px-6 py-4 font-semibold">Department</th>
                                 <th className="px-6 py-4 font-semibold">Description</th>
@@ -157,6 +159,9 @@ export default function OrgInventory() {
                             {filteredItems.length > 0 ? (
                                 filteredItems.map((item) => (
                                     <tr key={item.id} className="hover:bg-gray-50 transition-colors">
+                                        <td className="px-6 py-4">
+                                            <InventoryPhotoCell photoPath={item.photo_path} itemName={item.name} />
+                                        </td>
                                         <td className="px-6 py-4 font-medium text-gray-900">{item.name}</td>
                                         <td className="px-6 py-4">
                                             <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 border border-blue-100">
@@ -180,7 +185,7 @@ export default function OrgInventory() {
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="4" className="px-6 py-8 text-center italic text-gray-500">
+                                    <td colSpan="5" className="px-6 py-8 text-center italic text-gray-500">
                                         No inventory items found.
                                     </td>
                                 </tr>
