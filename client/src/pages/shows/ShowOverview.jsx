@@ -44,12 +44,12 @@ export default function ShowOverview() {
 	}, [fetchData]);
 
 	const navLinks = [
-		{ name: "Inventory Dashboard", path: "inventory", icon: "📦" },
-		{ name: "Notes & Reports", path: "notes", icon: "📝" },
+		{ name: "Inventory", path: "inventory", icon: "📦" },
+		{ name: "Notes", path: "notes", icon: "📝" },
 		{ name: "Scheduling", path: "scheduling", icon: "📅" },
 		{ name: "Casting", path: "casting", icon: "🎭" },
-		{ name: "Budgets & Expenses", path: "budgets", icon: "💰" },
-		{ name: "Technical & Design Hub", path: "tech", icon: "💡" },
+		{ name: "Budgeting", path: "budgets", icon: "💰" },
+		{ name: "Design Hub", path: "tech", icon: "💡" },
 		{ name: "Files & Scripts", path: "files", icon: "📁" },
 	];
 

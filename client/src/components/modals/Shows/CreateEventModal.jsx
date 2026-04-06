@@ -270,7 +270,7 @@ export default function CreateEventModal({ isOpen, onClose, showId, onSuccess })
 
                             {availableRoles.length > 0 && (
                             <ModalSubsection>
-                                <ModalSubHeader>Assign by Role</ModalSubHeader>
+                                <ModalSubHeader>Quick Select</ModalSubHeader>
                                     <ModalBox>
                                         {availableRoles.map(role => (
                                             <ModalCheckboxItem key={role} role={role} isSelected={isRoleFullySelected(role)} onToggle={() => toggleRole(role)} />

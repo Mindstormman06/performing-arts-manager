@@ -192,7 +192,7 @@ export default function ManageOrgEventModal({ isOpen, onClose, orgId, event, onS
 
                             {availableRoles.length > 0 && (
                             <ModalSubsection>
-                                <ModalSubHeader>Assign by Role</ModalSubHeader>
+                                <ModalSubHeader>Quick Select</ModalSubHeader>
                                     <ModalBox>
                                         {availableRoles.map((role) => (
                                             <ModalCheckboxItem key={role} role={role} isSelected={isRoleFullySelected(role)} onToggle={() => toggleRole(role)} />
