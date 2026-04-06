@@ -214,16 +214,31 @@ describe("Inventory Management API", () => {
 		});
 
 		describe("removeGlobal", () => {
-			it("DELETE /api/inventory/orgs/:orgId/items/:inventoryId - should return 404 when item not found", async () => {
+			it("DELETE /api/inventory/orgs/:orgId/items/:inventoryId - should delete a global inventory item", async () => {
+				// Create an item first
+				const createRes = await request(app)
+					.post(`/api/inventory/orgs/${testOrgId}`)
+					.set("Authorization", `Bearer ${authToken}`)
+					.send({
+						name: "Test Prop to Delete",
+						description: "A test prop for deletion",
+						dept_id: testDepartmentId,
+						quantity: 5,
+						condition: "good",
+					});
+
+				const itemId = createRes.body.data.id;
+
+				// Delete the item
 				const res = await request(app)
 					.delete(
-						`/api/inventory/orgs/${testOrgId}/items/99999`
+						`/api/inventory/orgs/${testOrgId}/items/${itemId}`
 					)
 					.set("Authorization", `Bearer ${authToken}`);
 
-				expect(res.statusCode).toEqual(404);
-				expect(res.body.success).toBe(false);
-				expect(res.body.message).toContain("not found");
+				expect(res.statusCode).toEqual(200);
+				expect(res.body.success).toBe(true);
+				expect(res.body.message).toEqual("Global item deleted");
 			});
 
 			it("DELETE /api/inventory/orgs/:orgId/items/:inventoryId - should return 404 when item not found", async () => {
@@ -265,7 +280,7 @@ describe("Inventory Management API", () => {
 	});
 
 	describe("Show Inventory Management", () => {
-		describe("getShowInventory - Authentication", () => {
+		describe("getShowInventory", () => {
 			it("GET /api/inventory/shows/:showId - should require authentication", async () => {
 				const res = await request(app).get(
 					`/api/inventory/shows/${testShowId}`
@@ -275,7 +290,7 @@ describe("Inventory Management API", () => {
 			});
 		});
 
-		describe("createShowItem - Authentication", () => {
+		describe("createShowItem", () => {
 			it("POST /api/inventory/shows/:showId - should require authentication", async () => {
 				const res = await request(app)
 					.post(`/api/inventory/shows/${testShowId}`)
@@ -289,7 +304,7 @@ describe("Inventory Management API", () => {
 			});
 		});
 
-		describe("pullItem - Authentication", () => {
+		describe("pullItem", () => {
 			it("POST /api/inventory/shows/:showId/pull/:inventoryId - should require authentication", async () => {
 				const res = await request(app).post(
 					`/api/inventory/shows/${testShowId}/pull/1`
@@ -299,7 +314,7 @@ describe("Inventory Management API", () => {
 			});
 		});
 
-		describe("removeItem - Authentication", () => {
+		describe("removeItem", () => {
 			it("DELETE /api/inventory/shows/:showId/items/:inventoryId - should require authentication", async () => {
 				const res = await request(app).delete(
 					`/api/inventory/shows/${testShowId}/items/1`
