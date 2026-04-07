@@ -59,6 +59,16 @@ jobs:
     needs: lint-and-format-server
     runs-on: ubuntu-latest
 
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: rootpassword
+          MYSQL_DATABASE: performing-arts-manager-db
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
     steps:
 
       # Cechkout code from repository
@@ -84,13 +94,13 @@ jobs:
         run: npm run coverage
         env:
           NODE_ENV: test
-          DB_HOST: ${{ secrets.DB_HOST }}
-          DB_USER: ${{ secrets.DB_USER }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          DB_NAME: ${{ secrets.DB_NAME }}
-          DB_PORT: ${{ secrets.DB_PORT }}
-          DB_DIALECT: ${{ secrets.DB_DIALECT }}
-          DB_SSL: ${{ secrets.DB_SSL }}
+          DB_HOST: 127.0.0.1
+          DB_USER: root
+          DB_PASSWORD: rootpassword
+          DB_NAME: performing-arts-manager-db
+          DB_PORT: 3306
+          DB_DIALECT: mysql
+          DB_SSL: false
 
       # Upload coverage report as artifact
       - name: Upload Coverage Report
@@ -103,6 +113,16 @@ jobs:
   bdd-tests:
     needs: [ test-server, server-security ]
     runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: rootpassword
+          MYSQL_DATABASE: performing-arts-manager-db
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
 
@@ -129,13 +149,13 @@ jobs:
         run: npm run test:bdd
         env:
           NODE_ENV: test
-          DB_HOST: ${{ secrets.DB_HOST }}
-          DB_USER: ${{ secrets.DB_USER }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          DB_NAME: ${{ secrets.DB_NAME }}
-          DB_PORT: ${{ secrets.DB_PORT }}
-          DB_DIALECT: ${{ secrets.DB_DIALECT }}
-          DB_SSL: ${{ secrets.DB_SSL }}
+          DB_HOST: 127.0.0.1
+          DB_USER: root
+          DB_PASSWORD: rootpassword
+          DB_NAME: performing-arts-manager-db
+          DB_PORT: 3306
+          DB_DIALECT: mysql
+          DB_SSL: false
 
       # Upload Cucumber report
       - name: Upload Cucumber Report
@@ -234,6 +254,16 @@ jobs:
     needs: lint-and-format-client
     runs-on: ubuntu-latest
 
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: rootpassword
+          MYSQL_DATABASE: performing-arts-manager-db
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
     steps:
 
       # Chechkout code from repository
@@ -281,13 +311,13 @@ jobs:
         run: npm run test
         env:
           NODE_ENV: test
-          DB_HOST: ${{ secrets.DB_HOST }}
-          DB_USER: ${{ secrets.DB_USER }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          DB_NAME: ${{ secrets.DB_NAME }}
-          DB_PORT: ${{ secrets.DB_PORT }}
-          DB_DIALECT: ${{ secrets.DB_DIALECT }}
-          DB_SSL: ${{ secrets.DB_SSL }}
+          DB_HOST: 127.0.0.1
+          DB_USER: root
+          DB_PASSWORD: rootpassword
+          DB_NAME: performing-arts-manager-db
+          DB_PORT: 3306
+          DB_DIALECT: mysql
+          DB_SSL: false
 
       # Upload Playwright report as artifact
       - name: Upload Playwright Report
@@ -301,6 +331,16 @@ jobs:
   uat-tests:
     needs: [bdd-tests, test-client-ui]
     runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: rootpassword
+          MYSQL_DATABASE: performing-arts-manager-db
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
       # Chechkout code from repository
@@ -346,13 +386,13 @@ jobs:
           robot .
         env:
           NODE_ENV: test
-          DB_HOST: ${{ secrets.DB_HOST }}
-          DB_USER: ${{ secrets.DB_USER }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          DB_NAME: ${{ secrets.DB_NAME }}
-          DB_PORT: ${{ secrets.DB_PORT }}
-          DB_DIALECT: ${{ secrets.DB_DIALECT }}
-          DB_SSL: ${{ secrets.DB_SSL }}
+          DB_HOST: 127.0.0.1
+          DB_USER: root
+          DB_PASSWORD: rootpassword
+          DB_NAME: performing-arts-manager-db
+          DB_PORT: 3306
+          DB_DIALECT: mysql
+          DB_SSL: false
 
       # Upload UAT report as artifact
       - name: Upload UAT Report Artifact
