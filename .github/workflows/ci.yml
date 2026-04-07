@@ -383,11 +383,11 @@ jobs:
             node ./server.js > server.log 2>&1 &
             SERVER_PID=$!
             
-            node ./seed.js
-            echo "Seed completed successfully!"
-            
             npx wait-on http://localhost:8050/server-up
             echo "Server is up!"
+          
+            node ./seed.js
+            echo "Seed completed successfully!"
             
             cd ..
             cd client
