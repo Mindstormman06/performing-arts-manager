@@ -379,15 +379,25 @@ jobs:
       # Run UAT tests with Robot Framework
       - name: Start Background Servers & Run UAT
         run: |
-          # Start the backend in the background
-          cd server && node ./server.js && npm run seed &
-          # Start the frontend in the background
-          cd ../client && npm run dev &
-          # Wait for servers to spin up
-          npx wait-on http://localhost:8050/server-up
-          # Seed the DB and run Robot
-          cd ../uat
-          robot .
+            cd server
+            node ./server.js &
+            SERVER_PID=$!
+            
+            npx wait-on http://localhost:8050/server-up
+            
+            npm run seed
+            
+            cd ..
+            cd client
+            npm run dev &
+            CLIENT_PID=$!
+            
+            npx wait-on http://localhost:5173
+            
+            cd ../uat
+            robot .
+            
+            kill $SERVER_PID $CLIENT_PID || true
         env:
           NODE_ENV: test
           DB_HOST: 127.0.0.1
