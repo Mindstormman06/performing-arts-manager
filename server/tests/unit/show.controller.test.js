@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import { describe, expect, it, vi } from "vitest";
+
 import showController from "../../src/controllers/show.controller.js";
 import showService from "../../src/services/show.service.js";
 

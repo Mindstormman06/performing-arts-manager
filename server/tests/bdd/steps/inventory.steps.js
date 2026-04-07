@@ -1,4 +1,5 @@
 import assert from "node:assert";
+
 import { Given, Then, When } from "@cucumber/cucumber";
 import request from "supertest";
 
@@ -33,6 +34,7 @@ When(
 			Scenic: 5,
 			"Front of House": 6,
 		};
+		// eslint-disable-next-line security/detect-object-injection
 		const mappedId = deptIdMap[department] || 1;
 
 		this.lastResponse = await request(app)

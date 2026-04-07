@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import { describe, expect, it, vi } from "vitest";
+
 import {
 	authenticate,
 	authorizeInventoryDept,

@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+
 import scheduleController from "../../src/controllers/schedule.controller.js";
 import scheduleService from "../../src/services/schedule.service.js";
 
