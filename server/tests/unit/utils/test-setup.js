@@ -24,7 +24,7 @@ export const setupTestDatabase = async () => {
 			"tech", // Both
 		];
 		const showRoles = [
-		    "director", // Show
+			"director", // Show
 			"stage-manager", // Show
 			"actor", // Show
 			"stagehand", // Show

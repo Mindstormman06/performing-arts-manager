@@ -31,9 +31,9 @@ async function createGlobalItem(orgId, data, userId) {
 
 	const newItem = await models.Inventory.create({
 		...data,
-		is_global: 1, 
+		is_global: 1,
 		added_by: userId,
-		org_id: orgId // Ensure it is tied to the organization
+		org_id: orgId, // Ensure it is tied to the organization
 	});
 
 	return newItem;
@@ -68,7 +68,7 @@ async function getShowInventory(showId) {
 			{
 				model: models.Show,
 				where: { id: showId },
-				through: { attributes: ["user_id"] }, 
+				through: { attributes: ["user_id"] },
 			},
 			{
 				model: models.Department,
@@ -87,7 +87,7 @@ async function createShowItem(showId, data, userId) {
 		...data,
 		added_by: userId,
 		is_global: 0,
-		org_id: show.organization_id // Inherit the org_id from the show
+		org_id: show.organization_id, // Inherit the org_id from the show
 	});
 
 	await models.ShowInventory.create({
@@ -117,7 +117,8 @@ async function removeShowItem(showId, inventoryId) {
 		where: { inventory_id: inventoryId, shows_id: showId },
 	});
 
-	if (deletedLinkCount === 0) throw new Error("Item not found in show inventory");
+	if (deletedLinkCount === 0)
+		throw new Error("Item not found in show inventory");
 
 	const item = await models.Inventory.findByPk(inventoryId);
 	if (item && item.is_global === 0) {
@@ -131,7 +132,7 @@ export default {
 	getDepartments,
 	getGlobalInventory,
 	createGlobalItem,
-    removeGlobalItem,
+	removeGlobalItem,
 	getShowInventory,
 	createShowItem,
 	pullGlobalItemToShow,

@@ -18,7 +18,7 @@ async function login(req, res) {
 async function verify(req, res) {
 	try {
 		const user = await authService.verify(req.user.id);
-		
+
 		res.json({
 			success: true,
 			user: user,

@@ -88,7 +88,9 @@ async function getUsersByRole(orgId, roleName) {
 	const org = await models.Organization.findOne({ where: { id: orgId } });
 	if (!org) throw new Error("Organization not found");
 
-	const role = await models.OrganizationRole.findOne({ where: { name: roleName } });
+	const role = await models.OrganizationRole.findOne({
+		where: { name: roleName },
+	});
 	if (!role) throw new Error("Role not found");
 
 	return await models.User.findAll({

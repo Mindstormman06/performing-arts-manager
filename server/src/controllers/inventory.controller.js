@@ -21,7 +21,7 @@ async function createGlobal(req, res, next) {
 		const item = await inventoryService.createGlobalItem(
 			req.params.orgId,
 			req.body,
-			req.user.id
+			req.user.id,
 		);
 		res.status(201).json({ success: true, data: item });
 	} catch (error) {
@@ -36,7 +36,7 @@ async function removeGlobal(req, res, next) {
 	try {
 		await inventoryService.removeGlobalItem(
 			req.params.orgId,
-			req.params.inventoryId
+			req.params.inventoryId,
 		);
 		res.status(200).json({ success: true, message: "Global item deleted" });
 	} catch (error) {
@@ -60,7 +60,7 @@ async function createShowItem(req, res, next) {
 		const item = await inventoryService.createShowItem(
 			req.params.showId,
 			req.body,
-			req.user.id
+			req.user.id,
 		);
 		res.status(201).json({ success: true, data: item });
 	} catch (error) {
@@ -73,7 +73,7 @@ async function pullItem(req, res, next) {
 		await inventoryService.pullGlobalItemToShow(
 			req.params.showId,
 			req.params.inventoryId,
-			req.user.id
+			req.user.id,
 		);
 		res.status(200).json({ success: true, message: "Item pulled to show" });
 	} catch (error) {
@@ -88,7 +88,7 @@ async function removeItem(req, res, next) {
 	try {
 		await inventoryService.removeShowItem(
 			req.params.showId,
-			req.params.inventoryId
+			req.params.inventoryId,
 		);
 		res.status(200).json({ success: true, message: "Item removed" });
 	} catch (error) {
@@ -103,7 +103,7 @@ export default {
 	getDepartments,
 	getGlobal,
 	createGlobal,
-    removeGlobal,
+	removeGlobal,
 	getShowInventory,
 	createShowItem,
 	pullItem,

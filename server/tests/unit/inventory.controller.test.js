@@ -18,7 +18,7 @@ describe("Inventory Controller - Direct Tests", () => {
 			await inventoryController.getShowInventory(
 				{ params: { showId: 1 } },
 				mockRes,
-				mockNext
+				mockNext,
 			);
 
 			expect(spy).toHaveBeenCalledWith(1);
@@ -40,7 +40,7 @@ describe("Inventory Controller - Direct Tests", () => {
 			await inventoryController.getShowInventory(
 				{ params: { showId: 1 } },
 				mockRes,
-				mockNext
+				mockNext,
 			);
 
 			expect(mockNext).toHaveBeenCalledWith(error);
@@ -267,4 +267,3 @@ describe("Inventory Controller - Direct Tests", () => {
 		});
 	});
 });
-

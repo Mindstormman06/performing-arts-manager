@@ -1,10 +1,10 @@
-import { describe, expect, it, vi } from "vitest";
 import jwt from "jsonwebtoken";
+import { describe, expect, it, vi } from "vitest";
 import {
 	authenticate,
+	authorizeInventoryDept,
 	authorizeOrg,
 	authorizeShow,
-	authorizeInventoryDept,
 } from "../../src/middleware/auth.middleware.js";
 import models from "../../src/models/index.js";
 
@@ -16,9 +16,7 @@ describe("Auth Middleware - Direct Tests", () => {
 			const token = jwt.sign({ id: 1, email: "test@example.com" }, JWT_SECRET);
 			const mockUser = { id: 1, email: "test@example.com" };
 
-			const spy = vi
-				.spyOn(models.User, "findByPk")
-				.mockResolvedValue(mockUser);
+			const spy = vi.spyOn(models.User, "findByPk").mockResolvedValue(mockUser);
 
 			const mockReq = {
 				header: vi.fn((name) => {
@@ -60,9 +58,7 @@ describe("Auth Middleware - Direct Tests", () => {
 		it("should return 401 when user no longer exists (Line 21)", async () => {
 			const token = jwt.sign({ id: 999 }, JWT_SECRET);
 
-			const spy = vi
-				.spyOn(models.User, "findByPk")
-				.mockResolvedValue(null);
+			const spy = vi.spyOn(models.User, "findByPk").mockResolvedValue(null);
 
 			const mockReq = {
 				header: vi.fn((name) => {
@@ -280,7 +276,7 @@ describe("Auth Middleware - Direct Tests", () => {
 			expect(spy).toHaveBeenCalledWith(
 				expect.objectContaining({
 					where: expect.objectContaining({ org_id: 2 }),
-				})
+				}),
 			);
 
 			spy.mockRestore();
@@ -289,9 +285,7 @@ describe("Auth Middleware - Direct Tests", () => {
 
 	describe("authorizeShow", () => {
 		it("should return 404 when show not found (Line 89)", async () => {
-			const spy = vi
-				.spyOn(models.Show, "findByPk")
-				.mockResolvedValue(null);
+			const spy = vi.spyOn(models.Show, "findByPk").mockResolvedValue(null);
 
 			const middleware = authorizeShow();
 			const mockReq = {
@@ -739,7 +733,8 @@ describe("Auth Middleware - Direct Tests", () => {
 			expect(mockRes.status).toHaveBeenCalledWith(403);
 			expect(mockRes.json).toHaveBeenCalledWith({
 				success: false,
-				message: "Insufficient permissions. You must be in this department to manage its inventory.",
+				message:
+					"Insufficient permissions. You must be in this department to manage its inventory.",
 			});
 
 			orgSpy.mockRestore();
@@ -772,7 +767,8 @@ describe("Auth Middleware - Direct Tests", () => {
 			expect(mockRes.status).toHaveBeenCalledWith(403);
 			expect(mockRes.json).toHaveBeenCalledWith({
 				success: false,
-				message: "Insufficient permissions. You must be in this department to manage its inventory.",
+				message:
+					"Insufficient permissions. You must be in this department to manage its inventory.",
 			});
 
 			orgSpy.mockRestore();
@@ -862,7 +858,3 @@ describe("Auth Middleware - Direct Tests", () => {
 		});
 	});
 });
-
-
-
-

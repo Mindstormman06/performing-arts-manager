@@ -10,7 +10,7 @@ describe("Inventory Management API", () => {
 	let testUserId;
 	let testOrgId;
 	let testShowId;
-	let testInventoryId;
+	let _testInventoryId;
 	let testDepartmentId;
 
 	beforeAll(async () => {
@@ -65,7 +65,16 @@ describe("Inventory Management API", () => {
 		await request(app)
 			.put(`/api/shows/${testShowId}/users/${testUserId}/roles`)
 			.set("Authorization", `Bearer ${authToken}`)
-			.send({ roles: ["director", "stage-manager", "costumes", "props", "sets", "tech"] });
+			.send({
+				roles: [
+					"director",
+					"stage-manager",
+					"costumes",
+					"props",
+					"sets",
+					"tech",
+				],
+			});
 	}, 30000);
 
 	afterAll(async () => {
@@ -120,13 +129,11 @@ describe("Inventory Management API", () => {
 				expect(Array.isArray(res.body)).toBe(true);
 			});
 
-		it("GET /api/inventory/orgs/:orgId - should require authentication", async () => {
-			const res = await request(app).get(
-				`/api/inventory/orgs/${testOrgId}`
-			);
+			it("GET /api/inventory/orgs/:orgId - should require authentication", async () => {
+				const res = await request(app).get(`/api/inventory/orgs/${testOrgId}`);
 
-			expect(res.statusCode).toEqual(401);
-		});
+				expect(res.statusCode).toEqual(401);
+			});
 
 			it("GET /api/inventory/orgs/:orgId - should handle service errors", async () => {
 				const spy = vi
@@ -159,7 +166,7 @@ describe("Inventory Management API", () => {
 				expect(res.statusCode).toEqual(201);
 				expect(res.body.success).toBe(true);
 				expect(res.body.data).toHaveProperty("id");
-				testInventoryId = res.body.data.id;
+				_testInventoryId = res.body.data.id;
 			});
 
 			it("POST /api/inventory/orgs/:orgId - should return 400 for invalid department", async () => {
@@ -231,9 +238,7 @@ describe("Inventory Management API", () => {
 
 				// Delete the item
 				const res = await request(app)
-					.delete(
-						`/api/inventory/orgs/${testOrgId}/items/${itemId}`
-					)
+					.delete(`/api/inventory/orgs/${testOrgId}/items/${itemId}`)
 					.set("Authorization", `Bearer ${authToken}`);
 
 				expect(res.statusCode).toEqual(200);
@@ -243,9 +248,7 @@ describe("Inventory Management API", () => {
 
 			it("DELETE /api/inventory/orgs/:orgId/items/:inventoryId - should return 404 when item not found", async () => {
 				const res = await request(app)
-					.delete(
-						`/api/inventory/orgs/${testOrgId}/items/99999`
-					)
+					.delete(`/api/inventory/orgs/${testOrgId}/items/99999`)
 					.set("Authorization", `Bearer ${authToken}`);
 
 				expect(res.statusCode).toEqual(404);
@@ -253,13 +256,13 @@ describe("Inventory Management API", () => {
 				expect(res.body.message).toContain("not found");
 			});
 
-		it("DELETE /api/inventory/orgs/:orgId/items/:inventoryId - should require authentication", async () => {
-			const res = await request(app).delete(
-				`/api/inventory/orgs/${testOrgId}/items/1`
-			);
+			it("DELETE /api/inventory/orgs/:orgId/items/:inventoryId - should require authentication", async () => {
+				const res = await request(app).delete(
+					`/api/inventory/orgs/${testOrgId}/items/1`,
+				);
 
-			expect(res.statusCode).toEqual(401);
-		});
+				expect(res.statusCode).toEqual(401);
+			});
 
 			it("DELETE /api/inventory/orgs/:orgId/items/:inventoryId - should handle service errors", async () => {
 				const spy = vi
@@ -267,9 +270,7 @@ describe("Inventory Management API", () => {
 					.mockRejectedValue(new Error("Some unexpected error"));
 
 				const res = await request(app)
-					.delete(
-						`/api/inventory/orgs/${testOrgId}/items/1`
-					)
+					.delete(`/api/inventory/orgs/${testOrgId}/items/1`)
 					.set("Authorization", `Bearer ${authToken}`);
 
 				expect(res.statusCode).toEqual(500);
@@ -283,7 +284,7 @@ describe("Inventory Management API", () => {
 		describe("getShowInventory", () => {
 			it("GET /api/inventory/shows/:showId - should require authentication", async () => {
 				const res = await request(app).get(
-					`/api/inventory/shows/${testShowId}`
+					`/api/inventory/shows/${testShowId}`,
 				);
 
 				expect(res.statusCode).toEqual(401);
@@ -307,7 +308,7 @@ describe("Inventory Management API", () => {
 		describe("pullItem", () => {
 			it("POST /api/inventory/shows/:showId/pull/:inventoryId - should require authentication", async () => {
 				const res = await request(app).post(
-					`/api/inventory/shows/${testShowId}/pull/1`
+					`/api/inventory/shows/${testShowId}/pull/1`,
 				);
 
 				expect(res.statusCode).toEqual(401);
@@ -317,7 +318,7 @@ describe("Inventory Management API", () => {
 		describe("removeItem", () => {
 			it("DELETE /api/inventory/shows/:showId/items/:inventoryId - should require authentication", async () => {
 				const res = await request(app).delete(
-					`/api/inventory/shows/${testShowId}/items/1`
+					`/api/inventory/shows/${testShowId}/items/1`,
 				);
 
 				expect(res.statusCode).toEqual(401);
@@ -325,25 +326,3 @@ describe("Inventory Management API", () => {
 		});
 	});
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

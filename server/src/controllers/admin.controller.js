@@ -9,42 +9,42 @@ const resetDb = async (_req, res) => {
 		await sequelize.sync({ force: true, transaction: t });
 		console.log("Database reset complete!");
 
-// Seed organization/show roles instead of generic Role model
-	const { OrganizationRole, ShowRole } = models;
-	const orgRoles = [
-		"admin",
-		"president",
-		"board-member",
-		"costumes",
-		"props",
-		"sets",
-		"tech",
-	];
-	const showRoles = [
-		"director",
-		"stage-manager",
-		"actor",
-		"stagehand",
-		"costumes",
-		"props",
-		"sets",
-		"tech",
-	];
+		// Seed organization/show roles instead of generic Role model
+		const { OrganizationRole, ShowRole } = models;
+		const orgRoles = [
+			"admin",
+			"president",
+			"board-member",
+			"costumes",
+			"props",
+			"sets",
+			"tech",
+		];
+		const showRoles = [
+			"director",
+			"stage-manager",
+			"actor",
+			"stagehand",
+			"costumes",
+			"props",
+			"sets",
+			"tech",
+		];
 
-	// ensure org roles
-	await Promise.all(
-		orgRoles.map((roleName) =>
-			OrganizationRole.findOrCreate({
-				where: { name: roleName },
-				transaction: t,
-			}),
-		),
-	);
+		// ensure org roles
+		await Promise.all(
+			orgRoles.map((roleName) =>
+				OrganizationRole.findOrCreate({
+					where: { name: roleName },
+					transaction: t,
+				}),
+			),
+		);
 
-	// ensure show roles
-	await Promise.all(
-		showRoles.map((roleName) =>
-			ShowRole.findOrCreate({
+		// ensure show roles
+		await Promise.all(
+			showRoles.map((roleName) =>
+				ShowRole.findOrCreate({
 					where: { name: roleName },
 					transaction: t,
 				}),

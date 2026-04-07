@@ -1,5 +1,5 @@
-import { describe, expect, it, vi } from "vitest";
 import jwt from "jsonwebtoken";
+import { describe, expect, it, vi } from "vitest";
 import showController from "../../src/controllers/show.controller.js";
 import showService from "../../src/services/show.service.js";
 
@@ -241,9 +241,7 @@ describe("Show Controller - Direct Tests", () => {
 	describe("get", () => {
 		it("should get all shows with orgId query parameter", async () => {
 			const mockShows = [{ id: 1, title: "Show 1" }];
-			const spy = vi
-				.spyOn(showService, "getAll")
-				.mockResolvedValue(mockShows);
+			const spy = vi.spyOn(showService, "getAll").mockResolvedValue(mockShows);
 
 			const mockRes = {
 				json: vi.fn(),
@@ -263,9 +261,7 @@ describe("Show Controller - Direct Tests", () => {
 
 		it("should handle service errors", async () => {
 			const error = new Error("Database error");
-			const spy = vi
-				.spyOn(showService, "getAll")
-				.mockRejectedValue(error);
+			const spy = vi.spyOn(showService, "getAll").mockRejectedValue(error);
 
 			const mockRes = {};
 			const mockNext = vi.fn();
@@ -284,9 +280,7 @@ describe("Show Controller - Direct Tests", () => {
 	describe("getById", () => {
 		it("should get show by id on success", async () => {
 			const mockShow = { id: 1, title: "Show 1" };
-			const spy = vi
-				.spyOn(showService, "getById")
-				.mockResolvedValue(mockShow);
+			const spy = vi.spyOn(showService, "getById").mockResolvedValue(mockShow);
 
 			const mockRes = {
 				json: vi.fn(),
@@ -330,9 +324,7 @@ describe("Show Controller - Direct Tests", () => {
 
 		it("should call next with error on generic failure", async () => {
 			const error = new Error("Database error");
-			const spy = vi
-				.spyOn(showService, "getById")
-				.mockRejectedValue(error);
+			const spy = vi.spyOn(showService, "getById").mockRejectedValue(error);
 
 			const mockRes = {};
 			const mockNext = vi.fn();
@@ -351,9 +343,7 @@ describe("Show Controller - Direct Tests", () => {
 	describe("create", () => {
 		it("should create a show and return 201", async () => {
 			const mockShow = { id: 1, title: "New Show" };
-			const spy = vi
-				.spyOn(showService, "create")
-				.mockResolvedValue(mockShow);
+			const spy = vi.spyOn(showService, "create").mockResolvedValue(mockShow);
 
 			const mockRes = {
 				status: vi.fn().mockReturnThis(),
@@ -379,9 +369,7 @@ describe("Show Controller - Direct Tests", () => {
 
 		it("should handle service errors", async () => {
 			const error = new Error("Database error");
-			const spy = vi
-				.spyOn(showService, "create")
-				.mockRejectedValue(error);
+			const spy = vi.spyOn(showService, "create").mockRejectedValue(error);
 
 			const mockRes = {
 				status: vi.fn().mockReturnThis(),
@@ -403,9 +391,7 @@ describe("Show Controller - Direct Tests", () => {
 	describe("update", () => {
 		it("should update a show on success", async () => {
 			const mockShow = { id: 1, title: "Updated Show" };
-			const spy = vi
-				.spyOn(showService, "update")
-				.mockResolvedValue(mockShow);
+			const spy = vi.spyOn(showService, "update").mockResolvedValue(mockShow);
 
 			const mockRes = {
 				json: vi.fn(),
@@ -451,9 +437,7 @@ describe("Show Controller - Direct Tests", () => {
 
 		it("should call next with error on generic failure", async () => {
 			const error = new Error("Database error");
-			const spy = vi
-				.spyOn(showService, "update")
-				.mockRejectedValue(error);
+			const spy = vi.spyOn(showService, "update").mockRejectedValue(error);
 
 			const mockRes = {};
 			const mockNext = vi.fn();
@@ -472,9 +456,7 @@ describe("Show Controller - Direct Tests", () => {
 
 	describe("remove", () => {
 		it("should remove a show on success", async () => {
-			const spy = vi
-				.spyOn(showService, "remove")
-				.mockResolvedValue(undefined);
+			const spy = vi.spyOn(showService, "remove").mockResolvedValue(undefined);
 
 			const mockRes = {
 				status: vi.fn().mockReturnThis(),
@@ -522,9 +504,7 @@ describe("Show Controller - Direct Tests", () => {
 
 		it("should call next with error on generic failure", async () => {
 			const error = new Error("Database error");
-			const spy = vi
-				.spyOn(showService, "remove")
-				.mockRejectedValue(error);
+			const spy = vi.spyOn(showService, "remove").mockRejectedValue(error);
 
 			const mockRes = {};
 			const mockNext = vi.fn();
@@ -540,5 +520,3 @@ describe("Show Controller - Direct Tests", () => {
 		});
 	});
 });
-
-

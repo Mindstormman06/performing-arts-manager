@@ -16,7 +16,9 @@ describe("Database Configuration Coverage", () => {
 		delete process.env.DB_PASSWORD;
 		delete process.env.DB_PORT;
 
-		const { databaseConfig } = await import("../../src/config/database.config.js");
+		const { databaseConfig } = await import(
+			"../../src/config/database.config.js"
+		);
 
 		expect(databaseConfig.username).toBe("root");
 		expect(databaseConfig.port).toBe(3306);
@@ -26,7 +28,9 @@ describe("Database Configuration Coverage", () => {
 		process.env.DB_USER = "testuser";
 		process.env.DB_PORT = "9999";
 
-		const { databaseConfig } = await import("../../src/config/database.config.js");
+		const { databaseConfig } = await import(
+			"../../src/config/database.config.js"
+		);
 
 		expect(databaseConfig.username).toBe("testuser");
 		expect(databaseConfig.port).toBe("9999");

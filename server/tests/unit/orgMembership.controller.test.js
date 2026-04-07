@@ -1,5 +1,5 @@
-import { describe, expect, it, vi } from "vitest";
 import { Op } from "sequelize";
+import { describe, expect, it, vi } from "vitest";
 
 import orgMembershipController from "../../src/controllers/orgMembership.controller.js";
 import models from "../../src/models/index.js";
@@ -14,10 +14,7 @@ describe("OrgMembership Controller - Direct Tests", () => {
 				.mockResolvedValue(mockMembership);
 
 			// Mock the shows returned
-			const mockShows = [
-				{ id: 1 },
-				{ id: 2 },
-			];
+			const mockShows = [{ id: 1 }, { id: 2 }];
 			const showSpy = vi
 				.spyOn(models.Show, "findAll")
 				.mockResolvedValue(mockShows);
@@ -37,11 +34,7 @@ describe("OrgMembership Controller - Direct Tests", () => {
 				user: { id: 5 },
 			};
 
-			await orgMembershipController.respondToInvite(
-				mockReq,
-				mockRes,
-				mockNext
-			);
+			await orgMembershipController.respondToInvite(mockReq, mockRes, mockNext);
 
 			// Verify ShowMembership.update was called with correct parameters
 			expect(showMembershipSpy).toHaveBeenCalledWith(
@@ -52,7 +45,7 @@ describe("OrgMembership Controller - Direct Tests", () => {
 						show_id: { [Op.in]: [1, 2] },
 						status: "pending",
 					},
-				}
+				},
 			);
 			expect(mockRes.json).toHaveBeenCalledWith({
 				success: true,
@@ -73,9 +66,7 @@ describe("OrgMembership Controller - Direct Tests", () => {
 				.mockResolvedValue(mockMembership);
 
 			// Mock the shows returned (empty array)
-			const showSpy = vi
-				.spyOn(models.Show, "findAll")
-				.mockResolvedValue([]);
+			const showSpy = vi.spyOn(models.Show, "findAll").mockResolvedValue([]);
 
 			// Mock ShowMembership update should NOT be called
 			const showMembershipSpy = vi
@@ -92,11 +83,7 @@ describe("OrgMembership Controller - Direct Tests", () => {
 				user: { id: 5 },
 			};
 
-			await orgMembershipController.respondToInvite(
-				mockReq,
-				mockRes,
-				mockNext
-			);
+			await orgMembershipController.respondToInvite(mockReq, mockRes, mockNext);
 
 			// Verify ShowMembership.update was NOT called
 			expect(showMembershipSpy).not.toHaveBeenCalled();
@@ -121,10 +108,7 @@ describe("OrgMembership Controller - Direct Tests", () => {
 				.mockResolvedValue(mockMembership);
 
 			// Mock the shows returned
-			const mockShows = [
-				{ id: 1 },
-				{ id: 2 },
-			];
+			const mockShows = [{ id: 1 }, { id: 2 }];
 			const showSpy = vi
 				.spyOn(models.Show, "findAll")
 				.mockResolvedValue(mockShows);
@@ -144,11 +128,7 @@ describe("OrgMembership Controller - Direct Tests", () => {
 				user: { id: 5 },
 			};
 
-			await orgMembershipController.respondToInvite(
-				mockReq,
-				mockRes,
-				mockNext
-			);
+			await orgMembershipController.respondToInvite(mockReq, mockRes, mockNext);
 
 			// Verify ShowMembership.destroy was called with correct parameters
 			expect(showMembershipSpy).toHaveBeenCalledWith({
@@ -177,9 +157,7 @@ describe("OrgMembership Controller - Direct Tests", () => {
 				.mockResolvedValue(mockMembership);
 
 			// Mock the shows returned (empty array)
-			const showSpy = vi
-				.spyOn(models.Show, "findAll")
-				.mockResolvedValue([]);
+			const showSpy = vi.spyOn(models.Show, "findAll").mockResolvedValue([]);
 
 			// Mock ShowMembership destroy should NOT be called
 			const showMembershipSpy = vi
@@ -196,11 +174,7 @@ describe("OrgMembership Controller - Direct Tests", () => {
 				user: { id: 5 },
 			};
 
-			await orgMembershipController.respondToInvite(
-				mockReq,
-				mockRes,
-				mockNext
-			);
+			await orgMembershipController.respondToInvite(mockReq, mockRes, mockNext);
 
 			// Verify ShowMembership.destroy was NOT called
 			expect(showMembershipSpy).not.toHaveBeenCalled();
@@ -235,11 +209,7 @@ describe("OrgMembership Controller - Direct Tests", () => {
 				user: { id: 5 },
 			};
 
-			await orgMembershipController.respondToInvite(
-				mockReq,
-				mockRes,
-				mockNext
-			);
+			await orgMembershipController.respondToInvite(mockReq, mockRes, mockNext);
 
 			expect(mockRes.status).toHaveBeenCalledWith(400);
 			expect(mockRes.json).toHaveBeenCalledWith({
@@ -267,11 +237,7 @@ describe("OrgMembership Controller - Direct Tests", () => {
 				user: { id: 5 },
 			};
 
-			await orgMembershipController.respondToInvite(
-				mockReq,
-				mockRes,
-				mockNext
-			);
+			await orgMembershipController.respondToInvite(mockReq, mockRes, mockNext);
 
 			expect(mockNext).toHaveBeenCalledWith(error);
 
@@ -285,9 +251,7 @@ describe("OrgMembership Controller - Direct Tests", () => {
 				.mockResolvedValue(mockMembership);
 
 			const error = new Error("Database error finding shows");
-			const showSpy = vi
-				.spyOn(models.Show, "findAll")
-				.mockRejectedValue(error);
+			const showSpy = vi.spyOn(models.Show, "findAll").mockRejectedValue(error);
 
 			const mockRes = {};
 			const mockNext = vi.fn();
@@ -297,11 +261,7 @@ describe("OrgMembership Controller - Direct Tests", () => {
 				user: { id: 5 },
 			};
 
-			await orgMembershipController.respondToInvite(
-				mockReq,
-				mockRes,
-				mockNext
-			);
+			await orgMembershipController.respondToInvite(mockReq, mockRes, mockNext);
 
 			expect(mockNext).toHaveBeenCalledWith(error);
 
@@ -333,11 +293,7 @@ describe("OrgMembership Controller - Direct Tests", () => {
 				user: { id: 5 },
 			};
 
-			await orgMembershipController.respondToInvite(
-				mockReq,
-				mockRes,
-				mockNext
-			);
+			await orgMembershipController.respondToInvite(mockReq, mockRes, mockNext);
 
 			expect(mockNext).toHaveBeenCalledWith(error);
 
@@ -370,11 +326,7 @@ describe("OrgMembership Controller - Direct Tests", () => {
 				user: { id: 5 },
 			};
 
-			await orgMembershipController.respondToInvite(
-				mockReq,
-				mockRes,
-				mockNext
-			);
+			await orgMembershipController.respondToInvite(mockReq, mockRes, mockNext);
 
 			expect(mockNext).toHaveBeenCalledWith(error);
 
@@ -384,4 +336,3 @@ describe("OrgMembership Controller - Direct Tests", () => {
 		});
 	});
 });
-

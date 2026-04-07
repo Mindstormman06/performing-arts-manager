@@ -30,7 +30,7 @@ export default (sequelize, DataTypes) => {
 			org_id: {
 				type: DataTypes.INTEGER,
 				allowNull: false,
-			}
+			},
 		},
 		{
 			tableName: "inventory",

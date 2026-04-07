@@ -547,4 +547,3 @@ describe("Schedule Controller - Direct Tests", () => {
 		});
 	});
 });
-
