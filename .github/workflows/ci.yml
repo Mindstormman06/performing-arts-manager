@@ -380,12 +380,14 @@ jobs:
       - name: Start Background Servers & Run UAT
         run: |
             cd server
-            node ./server.js &
+            node ./server.js > server.log 2>&1 &
             SERVER_PID=$!
             
             node ./seed.js
+            echo "Seed completed successfully!"
             
             npx wait-on http://localhost:8050/server-up
+            echo "Server is up!"
             
             cd ..
             cd client

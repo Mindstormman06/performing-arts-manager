@@ -390,3 +390,4 @@ export default async function seed() {
 
 // Execute the seed function
 seed();
+process.exit(0);
