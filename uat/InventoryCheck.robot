@@ -16,8 +16,6 @@ Production Team Verifies Show Assets
 
 *** Keywords ***
 The President is logged in
-    New Browser    browser=chromium    headless=False    slowMo=0.5s
-    New Context
     New Page       ${URL}
     Fill Text      input[placeholder="Email"]       ${EMAIL}
     Fill Text      input[placeholder="Password"]    ${PASS}

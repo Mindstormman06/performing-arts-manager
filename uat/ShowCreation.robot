@@ -17,8 +17,6 @@ President Creates Upcoming Season Show
 
 *** Keywords ***
 The President is logged into the application
-    New Browser    browser=chromium    headless=False    slowMo=0.5s
-    New Context
     New Page    ${URL}
     Fill Text   input[placeholder="Email"]       ${EMAIL}
     Fill Text   input[placeholder="Password"]    ${PASS}

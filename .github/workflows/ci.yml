@@ -256,7 +256,7 @@ jobs:
       # Run UI tests with Playwright
       - name: Run Playwright UI Tests
         working-directory: ./client
-        run: npm run test:ui
+        run: npm run test
 
       # Upload Playwright report as artifact
       - name: Upload Playwright Report
