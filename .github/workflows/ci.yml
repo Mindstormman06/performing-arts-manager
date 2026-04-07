@@ -383,7 +383,7 @@ jobs:
             node ./server.js &
             SERVER_PID=$!
             
-            npm run seed
+            node ./seed.js
             
             npx wait-on http://localhost:8050/server-up
             
