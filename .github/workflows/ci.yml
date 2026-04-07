@@ -254,10 +254,24 @@ jobs:
           cd server && npm install
           cd ../client && npm install
 
+      # Install Playwright Browsers
+      - name: Install Playwright Browsers
+        working-directory: ./client
+        run: npx playwright install --with-deps
+
       # Run UI tests with Playwright
       - name: Run Playwright UI Tests
         working-directory: ./client
         run: npm run test
+        env:
+          NODE_ENV: test
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_DIALECT: ${{ secrets.DB_DIALECT }}
+          DB_SSL: ${{ secrets.DB_SSL }}
 
       # Upload Playwright report as artifact
       - name: Upload Playwright Report
