@@ -400,6 +400,7 @@ jobs:
             kill $SERVER_PID $CLIENT_PID || true
         env:
           NODE_ENV: test
+          API_PORT: 8050
           DB_HOST: 127.0.0.1
           DB_USER: root
           DB_PASSWORD: rootpassword
