@@ -310,7 +310,7 @@ jobs:
         working-directory: ./client
         run: |
           cd ../server && node ./server.js &
-          npx wait-on http://localhost:8050
+          npx wait-on http://localhost:8050/server-up
           cd ../client
           npm run test
         env:
