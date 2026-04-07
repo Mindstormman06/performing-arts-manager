@@ -31,4 +31,4 @@ For UAT, I struggled a bit to find two different options, as I wasn't solid on t
 | **Readability** | Simple, highly readable via keywords | Complex, standard code |
 | **Web Library** | Supports multiple libraries | Is the library |
 
-I'm writing this after making the tests, as I wasn't completely sure yet, so I tried out both.
+I decided to go with Robot Framework as I believe the keyword approach would be much easier to read and create, especially considering the similarities to Gherkin. I am also able to use the Playwright Browser library with Robot Framework, which I am already using for my UI testing.

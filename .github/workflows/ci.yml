@@ -254,10 +254,26 @@ jobs:
           cd server && npm install
           cd ../client && npm install
 
-      # Install Playwright Browsers
-      - name: Install Playwright Browsers
+      # Below 2 steps were rewritten by Gemini to bring down playwright install time.
+
+      # Check for cached browsers
+      - name: Cache Playwright Browsers
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          # This key ensures the cache resets if you update your Node version
+          key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json') }}
+
+      # Download chromium on first run
+      - name: Install Playwright Browsers and Deps
         working-directory: ./client
-        run: npx playwright install --with-deps
+        run: |
+          if [ "${{ steps.playwright-cache.outputs.cache-hit }}" != "true" ]; then
+            npx playwright install chromium --with-deps
+          else
+            npx playwright install-deps chromium
+          fi
 
       # Run UI tests with Playwright
       - name: Run Playwright UI Tests
