@@ -383,9 +383,9 @@ jobs:
             node ./server.js &
             SERVER_PID=$!
             
-            npx wait-on http://localhost:8050/server-up
-            
             npm run seed
+            
+            npx wait-on http://localhost:8050/server-up
             
             cd ..
             cd client
