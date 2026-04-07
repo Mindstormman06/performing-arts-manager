@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link, useParams, useNavigate } from "react-router-dom";
-import { getShowDashboard, getShowCalendar } from "../services/api";
-import DashboardSection from "../components/ui/DashboardSection";
-import MemberListItem from "../components/ui/users/MemberListItem";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import ManageShowMembersModal from "../components/ManageShowMembersModal";
 import RoleModal from "../components/ShowRoleModal";
-import {IconButton} from "../components/ui/IconButton.jsx";
+import DashboardSection from "../components/ui/DashboardSection";
+import { IconButton } from "../components/ui/IconButton.jsx";
+import MemberListItem from "../components/ui/users/MemberListItem";
+import { getShowCalendar, getShowDashboard } from "../services/api";
 
 export default function ShowOverview() {
 	const { orgId, showId } = useParams();
@@ -15,7 +15,8 @@ export default function ShowOverview() {
 	const [events, setEvents] = useState([]);
 	const [isLoading, setIsLoading] = useState(true);
 
-	const [isManageMembersModalOpen, setIsManageMembersModalOpen] = useState(false);
+	const [isManageMembersModalOpen, setIsManageMembersModalOpen] =
+		useState(false);
 	const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
 	const [selectedUser, setSelectedUser] = useState(null);
 
@@ -28,7 +29,7 @@ export default function ShowOverview() {
 			setIsLoading(true);
 			const [dashboardRes, calendarRes] = await Promise.all([
 				getShowDashboard(showId),
-				getShowCalendar(showId)
+				getShowCalendar(showId),
 			]);
 			setShowData(dashboardRes.data.data);
 			setEvents(calendarRes.data.data || []);
@@ -70,52 +71,78 @@ export default function ShowOverview() {
 
 	// Calendar Grid Rendering Logic (GCal Style)
 	const renderCalendarDays = () => {
-		const daysInMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0).getDate();
-		const firstDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1).getDay();
+		const daysInMonth = new Date(
+			currentMonth.getFullYear(),
+			currentMonth.getMonth() + 1,
+			0,
+		).getDate();
+		const firstDay = new Date(
+			currentMonth.getFullYear(),
+			currentMonth.getMonth(),
+			1,
+		).getDay();
 		const days = [];
 
 		// Blank cells for alignment
 		for (let i = 0; i < firstDay; i++) {
-			days.push(<div key={`blank-${i}`} className="bg-gray-50/50 min-h-20"></div>);
+			days.push(
+				<div key={`blank-${i}`} className="min-h-20 bg-gray-50/50"></div>,
+			);
 		}
 
 		// Actual day cells
 		for (let d = 1; d <= daysInMonth; d++) {
-			const dateObj = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), d);
+			const dateObj = new Date(
+				currentMonth.getFullYear(),
+				currentMonth.getMonth(),
+				d,
+			);
 			const isSelected = selectedDate.toDateString() === dateObj.toDateString();
 			const isToday = new Date().toDateString() === dateObj.toDateString();
 
-			const dayEvents = events.filter(e => new Date(e.start_time).toDateString() === dateObj.toDateString());
+			const dayEvents = events.filter(
+				(e) => new Date(e.start_time).toDateString() === dateObj.toDateString(),
+			);
 
 			days.push(
-				<div
+				<button
 					key={d}
+					type="button"
 					onClick={() => setSelectedDate(dateObj)}
-					className={`bg-white min-h-20 p-1 border-transparent cursor-pointer transition-colors flex flex-col items-center ${isSelected ? 'ring-2 ring-inset ring-blue-500 bg-blue-50/30 z-10' : 'hover:bg-gray-50'}`}
+					className={`flex min-h-20 cursor-pointer flex-col items-center border-transparent bg-white p-1 transition-colors ${isSelected ? "z-10 bg-blue-50/30 ring-2 ring-blue-500 ring-inset" : "hover:bg-gray-50"}`}
 				>
-					<span className={`w-6 h-6 flex items-center justify-center rounded-full text-xs mb-0.5 ${isToday ? 'bg-blue-600 text-white font-bold' : (isSelected ? 'text-blue-700 font-bold' : 'text-gray-700')}`}>
+					<span
+						className={`mb-0.5 flex h-6 w-6 items-center justify-center rounded-full text-xs ${isToday ? "bg-blue-600 font-bold text-white" : isSelected ? "font-bold text-blue-700" : "text-gray-700"}`}
+					>
 						{d}
 					</span>
 					{/* GCal Style Event Text Blocks */}
-					<div className="flex flex-col gap-0.5 w-full px-0.5 overflow-hidden">
-						{dayEvents.slice(0, 3).map((e, i) => (
-							<div key={i} className="truncate text-[10px] leading-tight px-1 py-0.5 rounded bg-blue-100 text-blue-700 font-medium w-full text-left" title={e.title}>
+					<div className="flex w-full flex-col gap-0.5 overflow-hidden px-0.5">
+						{dayEvents.slice(0, 3).map((e) => (
+							<div
+								key={e.id}
+								className="w-full truncate rounded bg-blue-100 px-1 py-0.5 text-left font-medium text-[10px] text-blue-700 leading-tight"
+								title={e.title}
+							>
 								{e.title}
 							</div>
 						))}
 						{dayEvents.length > 3 && (
-							<div className="text-[10px] text-gray-500 text-center font-medium">
+							<div className="text-center font-medium text-[10px] text-gray-500">
 								+{dayEvents.length - 3} more
 							</div>
 						)}
 					</div>
-				</div>
+				</button>,
 			);
 		}
 		return days;
 	};
 
-	const selectedDayEvents = events.filter(e => new Date(e.start_time).toDateString() === selectedDate.toDateString());
+	const selectedDayEvents = events.filter(
+		(e) =>
+			new Date(e.start_time).toDateString() === selectedDate.toDateString(),
+	);
 
 	return (
 		<div className="mx-auto flex h-[calc(100vh-9rem)] max-w-360 gap-6 p-4 sm:p-6 lg:p-8">
@@ -160,23 +187,31 @@ export default function ShowOverview() {
 			{/* Main Widget Grid */}
 			<main className="flex-1 overflow-y-auto">
 				<div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-
 					{/* Left/Center Column: Primary Widgets */}
 					<div className="flex flex-col gap-6 xl:col-span-2">
-
 						{/* Calendar Widget */}
 						<DashboardSection
 							title="Show Calendar"
 							actionTitle="View Full Calendar"
 							buttonColour="blue"
 							buttonIcon="📅"
-							onActionClick={() => navigate(`/orgs/${orgId}/shows/${showId}/scheduling`)}
+							onActionClick={() =>
+								navigate(`/orgs/${orgId}/shows/${showId}/scheduling`)
+							}
 						>
-							<div className="flex flex-col h-full">
+							<div className="flex h-full flex-col">
 								{/* Month Navigation */}
-								<div className="flex items-center justify-between mb-4">
+								<div className="mb-4 flex items-center justify-between">
 									<IconButton
-										onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))}
+										onClick={() =>
+											setCurrentMonth(
+												new Date(
+													currentMonth.getFullYear(),
+													currentMonth.getMonth() - 1,
+													1,
+												),
+											)
+										}
 										icon="◀"
 										size="p1_5"
 										colour="custom"
@@ -185,10 +220,21 @@ export default function ShowOverview() {
 										shape="none"
 									/>
 									<h3 className="font-bold text-gray-800 text-lg">
-										{currentMonth.toLocaleDateString('default', { month: 'long', year: 'numeric' })}
+										{currentMonth.toLocaleDateString("default", {
+											month: "long",
+											year: "numeric",
+										})}
 									</h3>
 									<IconButton
-										onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))}
+										onClick={() =>
+											setCurrentMonth(
+												new Date(
+													currentMonth.getFullYear(),
+													currentMonth.getMonth() + 1,
+													1,
+												),
+											)
+										}
 										icon="▶"
 										size="p1_5"
 										colour="custom"
@@ -199,34 +245,64 @@ export default function ShowOverview() {
 								</div>
 
 								{/* Calendar Grid */}
-								<div className="grid grid-cols-7 gap-px mb-2 bg-gray-200 border border-gray-200 rounded-lg overflow-hidden shadow-sm">
-									{['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-										<div key={day} className="bg-gray-50 py-2 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">{day}</div>
-									))}
+								<div className="mb-2 grid grid-cols-7 gap-px overflow-hidden rounded-lg border border-gray-200 bg-gray-200 shadow-sm">
+									{["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(
+										(day) => (
+											<div
+												key={day}
+												className="bg-gray-50 py-2 text-center font-bold text-gray-500 text-xs uppercase tracking-wider"
+											>
+												{day}
+											</div>
+										),
+									)}
 									{renderCalendarDays()}
 								</div>
 
 								{/* Selected Day Agenda */}
-								<div className="mt-2 flex-1 overflow-y-auto max-h-48">
-									<h4 className="text-sm font-bold text-gray-700 mb-2 border-b border-gray-200 pb-2 sticky top-0 bg-gray-50 pt-2">
-										{selectedDate.toLocaleDateString('default', { weekday: 'long', month: 'long', day: 'numeric' })}
+								<div className="mt-2 max-h-48 flex-1 overflow-y-auto">
+									<h4 className="sticky top-0 mb-2 border-gray-200 border-b bg-gray-50 pt-2 pb-2 font-bold text-gray-700 text-sm">
+										{selectedDate.toLocaleDateString("default", {
+											weekday: "long",
+											month: "long",
+											day: "numeric",
+										})}
 									</h4>
 									{selectedDayEvents.length > 0 ? (
 										<ul className="space-y-2">
-											{selectedDayEvents.map(event => (
-												<li key={event.id} className="flex flex-col p-3 bg-white rounded-lg border border-gray-200 shadow-sm hover:border-blue-300 transition-colors">
-													<span className="font-bold text-sm text-gray-900">{event.title}</span>
-													<div className="flex items-center justify-between mt-1">
-														<span className="text-xs font-medium text-blue-600">
-															{new Date(event.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {new Date(event.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+											{selectedDayEvents.map((event) => (
+												<li
+													key={event.id}
+													className="flex flex-col rounded-lg border border-gray-200 bg-white p-3 shadow-sm transition-colors hover:border-blue-300"
+												>
+													<span className="font-bold text-gray-900 text-sm">
+														{event.title}
+													</span>
+													<div className="mt-1 flex items-center justify-between">
+														<span className="font-medium text-blue-600 text-xs">
+															{new Date(event.start_time).toLocaleTimeString(
+																[],
+																{ hour: "2-digit", minute: "2-digit" },
+															)}{" "}
+															-{" "}
+															{new Date(event.end_time).toLocaleTimeString([], {
+																hour: "2-digit",
+																minute: "2-digit",
+															})}
 														</span>
-														{event.location && <span className="text-xs text-gray-500">📍 {event.location}</span>}
+														{event.location && (
+															<span className="text-gray-500 text-xs">
+																📍 {event.location}
+															</span>
+														)}
 													</div>
 												</li>
 											))}
 										</ul>
 									) : (
-										<p className="text-sm text-gray-500 italic py-3 text-center">No events scheduled.</p>
+										<p className="py-3 text-center text-gray-500 text-sm italic">
+											No events scheduled.
+										</p>
 									)}
 								</div>
 							</div>
@@ -277,7 +353,7 @@ export default function ShowOverview() {
 										/>
 									))
 								) : (
-									<li className="py-4 text-center italic text-gray-500">
+									<li className="py-4 text-center text-gray-500 italic">
 										No members assigned to this show yet.
 									</li>
 								)}

@@ -1,6 +1,13 @@
 import { useState } from "react";
 import { createShow } from "../services/api";
-import { ModalWrapper, ModalSubWrapper, ModalLabel, ModalInput, ModalSubmitButton, ModalCancelButton } from "./ui/modals";
+import {
+	ModalCancelButton,
+	ModalInput,
+	ModalLabel,
+	ModalSubmitButton,
+	ModalSubWrapper,
+	ModalWrapper,
+} from "./ui/modals";
 
 export default function CreateShowModal({ isOpen, onClose, onSuccess, orgId }) {
 	const [title, setTitle] = useState("");
@@ -36,7 +43,9 @@ export default function CreateShowModal({ isOpen, onClose, onSuccess, orgId }) {
 	return (
 		<ModalWrapper>
 			<ModalSubWrapper>
-				<h3 className="mb-4 font-bold text-gray-900 text-lg">Create New Show</h3>
+				<h3 className="mb-4 font-bold text-gray-900 text-lg">
+					Create New Show
+				</h3>
 				<form onSubmit={handleSubmit}>
 					<div className="mb-4">
 						<ModalLabel>Show Title</ModalLabel>
@@ -48,7 +57,7 @@ export default function CreateShowModal({ isOpen, onClose, onSuccess, orgId }) {
 							placeholder="e.g. The Phantom of the Opera"
 						/>
 					</div>
-					
+
 					<div className="mb-6 grid grid-cols-2 gap-4">
 						<div>
 							<ModalLabel>Start Date</ModalLabel>

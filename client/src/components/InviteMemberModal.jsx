@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { inviteByEmail, inviteUserToShow } from "../services/api";
 import {
-	ModalWrapper,
-	ModalLabel,
-	ModalInput,
-	ModalError,
-	ModalSubmitButton,
 	ModalCancelButton,
+	ModalError,
+	ModalInput,
+	ModalLabel,
 	ModalSubHeader,
-	ModalSubWrapper
+	ModalSubmitButton,
+	ModalSubWrapper,
+	ModalWrapper,
 } from "./ui/modals";
 
 export default function InviteMemberModal({

@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import PageInput from "../components/ui/PageInput.jsx";
 import { useAuth } from "../hooks/useAuth.js";
 import { login } from "../services/api.js";
-import PageInput from "../components/ui/PageInput.jsx";
 
 export default function LoginPage() {
 	const [email, setEmail] = useState("");

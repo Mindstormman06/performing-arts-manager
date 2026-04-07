@@ -1,6 +1,13 @@
 import { useState } from "react";
 import { createOrganization } from "../services/api";
-import { ModalWrapper, ModalSubWrapper, ModalLabel, ModalInput, ModalSubmitButton, ModalCancelButton } from "./ui/modals";
+import {
+	ModalCancelButton,
+	ModalInput,
+	ModalLabel,
+	ModalSubmitButton,
+	ModalSubWrapper,
+	ModalWrapper,
+} from "./ui/modals";
 
 export default function CreateOrgModal({ isOpen, onClose, onSuccess }) {
 	const [name, setName] = useState("");

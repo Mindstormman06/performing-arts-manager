@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
 import { updateOrganization } from "../services/api";
-import { ModalWrapper, ModalSubWrapper, ModalLabel, ModalInput, ModalSubmitButton, ModalCancelButton } from "./ui/modals";
+import {
+	ModalCancelButton,
+	ModalInput,
+	ModalLabel,
+	ModalSubmitButton,
+	ModalSubWrapper,
+	ModalWrapper,
+} from "./ui/modals";
 
 export default function EditOrgModal({ isOpen, onClose, onSuccess, org }) {
 	const [name, setName] = useState("");
@@ -31,7 +38,6 @@ export default function EditOrgModal({ isOpen, onClose, onSuccess, org }) {
 			<ModalSubWrapper>
 				<h3 className="mb-4 font-bold text-lg">Edit Organization</h3>
 				<form onSubmit={handleSubmit}>
-
 					<ModalLabel>Organization Name</ModalLabel>
 					<ModalInput
 						type="text"

@@ -1,19 +1,18 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { updateOrganizationUserRoles } from "../services/api";
-import { ModalWrapper, ModalSubWrapper, ModalCheckbox, ModalSubmitButton, ModalCancelButton } from "./ui/modals";
-
+import {
+	ModalCancelButton,
+	ModalCheckbox,
+	ModalSubmitButton,
+	ModalSubWrapper,
+	ModalWrapper,
+} from "./ui/modals";
 
 export default function RoleModal({ isOpen, onClose, onSuccess, orgId, user }) {
 	const [loading, setLoading] = useState(false);
 
-	const availableRoles = [
-		"board-member",
-		"costumes",
-		"props",
-		"sets",
-		"tech"
-	];
-	
+	const availableRoles = ["board-member", "costumes", "props", "sets", "tech"];
+
 	const [selectedRoles, setSelectedRoles] = useState([]);
 
 	useEffect(() => {
@@ -57,22 +56,31 @@ export default function RoleModal({ isOpen, onClose, onSuccess, orgId, user }) {
 			<ModalSubWrapper>
 				<h3 className="mb-4 font-bold">Manage Roles for {user.User.fname}</h3>
 				<div className="mb-6 space-y-2">
-					{availableRoles.map((role) => (
-						<label
-							key={role}
-							className="flex items-center space-x-2 capitalize"
-						>
-							<ModalCheckbox
-								checked={selectedRoles.includes(role)}
-								onChange={() => handleToggle(role)}
-							/>
-							<span>{role}</span>
-						</label>
-					))}
+					{availableRoles.map((role) => {
+						const roleId = `role-${role}`;
+						return (
+							<label
+								key={role}
+								htmlFor={roleId}
+								className="flex items-center space-x-2 capitalize"
+							>
+								<ModalCheckbox
+									id={roleId}
+									checked={selectedRoles.includes(role)}
+									onChange={() => handleToggle(role)}
+								/>
+								<span>{role}</span>
+							</label>
+						);
+					})}
 				</div>
 				<div className="flex justify-end gap-2">
 					<ModalCancelButton onClick={onClose}>Cancel</ModalCancelButton>
-					<ModalSubmitButton onClick={handleSave} type="button" disabled={loading}>
+					<ModalSubmitButton
+						onClick={handleSave}
+						type="button"
+						disabled={loading}
+					>
 						{loading ? "Saving..." : "Save"}
 					</ModalSubmitButton>
 				</div>

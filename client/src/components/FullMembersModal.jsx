@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { removeUserFromOrganization } from "../services/api";
 import RoleModal from "./OrgRoleModal";
-import { ModalWrapper, ModalSubWrapper } from "./ui/modals";
+import { ModalSubWrapper, ModalWrapper } from "./ui/modals";
 
 export default function FullMembersModal({
 	isOpen,

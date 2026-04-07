@@ -5,16 +5,16 @@ import LoginPage from "./pages/Login.jsx";
 import OrgDashboard from "./pages/OrgDashboard.jsx";
 import SignupPage from "./pages/Signup.jsx";
 import "./assets/styles.css";
-import OrgOverview from "./pages/OrgOverview.jsx";
-import ShowOverview from "./pages/ShowOverview.jsx";
 import { useEffect } from "react";
-import { verifyToken } from "./services/api.js";
-import OrgInventory from "./pages/OrgInventory.jsx";
-import OrgSchedule from "./pages/OrgSchedule.jsx";
-import ShowInventory from "./pages/ShowInventory.jsx";
-import ShowSchedule from "./pages/ShowSchedule.jsx";
 import Logo from "./components/ui/Logo.jsx";
 import Landing from "./pages/Landing.jsx";
+import OrgInventory from "./pages/OrgInventory.jsx";
+import OrgOverview from "./pages/OrgOverview.jsx";
+import OrgSchedule from "./pages/OrgSchedule.jsx";
+import ShowInventory from "./pages/ShowInventory.jsx";
+import ShowOverview from "./pages/ShowOverview.jsx";
+import ShowSchedule from "./pages/ShowSchedule.jsx";
+import { verifyToken } from "./services/api.js";
 
 function App() {
 	const { token, logout } = useAuth();
@@ -32,7 +32,9 @@ function App() {
 				} catch (error) {
 					// ONLY log out if the token is explicitly rejected (401)
 					if (error.response && error.response.status === 401) {
-						console.warn("Session invalid or user no longer exists. Logging out.");
+						console.warn(
+							"Session invalid or user no longer exists. Logging out.",
+						);
 						logout();
 					}
 				}
@@ -48,12 +50,11 @@ function App() {
 			<nav className="bg-blue-600 text-white shadow-lg">
 				<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 					<div className="flex h-16 justify-between">
-
 						<div className="flex items-center gap-3">
 							<Link to={token ? "/" : "/"}>
-								<Logo className="h-10 w-auto drop-shadow-md hover:opacity-90 transition-opacity" />
+								<Logo className="h-10 w-auto drop-shadow-md transition-opacity hover:opacity-90" />
 							</Link>
-							<h1 className="font-bold text-xl hidden sm:block">
+							<h1 className="hidden font-bold text-xl sm:block">
 								Performing Arts Manager
 							</h1>
 						</div>

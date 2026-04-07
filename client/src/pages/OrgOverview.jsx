@@ -1,21 +1,21 @@
 import { useCallback, useEffect, useState } from "react";
-import { useNavigate, useParams, Link } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import CreateShowModal from "../components/CreateShowModal";
 import EditOrgModal from "../components/EditOrgModal";
 import FullMembersModal from "../components/FullMembersModal";
 import InviteMemberModal from "../components/InviteMemberModal";
 import RoleModal from "../components/OrgRoleModal";
-import CreateShowModal from "../components/CreateShowModal";
+import DashboardSection from "../components/ui/DashboardSection";
+import OrgHeader from "../components/ui/organizations/OrgHeader";
+import ShowCard from "../components/ui/shows/ShowCard";
+import MemberListItem from "../components/ui/users/MemberListItem";
 import {
 	deleteOrganization,
 	getOrganization,
 	getOrganizationUsers,
 	getUserShows, // <-- Updated
-    verifyToken   // <-- Added
+	verifyToken, // <-- Added
 } from "../services/api";
-import OrgHeader from "../components/ui/organizations/OrgHeader";
-import ShowCard from "../components/ui/shows/ShowCard";
-import DashboardSection from "../components/ui/DashboardSection";
-import MemberListItem from "../components/ui/users/MemberListItem";
 
 export default function OrgOverview() {
 	const { orgId } = useParams();
@@ -27,7 +27,7 @@ export default function OrgOverview() {
 
 	const [isLoading, setIsLoading] = useState(true);
 
-    // --- RBAC STATE ---
+	// --- RBAC STATE ---
 	const [userRoles, setUserRoles] = useState([]);
 	const [isSuperAdmin, setIsSuperAdmin] = useState(false);
 
@@ -42,28 +42,33 @@ export default function OrgOverview() {
 		try {
 			setIsLoading(true);
 
-            // 1. Get current user
-            const authRes = await verifyToken();
-            const currentUserId = authRes.data.user.id;
+			// 1. Get current user
+			const authRes = await verifyToken();
+			const currentUserId = authRes.data.user.id;
 
 			const [orgRes, usersRes, showsRes] = await Promise.all([
 				getOrganization(orgId),
 				getOrganizationUsers(orgId),
 				getUserShows(orgId), // <-- Now uses the filtered route
 			]);
-			
+
 			setOrganization(orgRes.data);
 			setMembers(usersRes.data);
 			setShows(showsRes.data || []);
 
-            // 2. Identify current user's roles
-            const myMembership = usersRes.data.find(m => m.users_id === currentUserId || m.User?.id === currentUserId);
-            if (myMembership && myMembership.assignedRoles) {
-                const roles = myMembership.assignedRoles.map(r => r.name.toLowerCase());
-                setUserRoles(roles);
-                setIsSuperAdmin(roles.includes("president") || roles.includes("board-member"));
-            }
-
+			// 2. Identify current user's roles
+			const myMembership = usersRes.data.find(
+				(m) => m.users_id === currentUserId || m.User?.id === currentUserId,
+			);
+			if (myMembership?.assignedRoles) {
+				const roles = myMembership.assignedRoles.map((r) =>
+					r.name.toLowerCase(),
+				);
+				setUserRoles(roles);
+				setIsSuperAdmin(
+					roles.includes("president") || roles.includes("board-member"),
+				);
+			}
 		} catch (err) {
 			console.error("Failed to fetch organization data:", err);
 		} finally {
@@ -76,9 +81,13 @@ export default function OrgOverview() {
 	}, [fetchData]);
 
 	const handleDeleteOrg = async () => {
-		const firstConfirm = window.confirm("Are you sure you want to delete this organization?");
+		const firstConfirm = window.confirm(
+			"Are you sure you want to delete this organization?",
+		);
 		if (firstConfirm) {
-			const secondConfirm = window.confirm("This action is permanent and will delete all associated shows and data. Are you absolutely sure?");
+			const secondConfirm = window.confirm(
+				"This action is permanent and will delete all associated shows and data. Are you absolutely sure?",
+			);
 			if (secondConfirm) {
 				try {
 					await deleteOrganization(orgId);
@@ -101,54 +110,95 @@ export default function OrgOverview() {
 	}
 
 	const activeMembers = members.filter((m) => m.status === "active");
-	const displayMembers = members.filter((m) => m.status === "active" || m.status === "pending");
-	const president = activeMembers.find((m) => m.assignedRoles?.some((role) => role.name === "president"));
-	const presidentName = president ? `${president.User?.fname} ${president.User?.lname}` : "Unassigned";
+	const displayMembers = members.filter(
+		(m) => m.status === "active" || m.status === "pending",
+	);
+	const president = activeMembers.find((m) =>
+		m.assignedRoles?.some((role) => role.name === "president"),
+	);
+	const presidentName = president
+		? `${president.User?.fname} ${president.User?.lname}`
+		: "Unassigned";
 
 	return (
 		<div className="mx-auto flex h-[calc(100vh-9rem)] max-w-7xl flex-col p-4 sm:p-6 lg:p-8">
 			{/* Modals */}
-			<EditOrgModal isOpen={isEditOrgModalOpen} onClose={() => setIsEditOrgModalOpen(false)} onSuccess={fetchData} org={organization} />
-			<InviteMemberModal isOpen={isInviteModalOpen} onClose={() => setIsInviteModalOpen(false)} orgId={orgId} onSuccess={fetchData} />
-			<FullMembersModal isOpen={isFullMembersModalOpen} onClose={() => setIsFullMembersModalOpen(false)} members={members} orgId={orgId} onSuccess={fetchData} />
-			<RoleModal isOpen={isRoleModalOpen} onClose={() => setIsRoleModalOpen(false)} user={selectedUser} orgId={orgId} onSuccess={fetchData} />
-			<CreateShowModal isOpen={isCreateShowModalOpen} onClose={() => setIsCreateShowModalOpen(false)} onSuccess={fetchData} orgId={orgId} />
+			<EditOrgModal
+				isOpen={isEditOrgModalOpen}
+				onClose={() => setIsEditOrgModalOpen(false)}
+				onSuccess={fetchData}
+				org={organization}
+			/>
+			<InviteMemberModal
+				isOpen={isInviteModalOpen}
+				onClose={() => setIsInviteModalOpen(false)}
+				orgId={orgId}
+				onSuccess={fetchData}
+			/>
+			<FullMembersModal
+				isOpen={isFullMembersModalOpen}
+				onClose={() => setIsFullMembersModalOpen(false)}
+				members={members}
+				orgId={orgId}
+				onSuccess={fetchData}
+			/>
+			<RoleModal
+				isOpen={isRoleModalOpen}
+				onClose={() => setIsRoleModalOpen(false)}
+				user={selectedUser}
+				orgId={orgId}
+				onSuccess={fetchData}
+			/>
+			<CreateShowModal
+				isOpen={isCreateShowModalOpen}
+				onClose={() => setIsCreateShowModalOpen(false)}
+				onSuccess={fetchData}
+				orgId={orgId}
+			/>
 
 			<div className="flex flex-1 flex-col overflow-hidden rounded-2xl bg-white shadow-xl ring-1 ring-gray-200">
-				
-                <OrgHeader 
-                    name={organization?.name} 
-                    presidentName={presidentName} 
-                    onEdit={isSuperAdmin ? () => setIsEditOrgModalOpen(true) : undefined}
-                    onDelete={userRoles.includes("president") ? handleDeleteOrg : undefined}
-                />
-				
-                {/* RESTRICTED: Quick Links */}
-                {isSuperAdmin && (
-                    <div className="flex items-center gap-4 border-b border-gray-100 bg-gray-50/50 px-8 py-4">
-                        <Link to={`/orgs/${orgId}/inventory`} className="flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm ring-1 ring-inset ring-gray-300 transition-all hover:bg-gray-50 hover:text-blue-600">
-                            <span>📦</span> Global Inventory Database
-                        </Link>
-                        <Link to={`/orgs/${orgId}/scheduling`} className="flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm ring-1 ring-inset ring-gray-300 transition-all hover:bg-gray-50 hover:text-blue-600">
-                            <span>📅</span> Organization Schedule
-                        </Link>
-                    </div>
-                )}
+				<OrgHeader
+					name={organization?.name}
+					presidentName={presidentName}
+					onEdit={isSuperAdmin ? () => setIsEditOrgModalOpen(true) : undefined}
+					onDelete={
+						userRoles.includes("president") ? handleDeleteOrg : undefined
+					}
+				/>
+
+				{/* RESTRICTED: Quick Links */}
+				{isSuperAdmin && (
+					<div className="flex items-center gap-4 border-gray-100 border-b bg-gray-50/50 px-8 py-4">
+						<Link
+							to={`/orgs/${orgId}/inventory`}
+							className="flex items-center gap-2 rounded-lg bg-white px-4 py-2 font-semibold text-gray-700 text-sm shadow-sm ring-1 ring-gray-300 ring-inset transition-all hover:bg-gray-50 hover:text-blue-600"
+						>
+							<span>📦</span> Global Inventory Database
+						</Link>
+						<Link
+							to={`/orgs/${orgId}/scheduling`}
+							className="flex items-center gap-2 rounded-lg bg-white px-4 py-2 font-semibold text-gray-700 text-sm shadow-sm ring-1 ring-gray-300 ring-inset transition-all hover:bg-gray-50 hover:text-blue-600"
+						>
+							<span>📅</span> Organization Schedule
+						</Link>
+					</div>
+				)}
 
 				<div className="flex flex-1 flex-col gap-8 p-8 md:flex-row">
-					
-                    <DashboardSection
+					<DashboardSection
 						title="Shows"
 						actionTitle={isSuperAdmin ? "Add New Show" : null}
-						onActionClick={isSuperAdmin ? () => setIsCreateShowModalOpen(true) : undefined}
+						onActionClick={
+							isSuperAdmin ? () => setIsCreateShowModalOpen(true) : undefined
+						}
 						className="flex-1"
 					>
 						<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 							{shows.length > 0 ? (
 								shows.map((show) => <ShowCard key={show.id} show={show} />)
 							) : (
-								<div className="col-span-full flex h-32 items-center justify-center rounded-lg border-2 border-dashed border-gray-300">
-									<p className="italic text-gray-500">No shows created yet.</p>
+								<div className="col-span-full flex h-32 items-center justify-center rounded-lg border-2 border-gray-300 border-dashed">
+									<p className="text-gray-500 italic">No shows created yet.</p>
 								</div>
 							)}
 						</div>
@@ -157,29 +207,41 @@ export default function OrgOverview() {
 					<DashboardSection
 						title="Members"
 						actionTitle={isSuperAdmin ? "Invite New Member" : null}
-						onActionClick={isSuperAdmin ? () => setIsInviteModalOpen(true) : undefined}
+						onActionClick={
+							isSuperAdmin ? () => setIsInviteModalOpen(true) : undefined
+						}
 						isTitleClickable={isSuperAdmin}
-						onTitleClick={isSuperAdmin ? () => setIsFullMembersModalOpen(true) : undefined}
+						onTitleClick={
+							isSuperAdmin ? () => setIsFullMembersModalOpen(true) : undefined
+						}
 						className="w-full md:w-72 lg:w-80"
 					>
 						<ul className="space-y-3">
 							{displayMembers.slice(0, 5).map((m) => (
-								<MemberListItem 
-                                    key={m.assignment_id} 
-                                    member={m} 
-                                    onClick={isSuperAdmin ? () => {
-                                        setSelectedUser(m);
-                                        setIsRoleModalOpen(true);
-                                    } : undefined}
-                                />
+								<MemberListItem
+									key={m.assignment_id}
+									member={m}
+									onClick={
+										isSuperAdmin
+											? () => {
+													setSelectedUser(m);
+													setIsRoleModalOpen(true);
+												}
+											: undefined
+									}
+								/>
 							))}
-                            {displayMembers.length > 5 && (
-                                <li className="text-center mt-4">
-                                    <button onClick={() => setIsFullMembersModalOpen(true)} className="text-sm font-medium text-blue-600 hover:underline">
-                                        View all {displayMembers.length} members
-                                    </button>
-                                </li>
-                            )}
+							{displayMembers.length > 5 && (
+								<li className="mt-4 text-center">
+									<button
+										type="button"
+										onClick={() => setIsFullMembersModalOpen(true)}
+										className="font-medium text-blue-600 text-sm hover:underline"
+									>
+										View all {displayMembers.length} members
+									</button>
+								</li>
+							)}
 						</ul>
 					</DashboardSection>
 				</div>

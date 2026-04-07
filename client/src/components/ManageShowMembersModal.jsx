@@ -1,27 +1,42 @@
-import { useState, useEffect } from "react";
-import { removeUserFromShow, addUserToShow, getOrganizationUsers } from "../services/api";
-import ShowRoleModal from "./ShowRoleModal";
+import { useEffect, useState } from "react";
+import {
+	addUserToShow,
+	getOrganizationUsers,
+	removeUserFromShow,
+} from "../services/api";
 import InviteMemberModal from "./InviteMemberModal";
-import { ModalWrapper, ModalSubWrapper } from "./ui/modals";
+import ShowRoleModal from "./ShowRoleModal";
+import { ModalSubWrapper, ModalWrapper } from "./ui/modals";
 
-export default function ManageShowMembersModal({ isOpen, onClose, members, orgId, showId, onSuccess }) {
+export default function ManageShowMembersModal({
+	isOpen,
+	onClose,
+	members,
+	orgId,
+	showId,
+	onSuccess,
+}) {
 	const [orgMembers, setOrgMembers] = useState([]);
-    const [selectedOrgUserId, setSelectedOrgUserId] = useState("");
-    
-    const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
-    const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+	const [selectedOrgUserId, setSelectedOrgUserId] = useState("");
+
+	const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
+	const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
 	const [selectedUser, setSelectedUser] = useState(null);
 
-    useEffect(() => {
-        if (isOpen) {
-            getOrganizationUsers(orgId).then(res => setOrgMembers(res.data)).catch(console.error);
-        }
-    }, [isOpen, orgId]);
+	useEffect(() => {
+		if (isOpen) {
+			getOrganizationUsers(orgId)
+				.then((res) => setOrgMembers(res.data))
+				.catch(console.error);
+		}
+	}, [isOpen, orgId]);
 
 	if (!isOpen) return null;
 
 	const handleRemove = async (userId) => {
-		if (window.confirm("Are you sure you want to remove this user from the show?")) {
+		if (
+			window.confirm("Are you sure you want to remove this user from the show?")
+		) {
 			try {
 				await removeUserFromShow(showId, userId);
 				onSuccess();
@@ -31,61 +46,86 @@ export default function ManageShowMembersModal({ isOpen, onClose, members, orgId
 		}
 	};
 
-    const handleAddOrgMember = async () => {
-        if (!selectedOrgUserId) return;
-        try {
-            await addUserToShow(showId, selectedOrgUserId);
-            setSelectedOrgUserId("");
-            onSuccess();
-        } catch (err) {
-            alert(err.response?.data?.message || "Failed to add user");
-        }
-    };
+	const handleAddOrgMember = async () => {
+		if (!selectedOrgUserId) return;
+		try {
+			await addUserToShow(showId, selectedOrgUserId);
+			setSelectedOrgUserId("");
+			onSuccess();
+		} catch (err) {
+			alert(err.response?.data?.message || "Failed to add user");
+		}
+	};
 
-    const showMemberIds = members.map(m => m.users_id);
-    const availableOrgMembers = orgMembers.filter(m => !showMemberIds.includes(m.users_id) && m.status === 'active');
+	const showMemberIds = members.map((m) => m.users_id);
+	const availableOrgMembers = orgMembers.filter(
+		(m) => !showMemberIds.includes(m.users_id) && m.status === "active",
+	);
 
 	return (
 		<ModalWrapper>
-			
-            <ShowRoleModal isOpen={isRoleModalOpen} onClose={() => setIsRoleModalOpen(false)} user={selectedUser} showId={showId} onSuccess={onSuccess} />
-            <InviteMemberModal isOpen={isInviteModalOpen} onClose={() => setIsInviteModalOpen(false)} orgId={orgId} showId={showId} onSuccess={onSuccess} />
+			<ShowRoleModal
+				isOpen={isRoleModalOpen}
+				onClose={() => setIsRoleModalOpen(false)}
+				user={selectedUser}
+				showId={showId}
+				onSuccess={onSuccess}
+			/>
+			<InviteMemberModal
+				isOpen={isInviteModalOpen}
+				onClose={() => setIsInviteModalOpen(false)}
+				orgId={orgId}
+				showId={showId}
+				onSuccess={onSuccess}
+			/>
 
 			<ModalSubWrapper>
-				<div className="flex items-center justify-between mb-6">
-                    <h2 className="font-bold text-2xl text-gray-800">Manage Show Roster</h2>
-                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
-                </div>
+				<div className="mb-6 flex items-center justify-between">
+					<h2 className="font-bold text-2xl text-gray-800">
+						Manage Show Roster
+					</h2>
+					<button
+						type="button"
+						onClick={onClose}
+						className="font-bold text-2xl text-gray-400 hover:text-gray-600"
+					>
+						&times;
+					</button>
+				</div>
 
-                {/* Add New Members Section */}
-                <div className="bg-gray-50 p-4 rounded-lg mb-6 border border-gray-200 flex flex-col sm:flex-row gap-4 justify-between items-center">
-                    <div className="flex-1 flex gap-2 w-full">
-                        <select 
-                            value={selectedOrgUserId} 
-                            onChange={(e) => setSelectedOrgUserId(e.target.value)}
-                            className="flex-1 rounded border border-gray-300 px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                            <option value="">-- Add from Organization --</option>
-                            {availableOrgMembers.map(m => (
-                                <option key={m.users_id} value={m.users_id}>{m.User?.fname} {m.User?.lname} ({m.User?.email})</option>
-                            ))}
-                        </select>
-                        <button 
-                            onClick={handleAddOrgMember}
-                            disabled={!selectedOrgUserId}
-                            className="bg-blue-600 text-white px-4 py-2 rounded font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
-                        >
-                            Add
-                        </button>
-                    </div>
-                    <div className="text-gray-400 font-medium hidden sm:block">OR</div>
-                    <button 
-                        onClick={() => setIsInviteModalOpen(true)}
-                        className="w-full sm:w-auto bg-green-600 text-white px-4 py-2 rounded font-medium hover:bg-green-700 transition-colors whitespace-nowrap"
-                    >
-                        + Invite via Email
-                    </button>
-                </div>
+				{/* Add New Members Section */}
+				<div className="mb-6 flex flex-col items-center justify-between gap-4 rounded-lg border border-gray-200 bg-gray-50 p-4 sm:flex-row">
+					<div className="flex w-full flex-1 gap-2">
+						<select
+							value={selectedOrgUserId}
+							onChange={(e) => setSelectedOrgUserId(e.target.value)}
+							className="flex-1 rounded border border-gray-300 bg-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+						>
+							<option value="">-- Add from Organization --</option>
+							{availableOrgMembers.map((m) => (
+								<option key={m.users_id} value={m.users_id}>
+									{m.User?.fname} {m.User?.lname} ({m.User?.email})
+								</option>
+							))}
+						</select>
+						<button
+							type="button"
+							onClick={handleAddOrgMember}
+							disabled={!selectedOrgUserId}
+							className="rounded bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+						>
+							Add
+						</button>
+					</div>
+					<div className="hidden font-medium text-gray-400 sm:block">OR</div>
+					<button
+						type="button"
+						onClick={() => setIsInviteModalOpen(true)}
+						className="w-full whitespace-nowrap rounded bg-green-600 px-4 py-2 font-medium text-white transition-colors hover:bg-green-700 sm:w-auto"
+					>
+						+ Invite via Email
+					</button>
+				</div>
 
 				{/* Current Roster Table */}
 				<div className="overflow-hidden rounded-lg border border-gray-200 shadow-sm">
@@ -95,21 +135,33 @@ export default function ManageShowMembersModal({ isOpen, onClose, members, orgId
 								<th className="px-6 py-4 font-bold text-gray-900">Name</th>
 								<th className="px-6 py-4 font-bold text-gray-900">Email</th>
 								<th className="px-6 py-4 font-bold text-gray-900">Roles</th>
-								<th className="px-6 py-4 font-bold text-gray-900 text-right">Actions</th>
+								<th className="px-6 py-4 text-right font-bold text-gray-900">
+									Actions
+								</th>
 							</tr>
 						</thead>
 						<tbody className="divide-y divide-gray-200 bg-white">
 							{members.map((m) => (
-								<tr key={m.users_id} className="transition-colors hover:bg-gray-50">
+								<tr
+									key={m.users_id}
+									className="transition-colors hover:bg-gray-50"
+								>
 									<td className="px-6 py-4 font-medium text-gray-900">
 										{m.User?.fname} {m.User?.lname}
-                                        {m.status === 'pending' && <span className="ml-2 bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded-full">Pending</span>}
+										{m.status === "pending" && (
+											<span className="ml-2 rounded-full bg-amber-100 px-2 py-1 text-amber-800 text-xs">
+												Pending
+											</span>
+										)}
 									</td>
 									<td className="px-6 py-4 text-gray-500">{m.User?.email}</td>
 									<td className="px-6 py-4 text-gray-500">
 										<div className="flex flex-wrap gap-1">
 											{m.assignedRoles?.map((role) => (
-												<span key={role.id} className="rounded-full bg-blue-100 px-2.5 py-0.5 font-medium text-blue-800 text-xs capitalize">
+												<span
+													key={role.id}
+													className="rounded-full bg-blue-100 px-2.5 py-0.5 font-medium text-blue-800 text-xs capitalize"
+												>
 													{role.name}
 												</span>
 											))}
@@ -118,7 +170,10 @@ export default function ManageShowMembersModal({ isOpen, onClose, members, orgId
 									<td className="flex justify-end space-x-3 p-4">
 										<button
 											type="button"
-											onClick={() => { setSelectedUser(m); setIsRoleModalOpen(true); }}
+											onClick={() => {
+												setSelectedUser(m);
+												setIsRoleModalOpen(true);
+											}}
 											className="font-medium text-blue-600 hover:text-blue-800"
 										>
 											Edit Roles
@@ -133,9 +188,16 @@ export default function ManageShowMembersModal({ isOpen, onClose, members, orgId
 									</td>
 								</tr>
 							))}
-                            {members.length === 0 && (
-                                <tr><td colSpan="4" className="text-center py-8 text-gray-500 italic">No members in this show yet.</td></tr>
-                            )}
+							{members.length === 0 && (
+								<tr>
+									<td
+										colSpan="4"
+										className="py-8 text-center text-gray-500 italic"
+									>
+										No members in this show yet.
+									</td>
+								</tr>
+							)}
 						</tbody>
 					</table>
 				</div>
