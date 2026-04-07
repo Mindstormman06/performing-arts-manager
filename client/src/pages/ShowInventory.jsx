@@ -80,7 +80,7 @@ export default function ShowInventory() {
     }
 
     return (
-        <div className="mx-auto flex h-[calc(100vh-9rem)] max-w-7xl flex-col p-4 sm:p-6 lg:p-8">
+        <div className="mx-auto flex min-h-[calc(100vh-9rem)] max-w-7xl flex-col p-4 sm:p-6 lg:p-8">
             <div className="mb-6 flex items-center justify-between">
                 <div>
                     <Link to={`/orgs/${orgId}/shows/${showId}`} className="text-sm font-medium text-blue-600 hover:underline">

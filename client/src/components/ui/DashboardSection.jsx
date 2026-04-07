@@ -39,8 +39,10 @@ export default function DashboardSection({
             </div>
 
             {/* Content Container */}
-            <div className="min-h-75 flex-1 overflow-y-auto rounded-xl border border-gray-200 bg-gray-50 p-6">
-                {children}
+            <div className="min-h-75 flex-1 flex flex-col rounded-xl border border-gray-200 bg-gray-50 overflow-hidden">
+                <div className="flex-1 overflow-y-auto p-6">
+                    {children}
+                </div>
             </div>
         </section>
     );
