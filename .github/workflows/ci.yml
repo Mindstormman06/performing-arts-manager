@@ -21,7 +21,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '25'
           cache: 'npm'
           cache-dependency-path: './server/package-lock.json'
 
@@ -79,7 +79,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '25'
           cache: 'npm'
           cache-dependency-path: './server/package-lock.json'
 
@@ -134,7 +134,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '25'
           cache: 'npm'
           cache-dependency-path: './server/package-lock.json'
 
@@ -179,7 +179,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '25'
           cache: 'npm'
           cache-dependency-path: './server/package-lock.json'
 
@@ -217,7 +217,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '25'
           cache: 'npm'
           cache-dependency-path: './client/package-lock.json'
 
@@ -274,7 +274,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '25'
           cache: 'npm'
           cache-dependency-path: './client/package-lock.json'
 
@@ -308,7 +308,11 @@ jobs:
       # Run UI tests with Playwright
       - name: Run Playwright UI Tests
         working-directory: ./client
-        run: npm run test
+        run: |
+          cd ../server && npm run dev &
+          sleep 5 # Give the backend a moment to bind to its port
+          cd ../client
+          npm run test
         env:
           NODE_ENV: test
           DB_HOST: 127.0.0.1
@@ -416,7 +420,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '25'
           cache: 'npm'
           cache-dependency-path: './server/package-lock.json'
 
