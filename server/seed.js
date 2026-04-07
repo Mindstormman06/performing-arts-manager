@@ -385,9 +385,9 @@ export default async function seed() {
 	} finally {
 		// Close the connection so the script doesn't hang
 		await sequelize.close();
+		process.exit(0);
 	}
 }
 
 // Execute the seed function
 seed();
-process.exit(0);
