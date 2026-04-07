@@ -380,11 +380,11 @@ jobs:
       - name: Start Background Servers & Run UAT
         run: |
           # Start the backend in the background
-          cd server && npm run dev && npm run seed &
+          cd server && node ./server.js && npm run seed &
           # Start the frontend in the background
           cd ../client && npm run dev &
           # Wait for servers to spin up
-          sleep 10
+          npx wait-on http://localhost:8050/server-up
           # Seed the DB and run Robot
           cd ../uat
           robot .
