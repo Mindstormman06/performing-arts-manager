@@ -1,7 +1,7 @@
 import request from "supertest";
 import { describe, expect, it } from "vitest";
 
-import app from "../server.js";
+import app from "../../server.js";
 
 describe("Server Core & Error Handling", () => {
 	// Check if the base server is responding correctly

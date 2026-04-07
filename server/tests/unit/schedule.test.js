@@ -1,8 +1,8 @@
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
-import app from "../server.js";
-import scheduleService from "../src/services/schedule.service.js";
+import app from "../../server.js";
+import scheduleService from "../../src/services/schedule.service.js";
 import { closeDatabase, setupTestDatabase } from "./utils/test-setup.js";
 
 /**

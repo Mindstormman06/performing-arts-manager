@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-import inventoryController from "../src/controllers/inventory.controller.js";
-import inventoryService from "../src/services/inventory.service.js";
+import inventoryController from "../../src/controllers/inventory.controller.js";
+import inventoryService from "../../src/services/inventory.service.js";
 
 describe("Inventory Controller - Direct Tests", () => {
 	describe("getShowInventory", () => {

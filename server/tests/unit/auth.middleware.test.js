@@ -5,8 +5,8 @@ import {
 	authorizeOrg,
 	authorizeShow,
 	authorizeInventoryDept,
-} from "../src/middleware/auth.middleware.js";
-import models from "../src/models/index.js";
+} from "../../src/middleware/auth.middleware.js";
+import models from "../../src/models/index.js";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your_theatre_secret";
 

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import jwt from "jsonwebtoken";
-import showController from "../src/controllers/show.controller.js";
-import showService from "../src/services/show.service.js";
+import showController from "../../src/controllers/show.controller.js";
+import showService from "../../src/services/show.service.js";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your_theatre_secret";
 

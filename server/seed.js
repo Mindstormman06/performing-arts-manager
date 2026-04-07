@@ -29,7 +29,7 @@ export default async function seed() {
         ]);
 
         await models.Department.bulkCreate([
-            { id: 1, name: "Lighting" }, { id: 2, name: "Sound" }, { id: 3, name: "Costumes" },
+            { id: 1, name: "Lighting" }, { id: 2, name: "Tech" }, { id: 3, name: "Costumes" },
             { id: 4, name: "Props" }, { id: 5, name: "Scenic" }, { id: 6, name: "Front of House" }
         ]);
 

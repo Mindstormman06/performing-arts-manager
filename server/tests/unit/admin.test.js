@@ -1,8 +1,8 @@
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
-import app from "../server.js";
-import sequelize from "../src/services/db.service.js";
+import app from "../../server.js";
+import sequelize from "../../src/services/db.service.js";
 import { closeDatabase, setupTestDatabase } from "./utils/test-setup.js";
 
 describe("Admin & Database Operations", () => {

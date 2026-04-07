@@ -1,11 +1,11 @@
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
-import app from "../server.js";
-import models from "../src/models/index.js";
-import organizationService from "../src/services/organization.service.js";
-import orgMembershipService from "../src/services/orgMembership.service.js";
-import orgRoleService from "../src/services/orgRole.service.js";
+import app from "../../server.js";
+import models from "../../src/models/index.js";
+import organizationService from "../../src/services/organization.service.js";
+import orgMembershipService from "../../src/services/orgMembership.service.js";
+import orgRoleService from "../../src/services/orgRole.service.js";
 import { closeDatabase, setupTestDatabase } from "./utils/test-setup.js";
 
 describe("Organization API & Permissions", () => {

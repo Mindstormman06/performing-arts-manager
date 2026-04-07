@@ -1,5 +1,5 @@
-import models from "../../src/models/index.js";
-import sequelize from "../../src/services/db.service.js";
+import models from "../../../src/models/index.js";
+import sequelize from "../../../src/services/db.service.js";
 
 /**
  * Prepares the database for testing.

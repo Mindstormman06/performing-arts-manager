@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 import { Op } from "sequelize";
 
-import orgMembershipController from "../src/controllers/orgMembership.controller.js";
-import models from "../src/models/index.js";
+import orgMembershipController from "../../src/controllers/orgMembership.controller.js";
+import models from "../../src/models/index.js";
 
 describe("OrgMembership Controller - Direct Tests", () => {
 	describe("respondToInvite - accept action with shows", () => {
