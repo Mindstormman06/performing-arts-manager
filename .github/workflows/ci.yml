@@ -101,7 +101,7 @@ jobs:
           retention-days: 28
 
   bdd-tests:
-    needs: test-server
+    needs: [ test-server, server-security ]
     runs-on: ubuntu-latest
 
     steps:
@@ -248,10 +248,11 @@ jobs:
           cache: 'npm'
           cache-dependency-path: './client/package-lock.json'
 
-      # Install dependencies
-      - name: Install dependencies
-        working-directory: ./client
-        run: npm install
+      # Install client and server node deps
+      - name: Install Node Dependencies
+        run: |
+          cd server && npm install
+          cd ../client && npm install
 
       # Run UI tests with Playwright
       - name: Run Playwright UI Tests
