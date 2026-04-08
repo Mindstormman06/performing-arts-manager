@@ -17,6 +17,7 @@ router.get("/user", authenticate, showController.getUserShows);
 router.get(
 	"/:id/dashboard",
 	authenticate,
+	authorizeShow(),
 	showController.getDashboardSummary
 );
 router.get("/:id", showController.getById);
