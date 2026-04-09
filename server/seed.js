@@ -101,8 +101,12 @@ export default async function seed() {
 
         // Assign organization roles
         await models.OrgRoleRelationship.bulkCreate([
-            { assignment_id: orgMemberships.find(m => m.users_id === 1).assignment_id, role_id: 1 }, // Laura: President
+            { assignment_id: orgMemberships.find(m => m.users_id === 4).assignment_id, role_id: 1 }, // Bill: President
             { assignment_id: orgMemberships.find(m => m.users_id === 3).assignment_id, role_id: 2 }, // Joshua: Board Member
+            { assignment_id: orgMemberships.find(m => m.users_id === 6).assignment_id, role_id: 2 }, // Cathy: Board Member
+            { assignment_id: orgMemberships.find(m => m.users_id === 9).assignment_id, role_id: 2 }, // Alex: Board Member
+            { assignment_id: orgMemberships.find(m => m.users_id === 5).assignment_id, role_id: 2 }, // Aiden: Board Member
+            { assignment_id: orgMemberships.find(m => m.users_id === 7).assignment_id, role_id: 2 }, // Lily: Board Member
         ]);
 
         // ------------------------
@@ -172,9 +176,11 @@ export default async function seed() {
         await models.ShowRoleRelationship.bulkCreate([
             { assignment_id: santaMembers.find(m => m.users_id === 1).assignment_id, role_id: 100 }, // Laura: Director
             { assignment_id: santaMembers.find(m => m.users_id === 2).assignment_id, role_id: 101 }, // Jade: Co-Director
+            { assignment_id: santaMembers.find(m => m.users_id === 2).assignment_id, role_id: 103 }, // Jade: Co-Director
             { assignment_id: santaMembers.find(m => m.users_id === 5).assignment_id, role_id: 102 }, // Aiden: Stage Manager
             { assignment_id: santaMembers.find(m => m.users_id === 6).assignment_id, role_id: 104 }, // Cathy: Choreographer
             { assignment_id: santaMembers.find(m => m.users_id === 7).assignment_id, role_id: 105 }, // Lily: Dance Captain
+            { assignment_id: santaMembers.find(m => m.users_id === 7).assignment_id, role_id: 103 }, // Lily: Dance Captain
             { assignment_id: santaMembers.find(m => m.users_id === 8).assignment_id, role_id: 106 }, // Raine: Sound Design
             { assignment_id: santaMembers.find(m => m.users_id === 4).assignment_id, role_id: 113 }, // Bill: Producer
             { assignment_id: santaMembers.find(m => m.users_id === 9).assignment_id, role_id: 103 }, // Alex: Actor
