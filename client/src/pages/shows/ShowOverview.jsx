@@ -43,7 +43,7 @@ export default function ShowOverview() {
 		fetchData();
 	}, [fetchData]);
 
-	const desktopPanelHeightClass = "xl:h-[calc(100vh-18rem)]";
+	const desktopPanelHeightClass = "xl:h-[clamp(44rem,calc(100vh-15rem),56rem)]";
 
 	const navLinks = [
 		{ name: "Inventory", path: "inventory", icon: "📦" },
@@ -175,7 +175,7 @@ export default function ShowOverview() {
 							className={desktopPanelHeightClass}
 							onActionClick={() => navigate(`/orgs/${orgId}/shows/${showId}/scheduling`)}
 						>
-							<div className="flex flex-col h-full">
+							<div className="flex h-full min-h-0 flex-col">
 								{/* Month Navigation */}
 								<div className="flex items-center justify-between mb-4">
 									<IconButton
@@ -210,7 +210,7 @@ export default function ShowOverview() {
 								</div>
 
 								{/* Selected Day Agenda */}
-								<div className="mt-2 flex-1 overflow-y-auto max-h-48">
+								<div className="mt-2 max-h-[clamp(13rem,24vh,20rem)] min-h-52 flex-none overflow-y-auto">
 									<h4 className="text-sm font-bold text-gray-700 mb-2 border-b border-gray-200 pb-2 sticky top-0 bg-gray-50 pt-2">
 										{selectedDate.toLocaleDateString('default', { weekday: 'long', month: 'long', day: 'numeric' })}
 									</h4>
