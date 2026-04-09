@@ -43,6 +43,8 @@ export default function ShowOverview() {
 		fetchData();
 	}, [fetchData]);
 
+	const desktopPanelHeightClass = "xl:h-[calc(100vh-18rem)]";
+
 	const navLinks = [
 		{ name: "Inventory", path: "inventory", icon: "📦" },
 		{ name: "Notes", path: "notes", icon: "📝" },
@@ -158,11 +160,11 @@ export default function ShowOverview() {
 			</aside>
 
 			{/* Main Widget Grid */}
-			<main className="flex-1 overflow-y-auto">
-				<div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+			<main className="flex-1 min-h-0 overflow-y-auto">
+				<div className="grid min-h-0 grid-cols-1 gap-6 xl:grid-cols-3 xl:items-stretch">
 
 					{/* Left/Center Column: Primary Widgets */}
-					<div className="flex flex-col gap-6 xl:col-span-2">
+					<div className="flex min-h-0 flex-col gap-6 xl:col-span-2">
 
 						{/* Calendar Widget */}
 						<DashboardSection
@@ -170,6 +172,7 @@ export default function ShowOverview() {
 							actionTitle="View Full Calendar"
 							buttonColour="blue"
 							buttonIcon="📅"
+							className={desktopPanelHeightClass}
 							onActionClick={() => navigate(`/orgs/${orgId}/shows/${showId}/scheduling`)}
 						>
 							<div className="flex flex-col h-full">
@@ -257,11 +260,11 @@ export default function ShowOverview() {
 					</div>
 
 					{/* Right Column: People - UNTOUCHED */}
-					<div className="flex flex-col gap-6">
+					<div className="flex h-full min-h-0 flex-col gap-6 self-stretch">
 						<DashboardSection
 							title="Cast & Crew"
 							actionTitle="Manage Roster"
-							className="h-full"
+							className={`${desktopPanelHeightClass} min-h-0`}
 							onActionClick={() => setIsManageMembersModalOpen(true)}
 						>
 							<ul className="space-y-3">
