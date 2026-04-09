@@ -24,10 +24,10 @@ if (process.env.NODE_ENV !== "test") {
 	sequelize
 		.sync({ alter: true })
 		.then(() => console.log("Database synchronized!"))
-		.then(() => {
-			seedRoles();
-			seedDepartments();
-		})
+		// .then(() => {
+		// 	seedRoles();
+		// 	seedDepartments();
+		// })
 		.catch((err) => console.error("Error syncing database:", err));
 
 	const seedRoles = async () => {

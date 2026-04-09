@@ -353,52 +353,52 @@ export default async function seed() {
 
         // Lighting Inventory
         inventory.push(
-            { id: invId++, name: "ETC Source Four 36°", description: "Standard ellipsoidal reflector spotlight", dept_id: 1, is_global: 1, added_by: 5, org_id: 1 },
-            { id: invId++, name: "Chauvet COLORado 2 Quad", description: "LED moving head fixture", dept_id: 1, is_global: 1, added_by: 5, org_id: 1 },
-            { id: invId++, name: "ADJ Vizi Beam LED", description: "Moving head beam light", dept_id: 1, is_global: 1, added_by: 5, org_id: 1 },
-            { id: invId++, name: "Stage Lighting Console", description: "ETC Ion lighting control console", dept_id: 1, is_global: 1, added_by: 5, org_id: 1 },
-            { id: invId++, name: "Cyc Bar", description: "LED cyc light for backdrop", dept_id: 1, is_global: 1, added_by: 5, org_id: 1 }
+            { id: invId++, name: "ETC Source Four 36°", description: "Standard ellipsoidal reflector spotlight", dept_id: 1, is_global: 1, added_by: 5, org_id: 1, photo_path: "/uploads/etcsource4.jpg" },
+            { id: invId++, name: "Chauvet COLORado 2 Quad", description: "LED moving head fixture", dept_id: 1, is_global: 1, added_by: 5, org_id: 1, photo_path: "/uploads/chauvetcolorado2quad.jpg" },
+            { id: invId++, name: "ADJ Vizi Beam LED", description: "Moving head beam light", dept_id: 1, is_global: 1, added_by: 5, org_id: 1, photo_path: "/uploads/adjvizibeamled.webp" },
+            { id: invId++, name: "Stage Lighting Console", description: "ETC Ion lighting control console", dept_id: 1, is_global: 1, added_by: 5, org_id: 1, photo_path: "/uploads/etcionlightingconsole.png" },
+            { id: invId++, name: "Cyc Bar", description: "LED cyc light for backdrop", dept_id: 1, is_global: 1, added_by: 5, org_id: 1, photo_path: "/uploads/cycbar.webp" }
         );
 
         // Sound Inventory
         inventory.push(
-            { id: invId++, name: "Shure SM58 Microphone", description: "Dynamic vocal microphone", dept_id: 2, is_global: 1, added_by: 8, org_id: 1 },
-            { id: invId++, name: "Wireless Mic Pack", description: "Shure ULX wireless microphone system", dept_id: 2, is_global: 1, added_by: 8, org_id: 1 },
-            { id: invId++, name: "Soundcraft Si Mixer", description: "Digital sound mixing console", dept_id: 2, is_global: 1, added_by: 8, org_id: 1 },
-            { id: invId++, name: "JBL PA Speakers", description: "Professional PA speaker pair", dept_id: 2, is_global: 1, added_by: 8, org_id: 1 }
+            { id: invId++, name: "Shure SM58 Microphone", description: "Dynamic vocal microphone", dept_id: 2, is_global: 1, added_by: 8, org_id: 1, photo_path: "/uploads/shuresm58mic.jpg" },
+            { id: invId++, name: "Wireless Mic Pack", description: "Shure ULX wireless microphone system", dept_id: 2, is_global: 1, added_by: 8, org_id: 1, photo_path: "/uploads/shureulxwirelessmic.webp" },
+            { id: invId++, name: "Soundcraft Si Mixer", description: "Digital sound mixing console", dept_id: 2, is_global: 1, added_by: 8, org_id: 1, photo_path: "/uploads/soundcraftsimixer.jpg" },
+            { id: invId++, name: "JBL PA Speakers", description: "Professional PA speaker pair", dept_id: 2, is_global: 1, added_by: 8, org_id: 1, photo_path: "/uploads/jblpaspeakers.jpg" }
         );
 
         // Costume Inventory
         inventory.push(
-            { id: invId++, name: "Santa Suit", description: "Full Santa costume for Santa in Space", dept_id: 3, is_global: 0, added_by: 1, org_id: 1 },
-            { id: invId++, name: "Alien Costumes Set", description: "Colorful alien outfits (10 pieces)", dept_id: 3, is_global: 0, added_by: 1, org_id: 1 },
-            { id: invId++, name: "Victorian Period Costumes", description: "Scottish Play period costumes", dept_id: 3, is_global: 0, added_by: 3, org_id: 1 },
-            { id: invId++, name: "Wig Collection", description: "Various wigs for characters", dept_id: 3, is_global: 1, added_by: 1, org_id: 1 },
-            { id: invId++, name: "Dance Costumes", description: "Modern dance costumes (8 pieces)", dept_id: 3, is_global: 0, added_by: 6, org_id: 1 }
+            { id: invId++, name: "Santa Suit", description: "Full Santa costume for Santa in Space", dept_id: 3, is_global: 0, added_by: 1, org_id: 1, photo_path: "/uploads/santasuit.jpg" },
+            { id: invId++, name: "Alien Costumes Set", description: "Colorful alien outfits (10 pieces)", dept_id: 3, is_global: 0, added_by: 1, org_id: 1, photo_path: "/uploads/aliencostume.jpg" },
+            { id: invId++, name: "Victorian Period Costumes", description: "Scottish Play period costumes", dept_id: 3, is_global: 0, added_by: 3, org_id: 1, photo_path: "/uploads/victorianscottishcostume.webp" },
+            { id: invId++, name: "Wig Collection", description: "Various wigs for characters", dept_id: 3, is_global: 1, added_by: 1, org_id: 1, photo_path: "/uploads/wigs.webp" },
+            { id: invId++, name: "Dance Costumes", description: "Modern dance costumes (8 pieces)", dept_id: 3, is_global: 0, added_by: 6, org_id: 1, photo_path: "/uploads/dancecostume.webp" }
         );
 
         // Props Inventory
         inventory.push(
-            { id: invId++, name: "Prop Space Blaster", description: "Futuristic gun prop for Santa in Space", dept_id: 4, is_global: 0, added_by: 1, org_id: 1 },
-            { id: invId++, name: "Scottish Claymore Sword", description: "Replica sword for fight choreography", dept_id: 4, is_global: 0, added_by: 3, org_id: 1 },
-            { id: invId++, name: "Prop Presents & Gifts", description: "Gift boxes and wrapped presents", dept_id: 4, is_global: 0, added_by: 1, org_id: 1 },
-            { id: invId++, name: "Crowns & Tiaras", description: "Assorted royal headpieces", dept_id: 4, is_global: 1, added_by: 1, org_id: 1 },
-            { id: invId++, name: "Scepters & Staffs", description: "Royal and magical staffs", dept_id: 4, is_global: 1, added_by: 1, org_id: 1 }
+            { id: invId++, name: "Prop Space Blaster", description: "Futuristic gun prop for Santa in Space", dept_id: 4, is_global: 0, added_by: 1, org_id: 1, photo_path: "/uploads/spaceblasterprop.jpg" },
+            { id: invId++, name: "Scottish Claymore Sword", description: "Replica sword for fight choreography", dept_id: 4, is_global: 0, added_by: 3, org_id: 1, photo_path: "/uploads/scottishclaymore.JPG" },
+            { id: invId++, name: "Prop Presents & Gifts", description: "Gift boxes and wrapped presents", dept_id: 4, is_global: 0, added_by: 1, org_id: 1, photo_path: "/uploads/giftboxesprop.jpg" },
+            { id: invId++, name: "Crowns & Tiaras", description: "Assorted royal headpieces", dept_id: 4, is_global: 1, added_by: 1, org_id: 1, photo_path: "/uploads/crowns.jpg" },
+            { id: invId++, name: "Scepters & Staffs", description: "Royal and magical staffs", dept_id: 4, is_global: 1, added_by: 1, org_id: 1, photo_path: "/uploads/royalstaff.jpg" }
         );
 
         // Sets/Scenic Inventory
         inventory.push(
-            { id: invId++, name: "Space Ship Set Pieces", description: "Modular spaceship set elements", dept_id: 5, is_global: 0, added_by: 3, org_id: 1 },
-            { id: invId++, name: "Castle Backdrop", description: "Large backdrop for Scottish scenes", dept_id: 5, is_global: 0, added_by: 3, org_id: 1 },
-            { id: invId++, name: "Throne Chair", description: "Ornate throne for royal scenes", dept_id: 5, is_global: 1, added_by: 3, org_id: 1 },
-            { id: invId++, name: "Stairs & Platforms", description: "Modular stage stairs (6 units)", dept_id: 5, is_global: 1, added_by: 3, org_id: 1 },
-            { id: invId++, name: "Door Frames", description: "Portable door frames (4 units)", dept_id: 5, is_global: 1, added_by: 3, org_id: 1 }
+            { id: invId++, name: "Space Ship Set Pieces", description: "Modular spaceship set elements", dept_id: 5, is_global: 0, added_by: 3, org_id: 1, photo_path: "/uploads/spaceshipset.webp" },
+            { id: invId++, name: "Castle Backdrop", description: "Large backdrop for Scottish scenes", dept_id: 5, is_global: 0, added_by: 3, org_id: 1, photo_path: "/uploads/castlebackdrop.jpg" },
+            { id: invId++, name: "Throne Chair", description: "Ornate throne for royal scenes", dept_id: 5, is_global: 1, added_by: 3, org_id: 1, photo_path: "/uploads/throne.webp" },
+            { id: invId++, name: "Stairs & Platforms", description: "Modular stage stairs (6 units)", dept_id: 5, is_global: 1, added_by: 3, org_id: 1, photo_path: "/uploads/stagestairs.jpeg" },
+            { id: invId++, name: "Door Frames", description: "Portable door frames (4 units)", dept_id: 5, is_global: 1, added_by: 3, org_id: 1, photo_path: "/uploads/doorframe.webp" }
         );
 
         // Front of House
         inventory.push(
-            { id: invId++, name: "Easel Signs", description: "Welcome/Info easel signs (4)", dept_id: 6, is_global: 1, added_by: 1, org_id: 1 },
-            { id: invId++, name: "Program Printing Setup", description: "Poster and program printing materials", dept_id: 6, is_global: 1, added_by: 1, org_id: 1 }
+            { id: invId++, name: "Easel Signs", description: "Welcome/Info easel signs (4)", dept_id: 6, is_global: 1, added_by: 1, org_id: 1, photo_path: "/uploads/easel.jpg" },
+            { id: invId++, name: "Program Printing Setup", description: "Poster and program printing materials", dept_id: 6, is_global: 1, added_by: 1, org_id: 1, photo_path: "/uploads/programprinting.jpg" }
         );
 
         await models.Inventory.bulkCreate(inventory);
