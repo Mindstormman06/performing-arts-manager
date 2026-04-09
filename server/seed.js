@@ -218,6 +218,7 @@ export default async function seed() {
             { assignment_id: spMembers.find(m => m.users_id === 2).assignment_id, role_id: 101 }, // Jade: Co-Director
             { assignment_id: spMembers.find(m => m.users_id === 5).assignment_id, role_id: 102 }, // Aiden: Stage Manager
             { assignment_id: spMembers.find(m => m.users_id === 5).assignment_id, role_id: 112 }, // Aiden: Photographer
+            { assignment_id: spMembers.find(m => m.users_id === 5).assignment_id, role_id: 103 }, // Aiden: Actor
             { assignment_id: spMembers.find(m => m.users_id === 14).assignment_id, role_id: 103 }, // Rob: Actor
             { assignment_id: spMembers.find(m => m.users_id === 17).assignment_id, role_id: 103 }, // Sarah: Actor
             { assignment_id: spMembers.find(m => m.users_id === 18).assignment_id, role_id: 103 }, // Aaron: Actor
