@@ -13,7 +13,7 @@ import {
 import DashboardSection from "../../components/ui/DashboardSection.jsx";
 import ManageShowInventoryModal from "../../components/modals/Shows/ManageShowInventoryModal.jsx";
 import EditInventoryItemModal from "../../components/modals/Inventory/EditInventoryItemModal.jsx";
-import InventoryPhotoCell from "../../components/ui/InventoryPhotoCell.jsx";
+import InventoryItemCard from "../../components/ui/inventory/InventoryItemCard.jsx";
 
 export default function ShowInventory() {
 	const { orgId, showId } = useParams();
@@ -217,33 +217,41 @@ export default function ShowInventory() {
 					</select>
 				</div>
 
-				<div className="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
-					<table className="w-full text-left text-sm text-gray-600">
-						<thead className="bg-gray-50 text-gray-700">
-							<tr>
-								<th className="px-6 py-4 font-semibold">Photo</th>
-								<th className="px-6 py-4 font-semibold">Item Name</th>
-								<th className="px-6 py-4 font-semibold">Department</th>
-								<th className="px-6 py-4 font-semibold">Assigned To</th>
-								<th className="px-6 py-4 font-semibold">Origin</th>
-								<th className="px-6 py-4 font-semibold text-right">Actions</th>
-							</tr>
-						</thead>
-						<tbody className="divide-y divide-gray-100">
-							{filteredItems.length > 0 ? filteredItems.map((item) => (
-								<tr key={item.id} className="hover:bg-gray-50 transition-colors">
-									<td className="px-6 py-4">
-										<InventoryPhotoCell photoPath={item.photo_path} itemName={item.name} />
-									</td>
-									<td className="px-6 py-4 font-medium text-gray-900">{item.name}</td>
-									<td className="px-6 py-4"><span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 border border-blue-100">{item.Department?.name || "Unknown"}</span></td>
-									<td className="px-6 py-4">
+				{filteredItems.length > 0 ? (
+					<div className="grid gap-4 xl:grid-cols-2">
+						{filteredItems.map((item) => (
+							<InventoryItemCard
+								key={item.id}
+								item={item}
+								title={item.name}
+								description={item.description}
+								badges={
+									<>
+										<span className="inline-flex items-center rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+											{item.Department?.name || "Unknown"}
+										</span>
+										{item.is_global ? (
+											<span className="inline-flex items-center rounded-full border border-purple-100 bg-purple-50 px-3 py-1 text-xs font-semibold text-purple-700">
+												Global Stock
+											</span>
+										) : (
+											<span className="inline-flex items-center rounded-full border border-amber-100 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
+												Custom Show Item
+											</span>
+										)}
+									</>
+								}
+								footer={
+									<div className="w-full space-y-2">
+										<div className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+											Assigned To
+										</div>
 										{canManageDept(item.Department?.name) ? (
 											<select
 												value={getAssignmentValue(item)}
 												onChange={(e) => handleAssignChange(item, e.target.value)}
 												disabled={assigningItemId === item.id}
-												className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+												className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-60"
 											>
 												<option value="">Unassigned</option>
 												{getMemberOptionsForDept(item.Department?.name).length > 0 && (
@@ -270,40 +278,40 @@ export default function ShowInventory() {
 												)}
 											</select>
 										) : (
-											<span className="text-sm text-gray-600">{getAssignmentDisplay(item)}</span>
+											<p className="text-sm text-gray-700">{getAssignmentDisplay(item)}</p>
 										)}
-									</td>
-									<td className="px-6 py-4">
-										{item.is_global ? 
-											<span className="text-purple-600 font-medium text-xs bg-purple-50 px-2 py-1 rounded">Global Stock</span> : 
-											<span className="text-amber-600 font-medium text-xs bg-amber-50 px-2 py-1 rounded">Custom Show Item</span>
-										}
-									</td>
-									<td className="px-6 py-4 text-right">
-										{canManageDept(item.Department?.name) ? (
-											<div className="flex items-center justify-end gap-4">
-												<button
-													onClick={() => handleEdit(item)}
-													className="font-medium text-blue-600 transition-colors hover:text-blue-800"
-												>
-													Edit
-												</button>
-												<button
-													onClick={() => handleRemove(item.id, item.name, item.is_global)}
-													className="font-medium text-red-600 transition-colors hover:text-red-800"
-												>
-													Remove
-												</button>
-											</div>
-										) : (
-											<span className="text-gray-400 italic text-xs">View Only</span>
-										)}
-									</td>
-								</tr>
-							)) : <tr><td colSpan="6" className="px-6 py-8 text-center italic text-gray-500">No inventory items assigned to this show.</td></tr>}
-						</tbody>
-					</table>
-				</div>
+									</div>
+								}
+								actions={
+									canManageDept(item.Department?.name) ? (
+										<>
+											<button
+												type="button"
+												onClick={() => handleEdit(item)}
+												className="font-medium text-blue-600 transition-colors hover:text-blue-800"
+											>
+												Edit
+											</button>
+											<button
+												type="button"
+												onClick={() => handleRemove(item.id, item.name, item.is_global)}
+												className="font-medium text-red-600 transition-colors hover:text-red-800"
+											>
+												Remove
+											</button>
+										</>
+									) : (
+										<span className="text-xs italic text-gray-400">View Only</span>
+									)
+								}
+							/>
+						))}
+					</div>
+				) : (
+					<div className="rounded-xl border border-dashed border-gray-300 bg-white px-6 py-10 text-center italic text-gray-500 shadow-sm">
+						No inventory items assigned to this show.
+					</div>
+				)}
 			</DashboardSection>
 		</div>
 	);
