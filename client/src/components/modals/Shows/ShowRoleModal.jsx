@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { updateShowUserRoles } from "../../../services/api.js";
+import { updateShowUserRoles, getAvailableShowRoles } from "../../../services/api.js";
 import {
     ModalBody,
     ModalBox,
@@ -19,15 +19,24 @@ import {
 export default function ShowRoleModal({ isOpen, onClose, onSuccess, showId, user }) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
-
-    const availableRoles = ["director", "stage-manager", "actor", "costumes", "props", "sets", "tech"];
-
+    const [availableRoles, setAvailableRoles] = useState([]);
     const [selectedRoles, setSelectedRoles] = useState([]);
 
     useEffect(() => {
         if (isOpen && user) {
             setSelectedRoles(user.assignedRoles?.map((r) => r.name) || []);
             setError("");
+
+            // Fetch available roles from backend
+            getAvailableShowRoles()
+                .then((response) => {
+                    const roleNames = response.data.data.map(role => role.name);
+                    setAvailableRoles(roleNames);
+                })
+                .catch((err) => {
+                    console.error("Failed to load available roles:", err);
+                    setError("Failed to load available roles");
+                });
         }
     }, [isOpen, user]);
 

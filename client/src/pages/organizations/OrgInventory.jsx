@@ -106,7 +106,7 @@ export default function OrgInventory() {
 
 	if (isLoading) {
 		return (
-			<div className="flex h-[calc(100vh-9rem)] items-center justify-center">
+			<div className="flex min-h-[calc(100vh-9rem)] items-center justify-center">
 				<div className="text-xl font-semibold text-gray-500">Loading Inventory...</div>
 			</div>
 		);
@@ -118,7 +118,7 @@ export default function OrgInventory() {
 		departments.some((d) => userRoles.includes(d.name.toLowerCase()));
 
 	return (
-		<div className="mx-auto flex h-[calc(100vh-9rem)] max-w-7xl flex-col p-4 sm:p-6 lg:p-8">
+		<div className="mx-auto flex min-h-[calc(100vh-9rem)] max-w-7xl flex-col p-4 sm:p-6 lg:p-8">
 			{/* Header / Breadcrumb navigation */}
 			<div className="mb-6 flex items-center justify-between">
 				<div>

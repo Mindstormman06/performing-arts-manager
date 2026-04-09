@@ -1,8 +1,8 @@
 import { Op } from "sequelize";
 
 import models from "../models/index.js";
-import inventoryService from "./inventory.service.js";
 import sequelize from "./db.service.js";
+import inventoryService from "./inventory.service.js";
 
 const { Show } = models;
 
@@ -230,6 +230,14 @@ async function getDashboardSummary(showId, viewerUserId) {
 	};
 }
 
+async function getAvailableRoles() {
+	const roles = await models.ShowRole.findAll({
+		attributes: ["id", "name"],
+		order: [["id", "ASC"]],
+	});
+	return roles.map(role => role.toJSON());
+}
+
 export default {
 	getAll,
 	getUserShows,
@@ -237,5 +245,6 @@ export default {
 	create,
 	update,
 	remove,
-	getDashboardSummary
+	getDashboardSummary,
+	getAvailableRoles
 };

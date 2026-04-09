@@ -78,7 +78,9 @@ export default function ShowInventory() {
 			);
 			if (roles.includes("director") || roles.includes("stage-manager")) return true;
 			if (roles.includes(dept)) return true;
-			if ((dept === "costumes" || dept === "props") && roles.includes("actor")) return true;
+			if (dept === "costumes" || dept === "props") {
+				return roles.includes("actor");
+			}
 			return false;
 		});
 	};
@@ -163,11 +165,11 @@ export default function ShowInventory() {
 		departments.some(d => userRoles.includes(d.name.toLowerCase()));
 
 	if (isLoading) {
-		return <div className="flex h-[calc(100vh-9rem)] items-center justify-center font-semibold text-gray-500 text-xl">Loading Show Inventory...</div>;
+		return <div className="flex min-h-[calc(100vh-9rem)] items-center justify-center font-semibold text-gray-500 text-xl">Loading Show Inventory...</div>;
 	}
 
 	return (
-		<div className="mx-auto flex h-[calc(100vh-9rem)] max-w-7xl flex-col p-4 sm:p-6 lg:p-8">
+		<div className="mx-auto flex min-h-[calc(100vh-9rem)] max-w-7xl flex-col p-4 sm:p-6 lg:p-8">
 			<div className="mb-6 flex items-center justify-between">
 				<div>
 					<Link to={`/orgs/${orgId}/shows/${showId}`} className="text-sm font-medium text-blue-600 hover:underline">

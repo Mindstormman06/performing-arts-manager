@@ -96,6 +96,15 @@ async function getDashboardSummary(req, res, next) {
 	}
 }
 
+async function getAvailableRoles(req, res, next) {
+	try {
+		const roles = await showService.getAvailableRoles();
+		res.json({ success: true, data: roles });
+	} catch (error) {
+		next(error);
+	}
+}
+
 export default {
 	get,
 	getUserShows,
@@ -103,5 +112,6 @@ export default {
 	create,
 	update,
 	remove,
-	getDashboardSummary
+	getDashboardSummary,
+	getAvailableRoles
 };

@@ -52,11 +52,11 @@ export default function OrgSchedule() {
     };
 
     if (isLoading) {
-        return <div className="flex h-[calc(100vh-9rem)] items-center justify-center font-semibold text-gray-500 text-xl">Loading Schedule...</div>;
+        return <div className="flex min-h-[calc(100vh-9rem)] items-center justify-center font-semibold text-gray-500 text-xl">Loading Schedule...</div>;
     }
 
     return (
-        <div className="mx-auto flex h-[calc(100vh-9rem)] max-w-7xl flex-col p-4 sm:p-6 lg:p-8">
+        <div className="mx-auto flex min-h-[calc(100vh-9rem)] max-w-7xl flex-col p-4 sm:p-6 lg:p-8">
             <CreateOrgEventModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} orgId={orgId} onSuccess={fetchScheduleData} />
             <ManageOrgEventModal isOpen={!!selectedEvent} onClose={() => setSelectedEvent(null)} orgId={orgId} event={selectedEvent} onSuccess={fetchScheduleData} />
 

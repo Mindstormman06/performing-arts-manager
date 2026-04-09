@@ -55,7 +55,7 @@ export default function ShowOverview() {
 
 	if (isLoading || !showData) {
 		return (
-			<div className="flex h-[calc(100vh-9rem)] items-center justify-center">
+			<div className="flex min-h-[calc(100vh-9rem)] items-center justify-center">
 				<div className="font-semibold text-gray-500 text-xl">
 					Loading Show Dashboard...
 				</div>
@@ -118,7 +118,7 @@ export default function ShowOverview() {
 	const selectedDayEvents = events.filter(e => new Date(e.start_time).toDateString() === selectedDate.toDateString());
 
 	return (
-		<div className="mx-auto flex h-[calc(100vh-9rem)] max-w-360 gap-6 p-4 sm:p-6 lg:p-8">
+		<div className="mx-auto flex min-h-[calc(100vh-9rem)] max-w-360 gap-6 p-4 sm:p-6 lg:p-8">
 			<ManageShowMembersModal
 				isOpen={isManageMembersModalOpen}
 				onClose={() => setIsManageMembersModalOpen(false)}

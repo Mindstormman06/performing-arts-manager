@@ -92,7 +92,7 @@ export default function OrgOverview() {
 
 	if (isLoading) {
 		return (
-			<div className="flex h-[calc(100vh-9rem)] items-center justify-center">
+			<div className="flex min-h-[calc(100vh-9rem)] items-center justify-center">
 				<div className="font-semibold text-gray-500 text-xl">
 					Loading Organization Data...
 				</div>
@@ -106,7 +106,7 @@ export default function OrgOverview() {
 	const presidentName = president ? `${president.User?.fname} ${president.User?.lname}` : "Unassigned";
 
 	return (
-		<div className="mx-auto flex h-[calc(100vh-9rem)] max-w-7xl flex-col p-4 sm:p-6 lg:p-8">
+		<div className="mx-auto flex min-h-[calc(100vh-9rem)] max-w-7xl flex-col p-4 sm:p-6 lg:p-8">
 			{/* Modals */}
 			<EditOrgModal isOpen={isEditOrgModalOpen} onClose={() => setIsEditOrgModalOpen(false)} onSuccess={fetchData} org={organization} />
 			<InviteMemberModal isOpen={isInviteModalOpen} onClose={() => setIsInviteModalOpen(false)} orgId={orgId} onSuccess={fetchData} />

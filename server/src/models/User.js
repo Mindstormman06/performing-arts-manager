@@ -18,7 +18,7 @@ export default (sequelize, DataTypes) => {
 			email: {
 				type: DataTypes.STRING(255),
 				allowNull: false,
-				unique: true,
+				unique: false,
 				validate: { isEmail: true },
 			},
 			phone: {

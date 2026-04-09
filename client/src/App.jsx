@@ -98,7 +98,7 @@ function App() {
 
 			{/* Main Content */}
 			<main
-				className={`flex-1 ${isLanding ? "bg-black" : "bg-gray-100"} ${shouldCenter ? "flex items-center justify-center" : ""}`}
+								className={`flex-1 ${isLanding ? "bg-black" : "bg-gray-100"} ${shouldCenter ? "flex items-center justify-center" : ""}`}
 			>
 				<Routes>
 					<Route path="/login" element={<LoginPage />} />

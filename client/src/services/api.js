@@ -72,6 +72,7 @@ export const removeUserFromShow = (showId, userId) =>
 export const removeShowUserRole = (showId, userId, roles) =>
 	API.delete(`/shows/${showId}/users/${userId}/roles`, { roles });
 export const getShowDashboard = (id) => API.get(`/shows/${id}/dashboard`);
+export const getAvailableShowRoles = () => API.get("/shows/roles/available");
 
 // Casting
 export const getShowCasting = (showId) => API.get(`/shows/${showId}/casting`);

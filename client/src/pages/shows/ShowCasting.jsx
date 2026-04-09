@@ -128,14 +128,14 @@ export default function ShowCasting() {
 
 	if (isLoading) {
 		return (
-			<div className="flex h-[calc(100vh-9rem)] items-center justify-center font-semibold text-gray-500 text-xl">
+			<div className="flex min-h-[calc(100vh-9rem)] items-center justify-center font-semibold text-gray-500 text-xl">
 				Loading Casting...
 			</div>
 		);
 	}
 
 	return (
-		<div className="mx-auto flex h-[calc(100vh-9rem)] max-w-7xl flex-col p-4 sm:p-6 lg:p-8">
+		<div className="mx-auto flex min-h-[calc(100vh-9rem)] max-w-7xl flex-col p-4 sm:p-6 lg:p-8">
 			<div className="mb-6">
 				<Link
 					to={`/orgs/${orgId}/shows/${showId}`}
