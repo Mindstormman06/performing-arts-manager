@@ -3,6 +3,64 @@ import bcrypt from "bcryptjs";
 import models from "./src/models/index.js";
 import sequelize from "./src/services/db.service.js";
 
+const HARD_CODED_PHOTO_PATH_BY_USER_ID = {
+    1: "/uploads/profiles/Laura.jpg",
+    2: "/uploads/profiles/Jade.jpg",
+    3: "/uploads/profiles/Joshua.jpg",
+    4: "/uploads/profiles/Bill.jpg",
+    5: "/uploads/profiles/Aiden.jpg",
+    6: "/uploads/profiles/Cathy.jpg",
+    7: "/uploads/profiles/Lily.jpg",
+    8: "/uploads/profiles/Raine.jpg",
+    9: "/uploads/profiles/Alex.jpg",
+    10: "/uploads/profiles/Dan.jpg",
+    11: "/uploads/profiles/Bowie.jpg",
+    12: "/uploads/profiles/Nora.jpg",
+    13: "/uploads/profiles/Jay.jpg",
+    14: "/uploads/profiles/Rob.jpg",
+    15: "/uploads/profiles/Lara.jpg",
+    16: "/uploads/profiles/Arwen.jpg",
+    17: "/uploads/profiles/Sarah.jpg",
+    18: "/uploads/profiles/Aaron.jpg",
+    19: "/uploads/profiles/Phillip.jpg",
+    20: "/uploads/profiles/Jessie.jpg",
+    22: "/uploads/profiles/Kael.jpg",
+    23: "/uploads/profiles/Cameron.jpg",
+    24: "/uploads/profiles/Will.jpg",
+    25: "/uploads/profiles/Max.jpg",
+    27: "/uploads/profiles/Tamalane.jpg",
+    28: "/uploads/profiles/Elys.jpg",
+};
+
+const HARD_CODED_BIO_BY_USER_ID = {
+    1: "This fall, Laura found herself listening to the radio and discovering Panto songs. \"So ok, it's time to direct again.\" She then chose this script because she imagined how much fun the cast would have with a space and alien theme. Watching the cast bring characters to life has been a delight. She thanks all the many hands and hearts that have said yes to bringing this project into its full glory. She hopes our colourful production will bring you, the audience, some lightness of being and some great belly laughs! Thank you for coming. Enjoy the show!",
+    2: "Jade, artist & dog lover by day, actor & singer by night, has been with the Shawnigan Players for 8 years. You might remember her role as Ellen-a-dale or Jacquenetta, Diana, Mercy Lewis, or as a mime in Hamlet. This panto will mark her first time playing a real man! Jade and Captain Dick Daring have lots in common, especially their gentlemanly ways. Need a pickle jar opened? Can't reach the top shelf? A pesky puddle blocking your way? Handkerchief in hand she's your man! Captain Dick Daring beloved by moms everywhere. Just ask nicely!",
+    3: "Joshua is excited to be directing his first play (the Tales of Conall Cra Bhuidhe) and to be playing the role of Void in Santa in Space. He has found a real passion for set design and thanks the Shawnigan Players for being such a welcoming group.",
+    4: "Bill is happy once again to be playing the part of 'ethereal fog!' That thing that lodges in yer mind when you're in the swamp of jollity and good cheer! Like chocolate peanut butter balls, ethereal fog will be playing in your mind as the bells ring and the swirling lights descend. Merry Bliss, travellers!",
+    5: "Aiden is thrilled to be working with the Shawnigan Players stage managing his first show! He started with the players as Dick in the 2024 production of Puss in Boots, and was recently spotted in both of the 2025 Shakespeare Festival shows. He would like to thank Cathy for being such an influential person in his life, and helping him grow into the person he is today.",
+    6: "It is an absolute honour to work with Laura Sirmul and the cast and crew of Santa in Space!! Cathy has been a choreographer in the valley for over 35 years, and is glad to be back for another Shawnigan Players pantomime!",
+    7: "After playing Princess Pamela in last years Puss In Boots, Lily is excited for the opportunity to play the chaotic Astra in this years panto! Lily was also seen recently with the Players in their Shakespeare Festival this past summer as Adriana in The Comedy of Errors and as the stage manger for Antony and Cleopatra. You can catch her in the New Year in Ladysmith Little Theatres production of Cabaret.",
+    8: "Raine is a sound designer and performer currently based in Vancouver. You may have seen him in other Shawnigan Players shows such as The Crucible, Tom Thumb, or the many Shakespeare plays. He is delighted to provide the sound effects for this production and hopes you have as much fun hearing them as he did making them!",
+    10: "Dan Leckey has previously appeared in Cymbeline, The Crucible, All's Well That Ends Well, Puss In Boots and had a wonderful time working with the crazy bunch of people who come together to stage these shows for our appreciative audiences. I hope you enjoy this show as much as we enjoy bringing them to you!",
+    11: "A Muppet brought to life by some dark magic, Bowie Farquharson is excited for their third production with the Shawnigan Players. After destroying audiences with their devastatingly emotional performance as Dromio in The Comedy of Errors they hope to bring the same visceral feeling to the role of Null in Santa in Space!",
+    12: "Nora has previously been seen on stage as the Serpent Dancer in Shawnigan Players' production of Antony and Cleopatra. It is a rare sight to see Nora outside of her natural habitat: Her living room. You can find her trying to get a pet crow, attempting to draw animals, drawing people in her own quirky style, listening to the most random music and nerding out over things like Deltarune, Undertale, fashion and fantasy fiction.",
+    13: "Meet jay-01. Jay can sing, it can act, and heck, on good days it can dance half decently! Jay has been featured in past shows such as the Comedy Of Errors and Love's Labour's Lost in the 2024 and 2025 Shakespeare festivals, alongside the Robin Hood pantomime in 2023! Get your own jay-01 today!! (Disclaimer: you cannot get your own jay today or ever as there is only one that has been made). We hope you enjoy the show!",
+    14: "Too fond of all the roles he's played for Shawnigan and Mercury Players over past six years, Rob could not choose a favourite. He is also grateful to Joni for the magical wisdom of her lyrics: \"We are stardust - billion year old carbon. We are golden - caught up in the devil's bargain. And we've got to get ourselves back to the Garden.\" - 'Woodstock' 1969.",
+    15: "Lara is a Bellydancer and thrilled to combine her isolation skills with Santa's magic! Last years pantomime she starred as Puss in \"Puss in Boots\" and slithered this summer as Charmian in Shakespeare's \"Antony and Cleopatra\". When she's not costuming or on stage, you'll find Lara surrounded with other creative wakkyness in her boutique \"Spinning Ninny\", downtown Duncan.",
+    16: "This is Arwen's second performance with the Shawnigan Players, but not her first time on the stage. She has also acted in Honk the Musical, in which she played Penny; her school's rendition of Shrek, in which she played Fiona; and multiple others including being an extra in a Hallmark movie. Somehow, she always ends up with the role of 'girlfriend.' (She's not complaining, though) She also sings, composes music, and is an avid writer.",
+    17: "Having worked her way up the ladder of social hierarchy in previous pantos by playing Maid Marian in Robin Hood followed by Queen Brenda in Puss in Boots, Sarah has finally stumbled upon the role which truly holds the reigns of power: screaming five-year-old. Non-panto roles include Iras in Antony and Cleopatra, Nathaniel in Love's Labours Lost, and Mariane in Tartuffe. When not playing theatrically, Sarah plays and teaches piano, cello, and classical voice.",
+    18: "This is Aaron's second Panto with the Shawnigan Players. He loves the fun energy of it. He thanks Laura for giving him the role of Monster and all the gravitas such a character entails.",
+    19: "Philip Allingham moved from Thunder Bay, Ontario, to Victoria, BC upon retirement from Lakehead University in June 2015, but has continued with The Victorian Web. He was last seen in Shawnigan Player's productions as Proculeius in Antony and Cleopatra and Reynaldo in Two Gentlemen of Verona. After decades off the boards with UBC and Vancouver Little Theatre, Philip returned to his first theatrical love, Shakespeare.",
+    20: "Jessie Johnson returns for another Pantomime adventure! You may remember her as Slugslime the giant evil slug, or the sweet and cheeky Daisy the Cow! When she's not bringing creatures to life on stage, Jessie is in her studio crafting one-of-a-kind art doll beings.",
+    21: "This summer Jordan Lyric joined the Shawnigan Players for the first time in their madcap presentation of The Comedy of Errors with his wife, Jessica and daughter, Ruby. Jordan is looking forward to sharing the stage with his daughter again this holiday season in their very first pantomime, Santa in Space.",
+    22: "Kael debuted with Shawnigan Players as the Tour Guide, in 2024's Puss 'N Boots. He stepped out of his comfort zone and joined the 2025 Shakespeare Festival and now he's happy to be back to choreography and regular English in Santa in Space and to test new skills at miming in The Tales of Conall Cra Bhuidhe.",
+    23: "Cameron is excited to play the leader of the varboites in the pantomime! He has been in the acting industry for 6 years. He thanks you for reading, and enjoy the show!",
+    25: "Max is very excited to be following in his Dad's footsteps and joining the Shawnigan Players for his first production. In his regular life he is busy with school at the Grove's Nature program and with 1st Cobble Hill Cub Scouts.",
+    26: "Ruby Lyric is very excited to perform in her second show with the Shawnigan Players after appearing in the Children's Chorus in The Comedy of Errors this past summer. Ruby also played the role of Flower Girl in the QMS production of Mamma Mia last year.",
+    27: "Tamalane Garside is returning to the theater after a 30-or-so year hiatus wherein she pretended to be a busy adult. While not sorting through piles of books or hunting down costumes, Tamalane can be found helping the Dame into her glamorous frock and ensuring the kids have snacks.",
+    28: "Elys Garside has recently done a drum performance. She is also interested in singing, dancing, making realistic drawings and folding paper claws. Elys hopes you enjoy the show.",
+};
+
 export default async function seed() {
     try {
         console.log("🔄 Wiping database and syncing tables...");
@@ -83,6 +141,12 @@ export default async function seed() {
             { id: 34, fname: "Kendra", lname: "Vanderzee", email: "kendravanderzee@gmail.com", phone: "778-269-1436", passwordHash },
             { id: 35, fname: "Joel", lname: "Perry", email: "747780@gmail.com", phone: "780-839-5635", passwordHash }
         ];
+        const userPhotoPathById = new Map(
+            Object.entries(HARD_CODED_PHOTO_PATH_BY_USER_ID).map(([id, photoPath]) => [Number(id), photoPath])
+        );
+        const userBioById = new Map(
+            Object.entries(HARD_CODED_BIO_BY_USER_ID).map(([id, bio]) => [Number(id), bio])
+        );
         await models.User.bulkCreate(usersData);
 
         // ------------------------
@@ -155,7 +219,12 @@ export default async function seed() {
             { users_id: 34, show_id: 1, status: "active" }, // Kendra: Makeup
             { users_id: 35, show_id: 1, status: "active" }  // Joel: Backup Crew
         ];
-        const santaMembers = await models.ShowMembership.bulkCreate(santaMembersData, { returning: true });
+        const santaMembersWithPhotos = santaMembersData.map(member => ({
+            ...member,
+            bio: userBioById.get(member.users_id) ?? null,
+            photo_path: userPhotoPathById.get(member.users_id) ?? null,
+        }));
+        const santaMembers = await models.ShowMembership.bulkCreate(santaMembersWithPhotos, { returning: true });
 
         // Map user IDs to show memberships for Scottish Play
         const spMembersData = [
@@ -170,7 +239,12 @@ export default async function seed() {
             { users_id: 23, show_id: 2, status: "active" }, // Cameron: Varb Leader & Miller & Kings Mother
             { users_id: 25, show_id: 2, status: "active" }  // Max: Son 3
         ];
-        const spMembers = await models.ShowMembership.bulkCreate(spMembersData, { returning: true });
+        const spMembersWithPhotos = spMembersData.map(member => ({
+            ...member,
+            bio: userBioById.get(member.users_id) ?? null,
+            photo_path: userPhotoPathById.get(member.users_id) ?? null,
+        }));
+        const spMembers = await models.ShowMembership.bulkCreate(spMembersWithPhotos, { returning: true });
 
         // Assign Show Roles for Santa in Space
         await models.ShowRoleRelationship.bulkCreate([
@@ -359,52 +433,52 @@ export default async function seed() {
 
         // Lighting Inventory
         inventory.push(
-            { id: invId++, name: "ETC Source Four 36°", description: "Standard ellipsoidal reflector spotlight", dept_id: 1, is_global: 1, added_by: 5, org_id: 1, photo_path: "/uploads/etcsource4.jpg" },
-            { id: invId++, name: "Chauvet COLORado 2 Quad", description: "LED moving head fixture", dept_id: 1, is_global: 1, added_by: 5, org_id: 1, photo_path: "/uploads/chauvetcolorado2quad.jpg" },
-            { id: invId++, name: "ADJ Vizi Beam LED", description: "Moving head beam light", dept_id: 1, is_global: 1, added_by: 5, org_id: 1, photo_path: "/uploads/adjvizibeamled.webp" },
-            { id: invId++, name: "Stage Lighting Console", description: "ETC Ion lighting control console", dept_id: 1, is_global: 1, added_by: 5, org_id: 1, photo_path: "/uploads/etcionlightingconsole.png" },
+            { id: invId++, name: "ETC Source Four 36°", description: "Standard ellipsoidal reflector spotlight", dept_id: 1, is_global: 1, added_by: 5, org_id: 1, photo_path: "/uploads/inventory/etcsource4.jpg" },
+            { id: invId++, name: "Chauvet COLORado 2 Quad", description: "LED moving head fixture", dept_id: 1, is_global: 1, added_by: 5, org_id: 1, photo_path: "/uploads/inventory/chauvetcolorado2quad.jpg" },
+            { id: invId++, name: "ADJ Vizi Beam LED", description: "Moving head beam light", dept_id: 1, is_global: 1, added_by: 5, org_id: 1, photo_path: "/uploads/inventory/adjvizibeamled.webp" },
+            { id: invId++, name: "Stage Lighting Console", description: "ETC Ion lighting control console", dept_id: 1, is_global: 1, added_by: 5, org_id: 1, photo_path: "/uploads/inventory/etcionlightingconsole.png" },
             { id: invId++, name: "Cyc Bar", description: "LED cyc light for backdrop", dept_id: 1, is_global: 1, added_by: 5, org_id: 1, photo_path: "/uploads/cycbar.webp" }
         );
 
         // Sound Inventory
         inventory.push(
-            { id: invId++, name: "Shure SM58 Microphone", description: "Dynamic vocal microphone", dept_id: 2, is_global: 1, added_by: 8, org_id: 1, photo_path: "/uploads/shuresm58mic.jpg" },
-            { id: invId++, name: "Wireless Mic Pack", description: "Shure ULX wireless microphone system", dept_id: 2, is_global: 1, added_by: 8, org_id: 1, photo_path: "/uploads/shureulxwirelessmic.webp" },
-            { id: invId++, name: "Soundcraft Si Mixer", description: "Digital sound mixing console", dept_id: 2, is_global: 1, added_by: 8, org_id: 1, photo_path: "/uploads/soundcraftsimixer.jpg" },
-            { id: invId++, name: "JBL PA Speakers", description: "Professional PA speaker pair", dept_id: 2, is_global: 1, added_by: 8, org_id: 1, photo_path: "/uploads/jblpaspeakers.jpg" }
+            { id: invId++, name: "Shure SM58 Microphone", description: "Dynamic vocal microphone", dept_id: 2, is_global: 1, added_by: 8, org_id: 1, photo_path: "/uploads/inventory/shuresm58mic.jpg" },
+            { id: invId++, name: "Wireless Mic Pack", description: "Shure ULX wireless microphone system", dept_id: 2, is_global: 1, added_by: 8, org_id: 1, photo_path: "/uploads/inventory/shureulxwirelessmic.webp" },
+            { id: invId++, name: "Soundcraft Si Mixer", description: "Digital sound mixing console", dept_id: 2, is_global: 1, added_by: 8, org_id: 1, photo_path: "/uploads/inventory/soundcraftsimixer.jpg" },
+            { id: invId++, name: "JBL PA Speakers", description: "Professional PA speaker pair", dept_id: 2, is_global: 1, added_by: 8, org_id: 1, photo_path: "/uploads/inventory/jblpaspeakers.jpg" }
         );
 
         // Costume Inventory
         inventory.push(
-            { id: invId++, name: "Santa Suit", description: "Full Santa costume for Santa in Space", dept_id: 3, is_global: 0, added_by: 1, org_id: 1, photo_path: "/uploads/santasuit.jpg" },
-            { id: invId++, name: "Alien Costumes Set", description: "Colorful alien outfits (10 pieces)", dept_id: 3, is_global: 0, added_by: 1, org_id: 1, photo_path: "/uploads/aliencostume.jpg" },
-            { id: invId++, name: "Victorian Period Costumes", description: "Scottish Play period costumes", dept_id: 3, is_global: 0, added_by: 3, org_id: 1, photo_path: "/uploads/victorianscottishcostume.webp" },
-            { id: invId++, name: "Wig Collection", description: "Various wigs for characters", dept_id: 3, is_global: 1, added_by: 1, org_id: 1, photo_path: "/uploads/wigs.webp" },
-            { id: invId++, name: "Dance Costumes", description: "Modern dance costumes (8 pieces)", dept_id: 3, is_global: 0, added_by: 6, org_id: 1, photo_path: "/uploads/dancecostume.webp" }
+            { id: invId++, name: "Santa Suit", description: "Full Santa costume for Santa in Space", dept_id: 3, is_global: 0, added_by: 1, org_id: 1, photo_path: "/uploads/inventory/santasuit.jpg" },
+            { id: invId++, name: "Alien Costumes Set", description: "Colorful alien outfits (10 pieces)", dept_id: 3, is_global: 0, added_by: 1, org_id: 1, photo_path: "/uploads/inventory/aliencostume.jpg" },
+            { id: invId++, name: "Victorian Period Costumes", description: "Scottish Play period costumes", dept_id: 3, is_global: 0, added_by: 3, org_id: 1, photo_path: "/uploads/inventory/victorianscottishcostume.webp" },
+            { id: invId++, name: "Wig Collection", description: "Various wigs for characters", dept_id: 3, is_global: 1, added_by: 1, org_id: 1, photo_path: "/uploads/inventory/wigs.webp" },
+            { id: invId++, name: "Dance Costumes", description: "Modern dance costumes (8 pieces)", dept_id: 3, is_global: 0, added_by: 6, org_id: 1, photo_path: "/uploads/inventory/dancecostume.webp" }
         );
 
         // Props Inventory
         inventory.push(
-            { id: invId++, name: "Prop Space Blaster", description: "Futuristic gun prop for Santa in Space", dept_id: 4, is_global: 0, added_by: 1, org_id: 1, photo_path: "/uploads/spaceblasterprop.jpg" },
-            { id: invId++, name: "Scottish Claymore Sword", description: "Replica sword for fight choreography", dept_id: 4, is_global: 0, added_by: 3, org_id: 1, photo_path: "/uploads/scottishclaymore.JPG" },
-            { id: invId++, name: "Prop Presents & Gifts", description: "Gift boxes and wrapped presents", dept_id: 4, is_global: 0, added_by: 1, org_id: 1, photo_path: "/uploads/giftboxesprop.jpg" },
-            { id: invId++, name: "Crowns & Tiaras", description: "Assorted royal headpieces", dept_id: 4, is_global: 1, added_by: 1, org_id: 1, photo_path: "/uploads/crowns.jpg" },
-            { id: invId++, name: "Scepters & Staffs", description: "Royal and magical staffs", dept_id: 4, is_global: 1, added_by: 1, org_id: 1, photo_path: "/uploads/royalstaff.jpg" }
+            { id: invId++, name: "Prop Space Blaster", description: "Futuristic gun prop for Santa in Space", dept_id: 4, is_global: 0, added_by: 1, org_id: 1, photo_path: "/uploads/inventory/spaceblasterprop.jpg" },
+            { id: invId++, name: "Scottish Claymore Sword", description: "Replica sword for fight choreography", dept_id: 4, is_global: 0, added_by: 3, org_id: 1, photo_path: "/uploads/inventory/scottishclaymore.JPG" },
+            { id: invId++, name: "Prop Presents & Gifts", description: "Gift boxes and wrapped presents", dept_id: 4, is_global: 0, added_by: 1, org_id: 1, photo_path: "/uploads/inventory/giftboxesprop.jpg" },
+            { id: invId++, name: "Crowns & Tiaras", description: "Assorted royal headpieces", dept_id: 4, is_global: 1, added_by: 1, org_id: 1, photo_path: "/uploads/inventory/crowns.jpg" },
+            { id: invId++, name: "Scepters & Staffs", description: "Royal and magical staffs", dept_id: 4, is_global: 1, added_by: 1, org_id: 1, photo_path: "/uploads/inventory/royalstaff.jpg" }
         );
 
         // Sets/Scenic Inventory
         inventory.push(
-            { id: invId++, name: "Space Ship Set Pieces", description: "Modular spaceship set elements", dept_id: 5, is_global: 0, added_by: 3, org_id: 1, photo_path: "/uploads/spaceshipset.webp" },
-            { id: invId++, name: "Castle Backdrop", description: "Large backdrop for Scottish scenes", dept_id: 5, is_global: 0, added_by: 3, org_id: 1, photo_path: "/uploads/castlebackdrop.jpg" },
-            { id: invId++, name: "Throne Chair", description: "Ornate throne for royal scenes", dept_id: 5, is_global: 1, added_by: 3, org_id: 1, photo_path: "/uploads/throne.webp" },
-            { id: invId++, name: "Stairs & Platforms", description: "Modular stage stairs (6 units)", dept_id: 5, is_global: 1, added_by: 3, org_id: 1, photo_path: "/uploads/stagestairs.jpeg" },
-            { id: invId++, name: "Door Frames", description: "Portable door frames (4 units)", dept_id: 5, is_global: 1, added_by: 3, org_id: 1, photo_path: "/uploads/doorframe.webp" }
+            { id: invId++, name: "Space Ship Set Pieces", description: "Modular spaceship set elements", dept_id: 5, is_global: 0, added_by: 3, org_id: 1, photo_path: "/uploads/inventory/spaceshipset.webp" },
+            { id: invId++, name: "Castle Backdrop", description: "Large backdrop for Scottish scenes", dept_id: 5, is_global: 0, added_by: 3, org_id: 1, photo_path: "/uploads/inventory/castlebackdrop.jpg" },
+            { id: invId++, name: "Throne Chair", description: "Ornate throne for royal scenes", dept_id: 5, is_global: 1, added_by: 3, org_id: 1, photo_path: "/uploads/inventory/throne.webp" },
+            { id: invId++, name: "Stairs & Platforms", description: "Modular stage stairs (6 units)", dept_id: 5, is_global: 1, added_by: 3, org_id: 1, photo_path: "/uploads/inventory/stagestairs.jpeg" },
+            { id: invId++, name: "Door Frames", description: "Portable door frames (4 units)", dept_id: 5, is_global: 1, added_by: 3, org_id: 1, photo_path: "/uploads/inventory/doorframe.webp" }
         );
 
         // Front of House
         inventory.push(
-            { id: invId++, name: "Easel Signs", description: "Welcome/Info easel signs (4)", dept_id: 6, is_global: 1, added_by: 1, org_id: 1, photo_path: "/uploads/easel.jpg" },
-            { id: invId++, name: "Program Printing Setup", description: "Poster and program printing materials", dept_id: 6, is_global: 1, added_by: 1, org_id: 1, photo_path: "/uploads/programprinting.jpg" }
+            { id: invId++, name: "Easel Signs", description: "Welcome/Info easel signs (4)", dept_id: 6, is_global: 1, added_by: 1, org_id: 1, photo_path: "/uploads/inventory/easel.jpg" },
+            { id: invId++, name: "Program Printing Setup", description: "Poster and program printing materials", dept_id: 6, is_global: 1, added_by: 1, org_id: 1, photo_path: "/uploads/inventory/programprinting.jpg" }
         );
 
         await models.Inventory.bulkCreate(inventory);
