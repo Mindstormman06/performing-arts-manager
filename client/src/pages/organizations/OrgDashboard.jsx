@@ -177,7 +177,7 @@ export default function OrgDashboard() {
 												Active
 											</span>
 											<span className="font-semibold text-blue-600 text-sm transition-transform group-hover:translate-x-0.5">
-												Open ->
+												Open →
 											</span>
 										</div>
 									</div>

@@ -28,7 +28,7 @@ import {
     ModalInputParent
 } from "../../ui/modals/index.js";
 
-export default function CreateEventModal({ isOpen, onClose, showId, onSuccess }) {
+export default function CreateEventModal({ isOpen, onClose, showId, onSuccess, initialDate = "" }) {
     const [activeTab, setActiveTab] = useState("details");
     const [formData, setFormData] = useState({ title: "", date: "", start_time: "", end_time: "", location: "", description: "" });
     const [showMembers, setShowMembers] = useState([]);
@@ -53,7 +53,7 @@ export default function CreateEventModal({ isOpen, onClose, showId, onSuccess })
     useEffect(() => {
         if (isOpen) {
             setActiveTab("details");
-            setFormData({ title: "", date: "", start_time: "", end_time: "", location: "", description: "" });
+          setFormData({ title: "", date: initialDate || "", start_time: "", end_time: "", location: "", description: "" });
             setSelectedUserIds([]);
             setSelectedCharacterIds([]);
             setError("");
@@ -89,7 +89,7 @@ export default function CreateEventModal({ isOpen, onClose, showId, onSuccess })
                 setError("Failed to load show members");
             });
         }
-    }, [isOpen, showId]);
+      }, [isOpen, showId, initialDate]);
 
     const handleCreateEvent = async () => {
         if (!formData.title || !formData.date || !formData.start_time || !formData.end_time) {

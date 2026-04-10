@@ -23,7 +23,7 @@ import {
     ModalCheckboxItem,
 } from "../../ui/modals/index.js";
 
-export default function CreateOrgEventModal({ isOpen, onClose, orgId, onSuccess }) {
+export default function CreateOrgEventModal({ isOpen, onClose, orgId, onSuccess, initialDate = "" }) {
     const [activeTab, setActiveTab] = useState("details");
     const [formData, setFormData] = useState({ title: "", date: "", start_time: "", end_time: "", location: "", description: "" });
     const [orgMembers, setOrgMembers] = useState([]);
@@ -35,7 +35,7 @@ export default function CreateOrgEventModal({ isOpen, onClose, orgId, onSuccess 
     useEffect(() => {
         if (isOpen) {
             setActiveTab("details");
-            setFormData({ title: "", date: "", start_time: "", end_time: "", location: "", description: "" });
+          setFormData({ title: "", date: initialDate || "", start_time: "", end_time: "", location: "", description: "" });
             setSelectedUserIds([]);
             setError("");
 
@@ -48,7 +48,7 @@ export default function CreateOrgEventModal({ isOpen, onClose, orgId, onSuccess 
                 setError("Failed to load organizations members");
             });
         }
-    }, [isOpen, orgId]);
+      }, [isOpen, orgId, initialDate]);
 
     const isRoleFullySelected = (role) => {
         const usersWithRole = orgMembers.filter((member) =>
