@@ -200,6 +200,7 @@ export default function ShowOverview() {
 						>
 							<ScheduleCalendarView
 								events={events}
+								fillSpace
 								onEventClick={(event) => setSelectedCalendarEvent(event)}
 							/>
 						</DashboardSection>

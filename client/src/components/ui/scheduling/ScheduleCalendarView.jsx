@@ -7,6 +7,7 @@ export default function ScheduleCalendarView({
 	 events = [],
 	 onDateClick,
 	 onEventClick,
+	fillSpace = false,
  }) {
 	const calendarEvents = events.map((event) => ({
 		id: String(event.id),
@@ -34,13 +35,14 @@ export default function ScheduleCalendarView({
 				eventDisplay="block"
 				displayEventTime={false} /* <-- ADDED THIS PROP */
 				dayMaxEvents={3}
-				fixedWeekCount={false}
+				fixedWeekCount={fillSpace}
+				expandRows={fillSpace}
 				showNonCurrentDates={true}
 				dayCellClassNames="cursor-pointer transition-colors hover:bg-gray-50"
 				moreLinkClick="popover"
 				allDaySlot={false}
-				aspectRatio={1.65}
-				contentHeight="auto"
+				aspectRatio={fillSpace ? undefined : 1.65}
+				contentHeight={fillSpace ? undefined : "auto"}
 			/>
 		</div>
 	);
