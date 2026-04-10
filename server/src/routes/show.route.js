@@ -1,9 +1,9 @@
 import Router from "express";
 
+import upload, { setUploadSubDir } from "../config/multer.config.js";
 import castingController from "../controllers/casting.controller.js";
 import showController from "../controllers/show.controller.js";
 import showMembershipController from "../controllers/showMembership.controller.js";
-import upload from "../config/multer.config.js";
 import {
 	authenticate,
 	authorizeOrg,
@@ -77,6 +77,7 @@ router.delete(
 router.put(
 	"/:showId/users/:userId/profile",
 	authenticate,
+	setUploadSubDir("profiles"),
 	upload.single("photo"),
 	showMembershipController.updateProfile,
 );

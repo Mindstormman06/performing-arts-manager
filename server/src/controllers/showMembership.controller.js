@@ -163,7 +163,7 @@ async function updateProfile(req, res, next) {
 	try {
 		const { showId, userId } = req.params;
 		const { bio } = req.body;
-		const photoPath = req.file ? req.file.filename : undefined;
+		const photoPath = req.file ? `/uploads/profiles/${req.file.filename}` : undefined;
 
 		// Authorization check: Only the user themselves or an admin/director can update the profile
 		// (Simplified for now, but following standard patterns)
