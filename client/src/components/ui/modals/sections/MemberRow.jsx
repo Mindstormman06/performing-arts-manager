@@ -5,6 +5,7 @@ export default function MemberRow({
 	member,
 	onEditRoles,
 	onRemove,
+	canEditRoles = true,
 	showStatus = false,
 }) {
 	return (
@@ -40,7 +41,7 @@ export default function MemberRow({
 
 			{/* Actions */}
 			<div className="flex gap-2 sm:gap-3">
-				{member.assignedRoles && member.assignedRoles.length >= 0 && (
+				{canEditRoles && member.assignedRoles && member.assignedRoles.length >= 0 && (
 					<ModalHyperButton
 						type="button"
 						onClick={() => onEditRoles(member)}

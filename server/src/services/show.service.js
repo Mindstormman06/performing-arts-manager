@@ -180,7 +180,7 @@ async function getDashboardSummary(showId, viewerUserId) {
 			{
 				model: models.ShowMembership,
 				include: [
-					{ model: models.User, attributes: ["id", "fname", "lname"] },
+					{ model: models.User, attributes: ["id", "fname", "lname", "email", "phone"] },
 					{ model: models.ShowRole, as: "assignedRoles" }
 				]
 			},

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { getShowDashboard, getShowCalendar } from "../../services/api.js";
+import { getShowDashboard, getShowCalendar, verifyToken } from "../../services/api.js";
 import DashboardSection from "../../components/ui/DashboardSection.jsx";
 import MemberListItem from "../../components/ui/users/MemberListItem.jsx";
 import ManageShowMembersModal from "../../components/modals/Shows/ManageShowMembersModal.jsx";
@@ -19,14 +19,25 @@ export default function ShowOverview() {
 	const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
 	const [selectedUser, setSelectedUser] = useState(null);
 	const [selectedCalendarEvent, setSelectedCalendarEvent] = useState(null);
+	const [currentUserRoles, setCurrentUserRoles] = useState([]);
 
 	const fetchData = useCallback(async () => {
 		try {
 			setIsLoading(true);
-			const [dashboardRes, calendarRes] = await Promise.all([
+			const [dashboardRes, calendarRes, authRes] = await Promise.all([
 				getShowDashboard(showId),
-				getShowCalendar(showId)
+				getShowCalendar(showId),
+				verifyToken(),
 			]);
+			const currentUserId = authRes.data.user.id;
+			const currentMember = (dashboardRes.data.data?.members || []).find(
+				(member) => member.User?.id === currentUserId || member.users_id === currentUserId,
+			);
+			setCurrentUserRoles(
+				(currentMember?.assignedRoles || []).map((role) =>
+					String(role.name || "").toLowerCase(),
+				),
+			);
 			setShowData(dashboardRes.data.data);
 			setEvents(calendarRes.data.data || []);
 		} catch (err) {
@@ -91,6 +102,10 @@ export default function ShowOverview() {
 		return roles.length > 0 ? roles.join(", ") : "No roles assigned";
 	};
 
+	const canEditRoles = currentUserRoles.some((role) =>
+		["president", "board-member", "director", "stage-manager", "admin"].includes(role),
+	);
+
 	return (
 		<div className="mx-auto flex min-h-[calc(100vh-9rem)] max-w-360 gap-6 p-4 sm:p-6 lg:p-8">
 			<ManageShowMembersModal
@@ -99,6 +114,7 @@ export default function ShowOverview() {
 				orgId={orgId}
 				showId={showId}
 				members={showData?.members || []}
+				canEditRoles={canEditRoles}
 				onSuccess={fetchData}
 			/>
 			<RoleModal
@@ -106,6 +122,7 @@ export default function ShowOverview() {
 				onClose={() => setIsRoleModalOpen(false)}
 				user={selectedUser}
 				showId={showId}
+				canEditRoles={canEditRoles}
 				onSuccess={fetchData}
 			/>
 
