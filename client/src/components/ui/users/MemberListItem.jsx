@@ -1,4 +1,4 @@
-export default function MemberListItem({ member, onClick }) {
+export default function MemberListItem({ member, onClick, secondaryText }) {
     const { fname, lname } = member.User || {};
     const initials = `${fname?.charAt(0) || ""}${lname?.charAt(0) || ""}`;
     const isPending = member.status === "pending";
@@ -18,11 +18,18 @@ export default function MemberListItem({ member, onClick }) {
                     {initials}
                 </div>
                 
-                <div className="flex flex-1 items-center justify-between min-w-0">
-                    <span className="truncate">
-                        {fname} {lname}
-                    </span>
-                    
+                <div className="flex min-w-0 flex-1 items-center justify-between">
+                    <div className="min-w-0">
+                        <span className="block truncate">
+                            {fname} {lname}
+                        </span>
+                        {secondaryText && (
+                            <span className="mt-0.5 block truncate text-[11px] font-normal text-gray-500">
+                                {secondaryText}
+                            </span>
+                        )}
+                    </div>
+
                     {isPending && (
                         <span className="ml-2 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-600 uppercase tracking-wider border border-amber-100">
                             Pending

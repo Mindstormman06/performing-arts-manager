@@ -76,6 +76,21 @@ export default function ShowOverview() {
 			minute: "2-digit",
 		});
 
+	const sortedMembers = [...(showData.members || [])].sort((a, b) => {
+		const aFirst = String(a.User?.fname || "").toLowerCase();
+		const aLast = String(a.User?.lname || "").toLowerCase();
+		const bFirst = String(b.User?.fname || "").toLowerCase();
+		const bLast = String(b.User?.lname || "").toLowerCase();
+		const fullA = `${aLast} ${aFirst}`.trim();
+		const fullB = `${bLast} ${bFirst}`.trim();
+		return fullA.localeCompare(fullB);
+	});
+
+	const getRoleSubtitle = (member) => {
+		const roles = (member.assignedRoles || []).map((role) => role.name).filter(Boolean);
+		return roles.length > 0 ? roles.join(", ") : "No roles assigned";
+	};
+
 	return (
 		<div className="mx-auto flex min-h-[calc(100vh-9rem)] max-w-360 gap-6 p-4 sm:p-6 lg:p-8">
 			<ManageShowMembersModal
@@ -222,11 +237,12 @@ export default function ShowOverview() {
 							onActionClick={() => setIsManageMembersModalOpen(true)}
 						>
 							<ul className="space-y-3">
-								{showData.members?.length > 0 ? (
-									showData.members.map((m) => (
+								{sortedMembers.length > 0 ? (
+									sortedMembers.map((m) => (
 										<MemberListItem
 											key={m.assignment_id || m.id}
 											member={m}
+											secondaryText={getRoleSubtitle(m)}
 											onClick={() => {
 												setSelectedUser(m);
 												setIsRoleModalOpen(true);
