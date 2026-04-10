@@ -55,4 +55,20 @@ async function inviteByEmail(orgId, showId, email) {
 
 }
 
-export default { addUserToShow, inviteByEmail };
+async function updateProfile(showId, userId, bio, photoPath) {
+	const membership = await models.ShowMembership.findOne({
+		where: { show_id: showId, users_id: userId },
+	});
+
+	if (!membership) {
+		throw new Error("Show membership not found.");
+	}
+
+	const updateData = {};
+	if (bio !== undefined) updateData.bio = bio;
+	if (photoPath !== undefined) updateData.photo_path = photoPath;
+
+	return await membership.update(updateData);
+}
+
+export default { addUserToShow, inviteByEmail, updateProfile };

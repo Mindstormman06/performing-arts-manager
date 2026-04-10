@@ -19,6 +19,14 @@ export default (sequelize, DataTypes) => {
 				type: DataTypes.ENUM("pending", "active"),
 				defaultValue: "pending",
 			},
+			bio: {
+				type: DataTypes.TEXT,
+				allowNull: true,
+			},
+			photo_path: {
+				type: DataTypes.STRING(255),
+				allowNull: true,
+			},
 		},
 		{ tableName: "show_has_users", timestamps: false },
 	);

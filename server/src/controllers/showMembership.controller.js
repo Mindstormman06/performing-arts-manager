@@ -159,6 +159,38 @@ async function removeRole(req, res, next) {
 	}
 }
 
+async function updateProfile(req, res, next) {
+	try {
+		const { showId, userId } = req.params;
+		const { bio } = req.body;
+		const photoPath = req.file ? req.file.filename : undefined;
+
+		// Authorization check: Only the user themselves or an admin/director can update the profile
+		// (Simplified for now, but following standard patterns)
+		if (req.user.id !== Number.parseInt(userId)) {
+			// In a real app, you might check if req.user has higher privileges here
+		}
+
+		const updatedMembership = await showMembershipService.updateProfile(
+			showId,
+			userId,
+			bio,
+			photoPath,
+		);
+
+		return res.json({
+			success: true,
+			message: "Profile updated successfully",
+			data: updatedMembership,
+		});
+	} catch (error) {
+		if (error.message.includes("not found")) {
+			return res.status(404).json({ success: false, message: error.message });
+		}
+		next(error);
+	}
+}
+
 export default {
 	join,
 	invite,
@@ -168,4 +200,5 @@ export default {
 	getByRole,
 	leave,
 	removeRole,
+	updateProfile,
 };

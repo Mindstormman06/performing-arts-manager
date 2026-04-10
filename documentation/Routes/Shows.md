@@ -96,4 +96,13 @@
         * { error: "Show not found" }
         * { error: "User is not a member of this show" }
 
+ ## PUT /api/shows/:showId/users/:userId/profile
+ * Update user profile (bio and/or photo) for a specific show
+ * Body (Multipart/form-data):
+    *   bio (string): Show-specific biography
+    *   photo (file): Profile image
+ * Returns:
+    *   200: { success: true, message: "Profile updated successfully", data: { bio, photo_path, ... } }
+    *   404: { success: false, message: "Show membership not found." }
+
 
