@@ -343,7 +343,7 @@ async function seed() {
             { id: invId++, name: "Chauvet COLORado 2 Quad", description: "LED moving head fixture", dept_id: 1, is_global: 1, added_by: 5, org_id: 1, photo_path: "/uploads/inventory/chauvetcolorado2quad.jpg" },
             { id: invId++, name: "ADJ Vizi Beam LED", description: "Moving head beam light", dept_id: 1, is_global: 1, added_by: 5, org_id: 1, photo_path: "/uploads/inventory/adjvizibeamled.webp" },
             { id: invId++, name: "Stage Lighting Console", description: "ETC Ion lighting control console", dept_id: 1, is_global: 1, added_by: 5, org_id: 1, photo_path: "/uploads/inventory/etcionlightingconsole.png" },
-            { id: invId++, name: "Cyc Bar", description: "LED cyc light for backdrop", dept_id: 1, is_global: 1, added_by: 5, org_id: 1, photo_path: "/uploads/cycbar.webp" }
+            { id: invId++, name: "Cyc Bar", description: "LED cyc light for backdrop", dept_id: 1, is_global: 1, added_by: 5, org_id: 1, photo_path: "/uploads/inventory/cycbar.webp" }
         );
 
         // Sound Inventory

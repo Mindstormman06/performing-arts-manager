@@ -53,6 +53,14 @@ export default function ShowOverview() {
 
 	const desktopPanelHeightClass = "xl:h-[clamp(44rem,calc(100vh-15rem),56rem)]";
 
+	// Add/remove paths here to mark sidebar items as under construction.
+	const underConstructionPaths = new Set([
+		"notes",
+		"budgets",
+		"tech",
+		"files",
+	]);
+
 	const navLinks = [
 		{ name: "Inventory", path: "inventory", icon: "📦" },
 		{ name: "Notes", path: "notes", icon: "📝" },
@@ -197,16 +205,34 @@ export default function ShowOverview() {
 					<p className="mt-1 text-gray-400 text-sm">Show Dashboard</p>
 				</div>
 				<nav className="flex-1 space-y-2 overflow-y-auto p-4">
-					{navLinks.map((link) => (
-						<Link
-							key={link.name}
-							to={`/orgs/${orgId}/shows/${showId}/${link.path}`}
-							className="flex items-center gap-3 rounded-lg px-4 py-3 font-medium text-gray-700 transition-colors hover:bg-blue-50 hover:text-blue-700"
-						>
-							<span>{link.icon}</span>
-							{link.name}
-						</Link>
-					))}
+					{navLinks.map((link) => {
+						const isUnderConstruction = underConstructionPaths.has(link.path);
+
+						if (isUnderConstruction) {
+							return (
+								<div
+									key={link.name}
+									className="flex cursor-not-allowed items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 font-medium text-amber-700"
+									title="Under construction"
+									aria-disabled="true"
+								>
+									<span>🚧</span>
+									{link.name}
+								</div>
+							);
+						}
+
+						return (
+							<Link
+								key={link.name}
+								to={`/orgs/${orgId}/shows/${showId}/${link.path}`}
+								className="flex items-center gap-3 rounded-lg px-4 py-3 font-medium text-gray-700 transition-colors hover:bg-blue-50 hover:text-blue-700"
+							>
+								<span>{link.icon}</span>
+								{link.name}
+							</Link>
+						);
+					})}
 				</nav>
 			</aside>
 
