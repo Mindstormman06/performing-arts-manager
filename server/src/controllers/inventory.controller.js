@@ -18,7 +18,7 @@ async function getGlobal(req, res, next) {
 
 async function createGlobal(req, res, next) {
 	try {
-		const photoPath = req.file ? `/uploads/${req.file.filename}` : null;
+		const photoPath = req.file ? `/uploads/inventory/${req.file.filename}` : null;
 		const item = await inventoryService.createGlobalItem(
 			req.params.orgId,
 			req.body,
@@ -59,7 +59,7 @@ async function getShowInventory(req, res, next) {
 
 async function createShowItem(req, res, next) {
 	try {
-		const photoPath = req.file ? `/uploads/${req.file.filename}` : null;
+		const photoPath = req.file ? `/uploads/inventory/${req.file.filename}` : null;
 		const item = await inventoryService.createShowItem(
 			req.params.showId,
 			req.body,

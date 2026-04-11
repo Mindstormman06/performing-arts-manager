@@ -6,8 +6,8 @@ export default function InventoryPhotoCell({ photoPath, itemName }) {
 
 	if (!photoPath) {
 		return (
-			<div className="flex h-12 w-12 items-center justify-center rounded-lg border border-dashed border-gray-300 bg-gray-50">
-				<span className="text-gray-400 text-lg">📷</span>
+			<div className="flex h-16 w-16 items-center justify-center rounded-lg border border-dashed border-gray-300 bg-gray-50">
+				<span className="text-gray-400 text-2xl">📷</span>
 			</div>
 		);
 	}
@@ -24,7 +24,7 @@ export default function InventoryPhotoCell({ photoPath, itemName }) {
 				<img
 					src={fullImageUrl}
 					alt={itemName}
-					className="h-12 w-12 object-cover"
+					className="h-16 w-16 object-cover"
 				/>
 			</button>
 

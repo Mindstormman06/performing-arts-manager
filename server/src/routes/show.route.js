@@ -1,5 +1,6 @@
 import Router from "express";
 
+import upload, { setUploadSubDir } from "../config/multer.config.js";
 import castingController from "../controllers/casting.controller.js";
 import showController from "../controllers/show.controller.js";
 import showMembershipController from "../controllers/showMembership.controller.js";
@@ -70,6 +71,15 @@ router.delete("/:showId/users/:userId", showMembershipController.leave);
 router.delete(
 	"/:showId/users/:userId/roles",
 	showMembershipController.removeRole,
+);
+
+// UPDATE user profile (bio and/or photo) for a specific show
+router.put(
+	"/:showId/users/:userId/profile",
+	authenticate,
+	setUploadSubDir("profiles"),
+	upload.single("photo"),
+	showMembershipController.updateProfile,
 );
 
 // Casting (characters)

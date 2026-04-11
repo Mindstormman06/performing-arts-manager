@@ -140,3 +140,6 @@ vite.config.ts.timestamp-*
 
 .idea/
 server/docker-compose.yml
+documentation/DB/data.csv
+server/uploads/profiles/
+server/seed-users.local.js

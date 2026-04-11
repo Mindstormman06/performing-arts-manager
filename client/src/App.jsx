@@ -80,7 +80,7 @@ function App() {
 										to="/organizations"
 										className="cursor-pointer rounded-md px-3 py-2 hover:bg-blue-700"
 									>
-										Dashboard
+										Organizations
 									</Link>
 									<button
 										onClick={logout}

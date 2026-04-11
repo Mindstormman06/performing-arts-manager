@@ -1,9 +1,12 @@
 import bcrypt from "bcryptjs";
 
+import { seedUsers } from "./seed-users.local.js";
 import models from "./src/models/index.js";
 import sequelize from "./src/services/db.service.js";
 
-export default async function seed() {
+const { usersData, showProfileDataByUserId } = seedUsers;
+
+async function seed() {
     try {
         console.log("🔄 Wiping database and syncing tables...");
         await sequelize.sync({ force: true }); // Wipes and recreates tables based on models
@@ -44,46 +47,11 @@ export default async function seed() {
         // ------------------------
         console.log("👥 Seeding Users from CSV...");
         const passwordHash = await bcrypt.hash("password123", 10);
-
-        const usersData = [
-            // Santa in Space Cast/Crew
-            { id: 1, fname: "Laura", lname: "Sirmul", email: "laura.sirmul@gmail.com", phone: "250-510-3153", passwordHash },
-            { id: 2, fname: "Jade", lname: "Edgar", email: "jadesnow5@protonmail.com", phone: "250-510-8394", passwordHash },
-            { id: 3, fname: "Joshua", lname: "Farquarson", email: "write.far@gmail.com", phone: "250-815-5102", passwordHash },
-            { id: 4, fname: "Bill", lname: "Levity", email: "levitybill@gmail.com", phone: "250-701-1042", passwordHash },
-            { id: 5, fname: "Aiden", lname: "Adzich", email: "aidenadzich@gmail.com", phone: "250-510-9202", passwordHash },
-            { id: 6, fname: "Cathy", lname: "Schmidt", email: "cathyschmidt59@gmail.com", phone: "250-715-8763", passwordHash },
-            { id: 7, fname: "Lily", lname: "Wilson", email: "lilyparker25@outlook.com", phone: "250-710-8433", passwordHash },
-            { id: 8, fname: "Raine", lname: "Edgar", email: "raineedgar@gmail.com", phone: "236-594-9971", passwordHash },
-            { id: 9, fname: "Alex", lname: "Gallacher", email: "gallacher_alex@yahoo.ca", phone: "250-701-7973", passwordHash },
-            { id: 10, fname: "Dan", lname: "Leckey", email: "jdanleckey@gmail.com", phone: "250-737-3073", passwordHash },
-            { id: 11, fname: "Bowie", lname: "Farquarson", email: "cheshcraft@gmail.com", phone: "250-252-1584", passwordHash },
-            { id: 12, fname: "Nora", lname: "Perry", email: "747780@gmail.com", phone: "780-839-5635", passwordHash },
-            { id: 13, fname: "Jasmine", lname: "Wilson", email: "jazzyskywilson@gmail.com", phone: "250-815-5860", passwordHash },
-            { id: 14, fname: "Rob", lname: "Foell", email: "yambertam@hotmail.com", phone: "250-884-0178", passwordHash },
-            { id: 15, fname: "Lara", lname: "Brunshot", email: "spinningninnylara@gmail.com", phone: "250-815-7746", passwordHash },
-            { id: 16, fname: "Arwen", lname: "Garside", email: "garsidearwen@gmail.com", phone: "250-709-2558", passwordHash },
-            { id: 17, fname: "Sarah", lname: "Chapeskie", email: "sarahcc@spinnaker.com", phone: "236-969-5214", passwordHash },
-            { id: 18, fname: "Aaron", lname: "Montan", email: "montanworkshop@gmail.com", phone: "250-413-7299", passwordHash },
-            { id: 19, fname: "Phillip", lname: "Allingham", email: "pallingh@lakeheadu.ca", phone: "250-889-9755", passwordHash },
-            { id: 20, fname: "Jessie", lname: "Johnson", email: "thecosmicforest2019@gmail.com", phone: "250-732-5271", passwordHash },
-            { id: 21, fname: "Jordan", lname: "Lyric", email: "jordanlyricart@gmail.com", phone: "604-226-7621", passwordHash },
-            { id: 22, fname: "Kael", lname: "Reintjes", email: "kaelreintjes07@gmail.com", phone: "250-510-7720", passwordHash },
-            { id: 23, fname: "Cameron", lname: "Clark", email: "cameronc3549@gmail.com", phone: "778-700-3811", passwordHash },
-            { id: 24, fname: "William", lname: "Gallacher", email: "gallacher_alex@yahoo.ca", phone: "250-701-7973", passwordHash },
-            { id: 25, fname: "Max", lname: "Farquarson", email: "write.far@gmail.com", phone: "250-815-5102", passwordHash },
-            { id: 26, fname: "Ruby", lname: "Lyric", email: "jordanlyricart@gmail.com", phone: "604-226-7621", passwordHash },
-            { id: 27, fname: "Tamalane", lname: "Garside", email: "tamalane.hilderley@gmail.com", phone: "250-709-4531", passwordHash },
-            { id: 28, fname: "Elys", lname: "Garside", email: "tamalane.hilderley@gmail.com", phone: "250-709-4531", passwordHash },
-            { id: 29, fname: "Roland", lname: "Graham", email: "rolandgrahame69@gmail.com", phone: "250-857-7648", passwordHash },
-            { id: 30, fname: "Kahlan", lname: "McLean", email: "kahlanfox9@gmail.com", phone: "236-882-3296", passwordHash },
-            { id: 31, fname: "Bekah", lname: "Vanderzee", email: "rebekah.vanderzee@gmail.com", phone: "250-268-9837", passwordHash },
-            { id: 32, fname: "Ward", lname: "Knoll", email: "maibybeantree@gmail.com", phone: "250-252-6789", passwordHash },
-            { id: 33, fname: "Maia", lname: "Knoll", email: "pancakecitrus@gmail.com", phone: "250-510-3870", passwordHash },
-            { id: 34, fname: "Kendra", lname: "Vanderzee", email: "kendravanderzee@gmail.com", phone: "778-269-1436", passwordHash },
-            { id: 35, fname: "Joel", lname: "Perry", email: "747780@gmail.com", phone: "780-839-5635", passwordHash }
-        ];
-        await models.User.bulkCreate(usersData);
+        const usersWithPasswordHash = usersData.map((user) => ({
+            ...user,
+            passwordHash,
+        }));
+        await models.User.bulkCreate(usersWithPasswordHash);
 
         // ------------------------
         // 3. Organization & Memberships
@@ -113,7 +81,7 @@ export default async function seed() {
         // 4. Shows & Show Memberships
         // ------------------------
         console.log("🎭 Seeding Shows & Cast/Crew...");
-        const shows = await models.Show.bulkCreate([
+        await models.Show.bulkCreate([
             { id: 1, title: "Santa in Space", start_date: now, end_date: inOneMonth, organization_id: org.id },
             { id: 2, title: "The Tales of Conall Cra Bhuidhe", start_date: inOneMonth, end_date: inTwoMonths, organization_id: org.id }
         ]);
@@ -155,7 +123,12 @@ export default async function seed() {
             { users_id: 34, show_id: 1, status: "active" }, // Kendra: Makeup
             { users_id: 35, show_id: 1, status: "active" }  // Joel: Backup Crew
         ];
-        const santaMembers = await models.ShowMembership.bulkCreate(santaMembersData, { returning: true });
+        const santaMembersWithPhotos = santaMembersData.map(member => ({
+            ...member,
+            bio: showProfileDataByUserId[member.users_id]?.bio ?? null,
+            photo_path: showProfileDataByUserId[member.users_id]?.photo_path ?? null,
+        }));
+        const santaMembers = await models.ShowMembership.bulkCreate(santaMembersWithPhotos, { returning: true });
 
         // Map user IDs to show memberships for Scottish Play
         const spMembersData = [
@@ -170,17 +143,23 @@ export default async function seed() {
             { users_id: 23, show_id: 2, status: "active" }, // Cameron: Varb Leader & Miller & Kings Mother
             { users_id: 25, show_id: 2, status: "active" }  // Max: Son 3
         ];
-        const spMembers = await models.ShowMembership.bulkCreate(spMembersData, { returning: true });
+        const spMembersWithPhotos = spMembersData.map(member => ({
+            ...member,
+            bio: showProfileDataByUserId[member.users_id]?.bio ?? null,
+            photo_path: showProfileDataByUserId[member.users_id]?.photo_path ?? null,
+        }));
+        const spMembers = await models.ShowMembership.bulkCreate(spMembersWithPhotos, { returning: true });
 
         // Assign Show Roles for Santa in Space
         await models.ShowRoleRelationship.bulkCreate([
             { assignment_id: santaMembers.find(m => m.users_id === 1).assignment_id, role_id: 100 }, // Laura: Director
             { assignment_id: santaMembers.find(m => m.users_id === 2).assignment_id, role_id: 101 }, // Jade: Co-Director
-            { assignment_id: santaMembers.find(m => m.users_id === 2).assignment_id, role_id: 103 }, // Jade: Co-Director
+            { assignment_id: santaMembers.find(m => m.users_id === 2).assignment_id, role_id: 103 }, // Jade: Actor
             { assignment_id: santaMembers.find(m => m.users_id === 5).assignment_id, role_id: 102 }, // Aiden: Stage Manager
+            { assignment_id: spMembers.find(m => m.users_id === 5).assignment_id, role_id: 112 }, // Aiden: Photographer
             { assignment_id: santaMembers.find(m => m.users_id === 6).assignment_id, role_id: 104 }, // Cathy: Choreographer
             { assignment_id: santaMembers.find(m => m.users_id === 7).assignment_id, role_id: 105 }, // Lily: Dance Captain
-            { assignment_id: santaMembers.find(m => m.users_id === 7).assignment_id, role_id: 103 }, // Lily: Dance Captain
+            { assignment_id: santaMembers.find(m => m.users_id === 7).assignment_id, role_id: 103 }, // Lily: Actor
             { assignment_id: santaMembers.find(m => m.users_id === 8).assignment_id, role_id: 106 }, // Raine: Sound Design
             { assignment_id: santaMembers.find(m => m.users_id === 4).assignment_id, role_id: 113 }, // Bill: Producer
             { assignment_id: santaMembers.find(m => m.users_id === 9).assignment_id, role_id: 103 }, // Alex: Actor
@@ -360,52 +339,52 @@ export default async function seed() {
 
         // Lighting Inventory
         inventory.push(
-            { id: invId++, name: "ETC Source Four 36°", description: "Standard ellipsoidal reflector spotlight", dept_id: 1, is_global: 1, added_by: 5, org_id: 1, photo_path: "/uploads/etcsource4.jpg" },
-            { id: invId++, name: "Chauvet COLORado 2 Quad", description: "LED moving head fixture", dept_id: 1, is_global: 1, added_by: 5, org_id: 1, photo_path: "/uploads/chauvetcolorado2quad.jpg" },
-            { id: invId++, name: "ADJ Vizi Beam LED", description: "Moving head beam light", dept_id: 1, is_global: 1, added_by: 5, org_id: 1, photo_path: "/uploads/adjvizibeamled.webp" },
-            { id: invId++, name: "Stage Lighting Console", description: "ETC Ion lighting control console", dept_id: 1, is_global: 1, added_by: 5, org_id: 1, photo_path: "/uploads/etcionlightingconsole.png" },
-            { id: invId++, name: "Cyc Bar", description: "LED cyc light for backdrop", dept_id: 1, is_global: 1, added_by: 5, org_id: 1, photo_path: "/uploads/cycbar.webp" }
+            { id: invId++, name: "ETC Source Four 36°", description: "Standard ellipsoidal reflector spotlight", dept_id: 1, is_global: 1, added_by: 5, org_id: 1, photo_path: "/uploads/inventory/etcsource4.jpg" },
+            { id: invId++, name: "Chauvet COLORado 2 Quad", description: "LED moving head fixture", dept_id: 1, is_global: 1, added_by: 5, org_id: 1, photo_path: "/uploads/inventory/chauvetcolorado2quad.jpg" },
+            { id: invId++, name: "ADJ Vizi Beam LED", description: "Moving head beam light", dept_id: 1, is_global: 1, added_by: 5, org_id: 1, photo_path: "/uploads/inventory/adjvizibeamled.webp" },
+            { id: invId++, name: "Stage Lighting Console", description: "ETC Ion lighting control console", dept_id: 1, is_global: 1, added_by: 5, org_id: 1, photo_path: "/uploads/inventory/etcionlightingconsole.png" },
+            { id: invId++, name: "Cyc Bar", description: "LED cyc light for backdrop", dept_id: 1, is_global: 1, added_by: 5, org_id: 1, photo_path: "/uploads/inventory/cycbar.webp" }
         );
 
         // Sound Inventory
         inventory.push(
-            { id: invId++, name: "Shure SM58 Microphone", description: "Dynamic vocal microphone", dept_id: 2, is_global: 1, added_by: 8, org_id: 1, photo_path: "/uploads/shuresm58mic.jpg" },
-            { id: invId++, name: "Wireless Mic Pack", description: "Shure ULX wireless microphone system", dept_id: 2, is_global: 1, added_by: 8, org_id: 1, photo_path: "/uploads/shureulxwirelessmic.webp" },
-            { id: invId++, name: "Soundcraft Si Mixer", description: "Digital sound mixing console", dept_id: 2, is_global: 1, added_by: 8, org_id: 1, photo_path: "/uploads/soundcraftsimixer.jpg" },
-            { id: invId++, name: "JBL PA Speakers", description: "Professional PA speaker pair", dept_id: 2, is_global: 1, added_by: 8, org_id: 1, photo_path: "/uploads/jblpaspeakers.jpg" }
+            { id: invId++, name: "Shure SM58 Microphone", description: "Dynamic vocal microphone", dept_id: 2, is_global: 1, added_by: 8, org_id: 1, photo_path: "/uploads/inventory/shuresm58mic.jpg" },
+            { id: invId++, name: "Wireless Mic Pack", description: "Shure ULX wireless microphone system", dept_id: 2, is_global: 1, added_by: 8, org_id: 1, photo_path: "/uploads/inventory/shureulxwirelessmic.webp" },
+            { id: invId++, name: "Soundcraft Si Mixer", description: "Digital sound mixing console", dept_id: 2, is_global: 1, added_by: 8, org_id: 1, photo_path: "/uploads/inventory/soundcraftsimixer.jpg" },
+            { id: invId++, name: "JBL PA Speakers", description: "Professional PA speaker pair", dept_id: 2, is_global: 1, added_by: 8, org_id: 1, photo_path: "/uploads/inventory/jblpaspeakers.jpg" }
         );
 
         // Costume Inventory
         inventory.push(
-            { id: invId++, name: "Santa Suit", description: "Full Santa costume for Santa in Space", dept_id: 3, is_global: 0, added_by: 1, org_id: 1, photo_path: "/uploads/santasuit.jpg" },
-            { id: invId++, name: "Alien Costumes Set", description: "Colorful alien outfits (10 pieces)", dept_id: 3, is_global: 0, added_by: 1, org_id: 1, photo_path: "/uploads/aliencostume.jpg" },
-            { id: invId++, name: "Victorian Period Costumes", description: "Scottish Play period costumes", dept_id: 3, is_global: 0, added_by: 3, org_id: 1, photo_path: "/uploads/victorianscottishcostume.webp" },
-            { id: invId++, name: "Wig Collection", description: "Various wigs for characters", dept_id: 3, is_global: 1, added_by: 1, org_id: 1, photo_path: "/uploads/wigs.webp" },
-            { id: invId++, name: "Dance Costumes", description: "Modern dance costumes (8 pieces)", dept_id: 3, is_global: 0, added_by: 6, org_id: 1, photo_path: "/uploads/dancecostume.webp" }
+            { id: invId++, name: "Santa Suit", description: "Full Santa costume for Santa in Space", dept_id: 3, is_global: 0, added_by: 1, org_id: 1, photo_path: "/uploads/inventory/santasuit.jpg" },
+            { id: invId++, name: "Alien Costumes Set", description: "Colorful alien outfits (10 pieces)", dept_id: 3, is_global: 0, added_by: 1, org_id: 1, photo_path: "/uploads/inventory/aliencostume.jpg" },
+            { id: invId++, name: "Victorian Period Costumes", description: "Scottish Play period costumes", dept_id: 3, is_global: 0, added_by: 3, org_id: 1, photo_path: "/uploads/inventory/victorianscottishcostume.webp" },
+            { id: invId++, name: "Wig Collection", description: "Various wigs for characters", dept_id: 3, is_global: 1, added_by: 1, org_id: 1, photo_path: "/uploads/inventory/wigs.webp" },
+            { id: invId++, name: "Dance Costumes", description: "Modern dance costumes (8 pieces)", dept_id: 3, is_global: 0, added_by: 6, org_id: 1, photo_path: "/uploads/inventory/dancecostume.webp" }
         );
 
         // Props Inventory
         inventory.push(
-            { id: invId++, name: "Prop Space Blaster", description: "Futuristic gun prop for Santa in Space", dept_id: 4, is_global: 0, added_by: 1, org_id: 1, photo_path: "/uploads/spaceblasterprop.jpg" },
-            { id: invId++, name: "Scottish Claymore Sword", description: "Replica sword for fight choreography", dept_id: 4, is_global: 0, added_by: 3, org_id: 1, photo_path: "/uploads/scottishclaymore.JPG" },
-            { id: invId++, name: "Prop Presents & Gifts", description: "Gift boxes and wrapped presents", dept_id: 4, is_global: 0, added_by: 1, org_id: 1, photo_path: "/uploads/giftboxesprop.jpg" },
-            { id: invId++, name: "Crowns & Tiaras", description: "Assorted royal headpieces", dept_id: 4, is_global: 1, added_by: 1, org_id: 1, photo_path: "/uploads/crowns.jpg" },
-            { id: invId++, name: "Scepters & Staffs", description: "Royal and magical staffs", dept_id: 4, is_global: 1, added_by: 1, org_id: 1, photo_path: "/uploads/royalstaff.jpg" }
+            { id: invId++, name: "Prop Space Blaster", description: "Futuristic gun prop for Santa in Space", dept_id: 4, is_global: 0, added_by: 1, org_id: 1, photo_path: "/uploads/inventory/spaceblasterprop.jpg" },
+            { id: invId++, name: "Scottish Claymore Sword", description: "Replica sword for fight choreography", dept_id: 4, is_global: 0, added_by: 3, org_id: 1, photo_path: "/uploads/inventory/scottishclaymore.JPG" },
+            { id: invId++, name: "Prop Presents & Gifts", description: "Gift boxes and wrapped presents", dept_id: 4, is_global: 0, added_by: 1, org_id: 1, photo_path: "/uploads/inventory/giftboxesprop.jpg" },
+            { id: invId++, name: "Crowns & Tiaras", description: "Assorted royal headpieces", dept_id: 4, is_global: 1, added_by: 1, org_id: 1, photo_path: "/uploads/inventory/crowns.jpg" },
+            { id: invId++, name: "Scepters & Staffs", description: "Royal and magical staffs", dept_id: 4, is_global: 1, added_by: 1, org_id: 1, photo_path: "/uploads/inventory/royalstaff.jpg" }
         );
 
         // Sets/Scenic Inventory
         inventory.push(
-            { id: invId++, name: "Space Ship Set Pieces", description: "Modular spaceship set elements", dept_id: 5, is_global: 0, added_by: 3, org_id: 1, photo_path: "/uploads/spaceshipset.webp" },
-            { id: invId++, name: "Castle Backdrop", description: "Large backdrop for Scottish scenes", dept_id: 5, is_global: 0, added_by: 3, org_id: 1, photo_path: "/uploads/castlebackdrop.jpg" },
-            { id: invId++, name: "Throne Chair", description: "Ornate throne for royal scenes", dept_id: 5, is_global: 1, added_by: 3, org_id: 1, photo_path: "/uploads/throne.webp" },
-            { id: invId++, name: "Stairs & Platforms", description: "Modular stage stairs (6 units)", dept_id: 5, is_global: 1, added_by: 3, org_id: 1, photo_path: "/uploads/stagestairs.jpeg" },
-            { id: invId++, name: "Door Frames", description: "Portable door frames (4 units)", dept_id: 5, is_global: 1, added_by: 3, org_id: 1, photo_path: "/uploads/doorframe.webp" }
+            { id: invId++, name: "Space Ship Set Pieces", description: "Modular spaceship set elements", dept_id: 5, is_global: 0, added_by: 3, org_id: 1, photo_path: "/uploads/inventory/spaceshipset.webp" },
+            { id: invId++, name: "Castle Backdrop", description: "Large backdrop for Scottish scenes", dept_id: 5, is_global: 0, added_by: 3, org_id: 1, photo_path: "/uploads/inventory/castlebackdrop.jpg" },
+            { id: invId++, name: "Throne Chair", description: "Ornate throne for royal scenes", dept_id: 5, is_global: 1, added_by: 3, org_id: 1, photo_path: "/uploads/inventory/throne.webp" },
+            { id: invId++, name: "Stairs & Platforms", description: "Modular stage stairs (6 units)", dept_id: 5, is_global: 1, added_by: 3, org_id: 1, photo_path: "/uploads/inventory/stagestairs.jpeg" },
+            { id: invId++, name: "Door Frames", description: "Portable door frames (4 units)", dept_id: 5, is_global: 1, added_by: 3, org_id: 1, photo_path: "/uploads/inventory/doorframe.webp" }
         );
 
         // Front of House
         inventory.push(
-            { id: invId++, name: "Easel Signs", description: "Welcome/Info easel signs (4)", dept_id: 6, is_global: 1, added_by: 1, org_id: 1, photo_path: "/uploads/easel.jpg" },
-            { id: invId++, name: "Program Printing Setup", description: "Poster and program printing materials", dept_id: 6, is_global: 1, added_by: 1, org_id: 1, photo_path: "/uploads/programprinting.jpg" }
+            { id: invId++, name: "Easel Signs", description: "Welcome/Info easel signs (4)", dept_id: 6, is_global: 1, added_by: 1, org_id: 1, photo_path: "/uploads/inventory/easel.jpg" },
+            { id: invId++, name: "Program Printing Setup", description: "Poster and program printing materials", dept_id: 6, is_global: 1, added_by: 1, org_id: 1, photo_path: "/uploads/inventory/programprinting.jpg" }
         );
 
         await models.Inventory.bulkCreate(inventory);

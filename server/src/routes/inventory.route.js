@@ -1,6 +1,6 @@
 import Router from "express";
 
-import upload from "../config/multer.config.js";
+import upload, { setUploadSubDir } from "../config/multer.config.js";
 import inventoryController from "../controllers/inventory.controller.js";
 import {
 	authenticate,
@@ -36,6 +36,7 @@ router.post(
 	"/orgs/:orgId",
 	authenticate,
 	authorizeInventoryDept("org"), // <-- Updated
+	setUploadSubDir("inventory"),
 	upload.single("photo"),
 	inventoryController.createGlobal
 );
@@ -72,6 +73,7 @@ router.post(
 	"/shows/:showId",
 	authenticate,
 	authorizeInventoryDept("show"), // <-- Updated
+	setUploadSubDir("inventory"),
 	upload.single("photo"),
 	inventoryController.createShowItem
 );

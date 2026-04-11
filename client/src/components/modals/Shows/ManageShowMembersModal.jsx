@@ -16,7 +16,7 @@ import {
 } from "../../ui/modals/index.js";
 import MembersList from "../../ui/modals/sections/MembersList.jsx";
 
-export default function ManageShowMembersModal({ isOpen, onClose, members, orgId, showId, onSuccess }) {
+export default function ManageShowMembersModal({ isOpen, onClose, members, orgId, showId, onSuccess, canEditRoles = false }) {
 	const [orgMembers, setOrgMembers] = useState([]);
     const [selectedOrgUserId, setSelectedOrgUserId] = useState("");
 
@@ -77,7 +77,7 @@ export default function ManageShowMembersModal({ isOpen, onClose, members, orgId
 
 	return (
 		<ModalWrapper>
-            <ShowRoleModal isOpen={isRoleModalOpen} onClose={() => setIsRoleModalOpen(false)} user={selectedUser} showId={showId} onSuccess={onSuccess} />
+	            <ShowRoleModal isOpen={isRoleModalOpen} onClose={() => setIsRoleModalOpen(false)} user={selectedUser} showId={showId} canEditRoles={canEditRoles} onSuccess={onSuccess} />
             <InviteMemberModal isOpen={isInviteModalOpen} onClose={() => setIsInviteModalOpen(false)} orgId={orgId} showId={showId} onSuccess={onSuccess} />
 
 			<ModalSubWrapper>
@@ -126,6 +126,7 @@ export default function ManageShowMembersModal({ isOpen, onClose, members, orgId
 						<ModalSubHeader>Current Roster</ModalSubHeader>
 						<MembersList
 							members={members}
+							canEditRoles={canEditRoles}
 							onEditRoles={(member) => {
 								setSelectedUser(member);
 								setIsRoleModalOpen(true);

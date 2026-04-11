@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { createShowItem, getGlobalInventory, pullGlobalItemToShow, createShowItemWithPhoto } from "../../../services/api.js";
+import InventoryPhotoCell from "../../ui/InventoryPhotoCell.jsx";
 import {
     ModalCancelButton,
     ModalDropdown,
@@ -18,7 +19,6 @@ import {
     ModalFooter,
     ModalInputContainer,
     ModalInputParent,
-    ModalBox,
 } from "../../ui/modals/index.js";
 
 export default function ManageShowInventoryModal({ isOpen, onClose, showId, orgId, departments, userRoles, currentInventory, onSuccess }) {
@@ -120,7 +120,7 @@ export default function ManageShowInventoryModal({ isOpen, onClose, showId, orgI
                         Pull from Global Stock
                     </ModalNavItem>
                     <ModalNavItem isActive={activeTab === "create"} onClick={() => setActiveTab("create")}>
-                        Create Custom/Consumable Item
+                        Create Item
                     </ModalNavItem>
                 </ModalNav>
 
@@ -128,28 +128,61 @@ export default function ManageShowInventoryModal({ isOpen, onClose, showId, orgI
 
                 <ModalBody>
                     {activeTab === "pull" && (
-                        <ModalBox>
+                        <div className="max-h-120 overflow-y-auto pr-1">
                             {availableGlobalItems.length > 0 ? (
-                                availableGlobalItems.map(item => (
-                                    <div key={item.id} className="flex items-center justify-between rounded-lg border border-gray-200 p-3 hover:bg-gray-50">
-                                        <div>
-                                            <div className="font-semibold text-gray-800">{item.name}</div>
-                                            <div className="text-sm text-gray-500">{item.Department?.name} • {item.description}</div>
-                                        </div>
-                                        <button
-                                            type="button"
-                                            onClick={() => handlePullItem(item.id)}
-                                            disabled={isLoading}
-                                            className="rounded bg-blue-100 px-3 py-1 font-medium text-blue-700 transition-colors hover:bg-blue-200 disabled:cursor-not-allowed disabled:opacity-50"
+                                <div className="space-y-3">
+                                    {availableGlobalItems.map((item) => (
+                                        <article
+                                            key={item.id}
+                                            className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md"
                                         >
-                                            Pull
-                                        </button>
-                                    </div>
-                                ))
+                                            <div className="grid gap-4 sm:grid-cols-[96px_minmax(0,1fr)_auto] sm:items-center">
+                                                <div className="flex justify-center sm:justify-start">
+                                                    <div className="rounded-2xl border border-blue-100 bg-linear-to-br from-blue-50 to-white p-3 shadow-sm">
+                                                        <div className="scale-110 origin-center">
+                                                            <InventoryPhotoCell
+                                                                photoPath={item.photo_path}
+                                                                itemName={item.name}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="min-w-0">
+                                                    <div className="flex flex-wrap items-start justify-between gap-3">
+                                                        <div className="min-w-0">
+                                                            <h3 className="truncate font-semibold text-gray-900 text-lg">
+                                                                {item.name}
+                                                            </h3>
+                                                            <p className="mt-1 text-sm leading-6 text-gray-600">
+                                                                {item.description}
+                                                            </p>
+                                                        </div>
+
+                                                        <span className="inline-flex items-center rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+                                                            {item.Department?.name || "Unknown"}
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex justify-end sm:pl-2">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handlePullItem(item.id)}
+                                                        disabled={isLoading}
+                                                        className="inline-flex h-11 items-center justify-center rounded-xl bg-blue-600 px-5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                                                    >
+                                                        Pull
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </article>
+                                    ))}
+                                </div>
                             ) : (
                                 <p className="py-8 text-center text-gray-500 italic">No available global stock to pull for your departments.</p>
                             )}
-                        </ModalBox>
+                        </div>
                     )}
 
                     {activeTab === "create" && (

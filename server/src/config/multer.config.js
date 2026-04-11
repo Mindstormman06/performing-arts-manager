@@ -1,6 +1,6 @@
+import fs from "fs";
 import multer from "multer";
 import path from "path";
-import fs from "fs";
 import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -15,7 +15,13 @@ if (!fs.existsSync(uploadsDir)) {
 // Set up storage
 const storage = multer.diskStorage({
 	destination: (req, file, cb) => {
-		cb(null, uploadsDir);
+		const subDir = req.uploadSubDir || "";
+		const targetDir = path.join(uploadsDir, subDir);
+
+		if (!fs.existsSync(targetDir)) {
+			fs.mkdirSync(targetDir, { recursive: true });
+		}
+		cb(null, targetDir);
 	},
 	filename: (req, file, cb) => {
 		// Create unique filename: timestamp-userid-originalname
@@ -44,6 +50,11 @@ const upload = multer({
 		fileSize: 5 * 1024 * 1024, // 5MB
 	},
 });
+
+export const setUploadSubDir = (dir) => (req, res, next) => {
+	req.uploadSubDir = dir;
+	next();
+};
 
 export default upload;
 

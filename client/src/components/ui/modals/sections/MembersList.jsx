@@ -5,6 +5,7 @@ export default function MembersList({
 	members,
 	onEditRoles,
 	onRemove,
+	canEditRoles = true,
 	emptyMessage = "No members",
 	showStatus = false,
 }) {
@@ -27,6 +28,7 @@ export default function MembersList({
 						member={member}
 						onEditRoles={onEditRoles}
 						onRemove={onRemove}
+						canEditRoles={canEditRoles}
 						showStatus={showStatus}
 					/>
 				))}

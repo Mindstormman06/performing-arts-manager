@@ -4,6 +4,7 @@ import { getShowCalendar, verifyToken, getShowUsers } from "../../services/api.j
 import DashboardSection from "../../components/ui/DashboardSection.jsx";
 import CreateEventModal from "../../components/modals/Shows/CreateEventModal.jsx";
 import ManageEventModal from "../../components/modals/Shows/ManageEventModal.jsx";
+import ScheduleCalendarView from "../../components/ui/scheduling/ScheduleCalendarView.jsx";
 
 export default function ShowSchedule() {
     const { orgId, showId } = useParams();
@@ -12,6 +13,8 @@ export default function ShowSchedule() {
     const [isLoading, setIsLoading] = useState(true);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState(null);
+    const [viewMode, setViewMode] = useState("calendar");
+    const [pendingCreateDate, setPendingCreateDate] = useState("");
 
     const fetchScheduleData = useCallback(async () => {
         try {
@@ -43,6 +46,27 @@ export default function ShowSchedule() {
 
     const canManageSchedule = userRoles.includes("director") || userRoles.includes("stage-manager");
 
+    const formatDateForInput = (date) => {
+        const local = new Date(date);
+        local.setMinutes(local.getMinutes() - local.getTimezoneOffset());
+        return local.toISOString().slice(0, 10);
+    };
+
+    const openCreateModal = (dateValue = "") => {
+        setPendingCreateDate(dateValue);
+        setIsCreateModalOpen(true);
+    };
+
+    const handleCalendarDateClick = (dateObj) => {
+        if (!canManageSchedule) return;
+        openCreateModal(formatDateForInput(dateObj));
+    };
+
+    const handleCalendarEventClick = (event) => {
+        if (!canManageSchedule) return;
+        setSelectedEvent(event);
+    };
+
     const formatDateTime = (dateString) => {
         const date = new Date(dateString);
         return {
@@ -59,9 +83,13 @@ export default function ShowSchedule() {
         <div className="mx-auto flex min-h-[calc(100vh-9rem)] max-w-7xl flex-col p-4 sm:p-6 lg:p-8">
             <CreateEventModal
                 isOpen={isCreateModalOpen} 
-                onClose={() => setIsCreateModalOpen(false)} 
-                showId={showId} 
-                onSuccess={fetchScheduleData} 
+            onClose={() => {
+              setIsCreateModalOpen(false);
+              setPendingCreateDate("");
+            }}
+                showId={showId}
+            initialDate={pendingCreateDate}
+                onSuccess={fetchScheduleData}
             />
 
             <ManageEventModal 
@@ -71,75 +99,107 @@ export default function ShowSchedule() {
                 event={selectedEvent} 
                 onSuccess={fetchScheduleData} 
             />
-            <div className="mb-6 flex items-center justify-between">
-                <div>
+                  <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
                     <Link to={`/orgs/${orgId}/shows/${showId}`} className="text-sm font-medium text-blue-600 hover:underline">
                         &larr; Back to Show Dashboard
                     </Link>
                     <h1 className="mt-1 text-3xl font-bold text-gray-900">Show Schedule</h1>
                 </div>
+
+                    <div className="inline-flex rounded-xl border border-gray-200 bg-white p-1 shadow-sm">
+                      <button
+                        type="button"
+                        onClick={() => setViewMode("calendar")}
+                        className={`rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${viewMode === "calendar" ? "bg-blue-600 text-white shadow-sm" : "text-gray-600 hover:bg-gray-100"}`}
+                      >
+                        Calendar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setViewMode("list")}
+                        className={`rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${viewMode === "list" ? "bg-blue-600 text-white shadow-sm" : "text-gray-600 hover:bg-gray-100"}`}
+                      >
+                        Event List
+                      </button>
+                    </div>
             </div>
 
-            <DashboardSection 
-                title="Upcoming Events"
-                actionTitle="Create Event"
-                onActionClick={canManageSchedule ? () => setIsCreateModalOpen(true) : undefined}
-                className="flex-1"
-            >
-                <div className="space-y-4">
-                    {events.length > 0 ? events.map(event => {
-                        const start = formatDateTime(event.start_time);
-                        const end = formatDateTime(event.end_time);
-                        
-                        return (
+                  {viewMode === "calendar" ? (
+                    <DashboardSection
+                      title=""
+                      actionTitle={canManageSchedule ? "Create Event" : undefined}
+                      onActionClick={canManageSchedule ? () => openCreateModal() : undefined}
+                      className="flex-1 min-h-0 xl:h-[clamp(42rem,calc(100vh-15rem),56rem)]"
+                    >
+                      <ScheduleCalendarView
+                        events={events}
+                        onDateClick={handleCalendarDateClick}
+                        onEventClick={canManageSchedule ? handleCalendarEventClick : undefined}
+                      />
+                    </DashboardSection>
+                  ) : (
+                    <DashboardSection
+                      title="Upcoming Events"
+                      actionTitle="Create Event"
+                      onActionClick={canManageSchedule ? () => openCreateModal() : undefined}
+                      className="flex-1"
+                    >
+                      <div className="space-y-4">
+                        {events.length > 0 ? events.map(event => {
+                          const start = formatDateTime(event.start_time);
+                          const end = formatDateTime(event.end_time);
+
+                          return (
                             <div key={event.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-lg border border-gray-200 bg-white shadow-sm hover:shadow transition-shadow">
-                                <div className="flex items-start gap-4">
-                                    {/* Date Badge */}
-                                    <div className="flex flex-col items-center justify-center bg-blue-50 text-blue-700 rounded-lg p-2 min-w-16 border border-blue-100">
-                                        <span className="text-xs font-bold uppercase tracking-wider">{start.date.split(',')[0]}</span>
-                                        <span className="text-lg font-extrabold">{start.date.split(' ')[2]}</span>
-                                    </div>
-                                    
-                                    {/* Event Details */}
-                                    <div>
-                                        <h3 className="font-bold text-gray-900 text-lg">{event.title}</h3>
-                                        <p className="text-sm font-semibold text-blue-600 uppercase tracking-tight">
-                                            {new Date(event.start_time).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
-                                        </p>
-                                        <p className="text-sm text-gray-600 font-medium">
-                                            {start.time} - {end.time}
-                                        </p>
-                                        {(event.location || event.description) && (
-                                            <div className="mt-1 text-sm text-gray-500">
-                                                {event.location && <span className="mr-3">📍 {event.location}</span>}
-                                                {event.description && <span>📝 {event.description}</span>}
-                                            </div>
-                                        )}
-                                    </div>
+                              <div className="flex items-start gap-4">
+                                {/* Date Badge */}
+                                <div className="flex flex-col items-center justify-center bg-blue-50 text-blue-700 rounded-lg p-2 min-w-16 border border-blue-100">
+                                  <span className="text-xs font-bold uppercase tracking-wider">{start.date.split(',')[0]}</span>
+                                  <span className="text-lg font-extrabold">{start.date.split(' ')[2]}</span>
                                 </div>
 
-                                {/* Manage Button */}
-                                {canManageSchedule && (
-                                    <div className="mt-4 sm:mt-0">
-                                        <button 
-                                            onClick={() => {
-                                                setSelectedEvent(event);
-                                            }}
-                                            className="px-4 py-2 bg-gray-100 text-gray-700 font-medium rounded hover:bg-gray-200 transition-colors"
-                                        >
-                                            Manage
-                                        </button>
+                                {/* Event Details */}
+                                <div>
+                                  <h3 className="font-bold text-gray-900 text-lg">{event.title}</h3>
+                                  <p className="text-sm font-semibold text-blue-600 uppercase tracking-tight">
+                                    {new Date(event.start_time).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
+                                  </p>
+                                  <p className="text-sm text-gray-600 font-medium">
+                                    {start.time} - {end.time}
+                                  </p>
+                                  {(event.location || event.description) && (
+                                    <div className="mt-1 text-sm text-gray-500">
+                                      {event.location && <span className="mr-3">📍 {event.location}</span>}
+                                      {event.description && <span>📝 {event.description}</span>}
                                     </div>
-                                )}
-                            </div>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* Manage Button */}
+                              {canManageSchedule && (
+                                <div className="mt-4 sm:mt-0">
+                                  <button
+                                    onClick={() => {
+                                      setSelectedEvent(event);
+                                    }}
+                                  className="px-4 py-2 bg-gray-100 text-gray-700 font-medium rounded hover:bg-gray-200 transition-colors"
+                                >
+                                  Manage
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         )
-                    }) : (
-                        <div className="text-center py-12 text-gray-500 italic">
+                        }) : (
+                          <div className="text-center py-12 text-gray-500 italic">
                             No events have been scheduled for this show yet.
-                        </div>
-                    )}
-                </div>
-            </DashboardSection>
+                          </div>
+                        )}
+                      </div>
+                    </DashboardSection>
+                  )}
         </div>
     );
 

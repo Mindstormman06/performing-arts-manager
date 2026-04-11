@@ -9,10 +9,11 @@ export default function DashboardSection({
     isTitleClickable = false,
     onTitleClick = null,
     className = "flex-1",
-    children 
+    style,
+    children
 }) {
     return (
-        <section className={`flex flex-col ${className}`}>
+        <section className={`flex flex-col ${className}`} style={style}>
             <div className="mb-4 flex items-center justify-between">
                 <h2 className="font-bold text-2xl text-gray-800">
                     {isTitleClickable ? (
@@ -39,7 +40,7 @@ export default function DashboardSection({
             </div>
 
             {/* Content Container */}
-            <div className="min-h-75 flex-1 overflow-y-auto rounded-xl border border-gray-200 bg-gray-50 p-6">
+                  <div className="min-h-0 flex-1 overflow-y-auto rounded-xl border border-gray-200 bg-gray-50 p-6">
                 {children}
             </div>
         </section>

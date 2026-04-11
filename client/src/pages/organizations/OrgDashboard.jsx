@@ -3,9 +3,8 @@ import { Link } from "react-router-dom";
 import CreateOrgModal from "../../components/modals/Organizations/CreateOrgModal.jsx";
 import {
 	getMyOrganizations,
-	getOrganizations,
 	respondToInvite,
-} from "../../services/api.js"; //
+} from "../../services/api.js";
 
 export default function OrgDashboard() {
 	const [organizations, setOrganizations] = useState([]);
@@ -15,30 +14,13 @@ export default function OrgDashboard() {
 	const fetchOrganizations = useCallback(async () => {
 		try {
 			setLoading(true);
-			console.log("Starting to fetch organizations...");
-
-			const token = localStorage.getItem("token");
-			console.log("Auth token present:", !!token);
-
-			try {
-				const allOrgsResponse = await getOrganizations();
-				console.log("All organizations in DB:", allOrgsResponse.data);
-			} catch (allOrgsErr) {
-				console.log("Could not fetch all organizations:", allOrgsErr.message);
-			}
 
 			const membershipsResponse = await getMyOrganizations();
 			const memberships = membershipsResponse.data || [];
 
-			console.log("API Response status:", membershipsResponse.status);
-			console.log("Memberships data:", memberships);
-			console.log("Number of memberships:", memberships.length);
-
 			setOrganizations(memberships);
 		} catch (err) {
 			console.error("Failed to fetch organizations:", err);
-			console.error("Error response:", err.response?.data);
-			console.error("Error status:", err.response?.status);
 			setOrganizations([]);
 		} finally {
 			setLoading(false);
@@ -55,119 +37,172 @@ export default function OrgDashboard() {
 	};
 
 	useEffect(() => {
-		console.log("OrgDashboard component mounted, fetching organizations...");
 		fetchOrganizations();
 	}, [fetchOrganizations]);
 
 	const activeOrgs = organizations.filter((o) => o.status === "active");
 	const pendingInvites = organizations.filter((o) => o.status === "pending");
+	const totalMemberships = organizations.length;
 
 	return (
-		<div className="py-8">
+		<div className="mx-auto min-h-[calc(100vh-9rem)] w-full max-w-7xl p-4 sm:p-6 lg:p-8">
 			<CreateOrgModal
 				isOpen={isModalOpen}
 				onClose={() => setIsModalOpen(false)}
 				onSuccess={fetchOrganizations}
 			/>
-			<div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-				{/* Pending Invitations Section */}
-				{pendingInvites.length > 0 && (
-					<section className="mb-12">
-						<h2 className="mb-4 font-bold text-2xl text-orange-600">
-							Pending Invitations
-						</h2>
-						<div className="space-y-4">
-							{pendingInvites.map((invite) => (
-								<div
-									key={invite.org_id}
-									className="flex items-center justify-between rounded-lg border border-orange-200 bg-orange-50 p-6 shadow-sm"
-								>
-									<div>
-										<h3 className="font-semibold text-gray-900 text-lg">
-											{invite.Organization?.name || "Organization Invite"}
-										</h3>
-										<p className="text-gray-600 text-sm">
-											You've been invited to join.
-										</p>
-									</div>
-									<div className="flex space-x-3">
-										<button
-											type="button"
-											onClick={() =>
-												handleInviteAction(invite.org_id, "accept")
-											}
-											className="cursor-pointer rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700"
-										>
-											Accept
-										</button>
-										<button
-											type="button"
-											onClick={() =>
-												handleInviteAction(invite.org_id, "decline")
-											}
-											className="cursor-pointer rounded border border-red-600 bg-white px-4 py-2 text-red-600 hover:bg-red-50"
-										>
-											Decline
-										</button>
-									</div>
-								</div>
-							))}
-						</div>
-					</section>
-				)}
 
-				{/* Active Organizations Section */}
-				<header className="mb-8 flex items-center justify-between">
-					<h2 className="font-bold text-3xl text-gray-900">
-						Your Organizations
-					</h2>
+			{/* Page Header */}
+			<section className="mb-8 rounded-2xl border border-blue-100 bg-linear-to-r from-blue-50 to-indigo-50 p-6 shadow-sm sm:p-8">
+				<div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+					<div>
+						<p className="font-semibold text-blue-700 text-sm uppercase tracking-wide">
+							Organization Hub
+						</p>
+						<h1 className="mt-2 font-bold text-3xl text-gray-900 sm:text-4xl">
+							Your Organizations
+						</h1>
+						<p className="mt-3 max-w-2xl text-gray-600 text-sm sm:text-base">
+							Create, join, and manage all your organizations.
+						</p>
+						<div className="mt-4 flex flex-wrap gap-3 text-sm">
+							<span className="rounded-full border border-blue-200 bg-white px-3 py-1 font-medium text-blue-700">
+								{activeOrgs.length} Active
+							</span>
+							<span className="rounded-full border border-orange-200 bg-white px-3 py-1 font-medium text-orange-700">
+								{pendingInvites.length} Pending Invites
+							</span>
+							<span className="rounded-full border border-gray-200 bg-white px-3 py-1 font-medium text-gray-700">
+								{totalMemberships} Total Memberships
+							</span>
+						</div>
+					</div>
+
 					<button
 						type="button"
 						onClick={() => setIsModalOpen(true)}
-						className="cursor-pointer rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700"
+						className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-5 py-3 font-semibold text-sm text-white shadow-sm transition-colors hover:bg-blue-700"
 					>
 						+ New Organization
 					</button>
-				</header>
+				</div>
+			</section>
 
-				<div className="space-y-4">
-					{loading ? (
-						<div className="rounded-lg bg-white p-8 text-center shadow-md">
-							<p className="text-gray-600 text-lg">
-								Loading your organizations...
-							</p>
-						</div>
-					) : activeOrgs.length > 0 ? (
-						activeOrgs.map((org) => {
+			{/* Pending Invitations */}
+			{pendingInvites.length > 0 && (
+				<section className="mb-10">
+					<div className="mb-4 flex items-center justify-between">
+						<h2 className="font-bold text-gray-900 text-xl sm:text-2xl">
+							Pending Invitations
+						</h2>
+						<span className="rounded-full bg-orange-100 px-3 py-1 font-semibold text-orange-700 text-xs">
+							{pendingInvites.length} Awaiting Response
+						</span>
+					</div>
+
+					<div className="grid gap-4 lg:grid-cols-2">
+						{pendingInvites.map((invite) => (
+							<article
+								key={invite.org_id}
+								className="rounded-xl border border-orange-200 bg-orange-50 p-5 shadow-sm"
+							>
+								<h3 className="font-semibold text-gray-900 text-lg">
+									{invite.Organization?.name || "Organization Invite"}
+								</h3>
+								<p className="mt-1 text-gray-600 text-sm">
+									You have been invited to join this organization.
+								</p>
+
+								<div className="mt-4 flex gap-3">
+									<button
+										type="button"
+										onClick={() => handleInviteAction(invite.org_id, "accept")}
+										className="inline-flex items-center justify-center rounded-lg bg-green-600 px-4 py-2 font-medium text-sm text-white transition-colors hover:bg-green-700"
+									>
+										Accept
+									</button>
+									<button
+										type="button"
+										onClick={() => handleInviteAction(invite.org_id, "decline")}
+										className="inline-flex items-center justify-center rounded-lg border border-red-300 bg-white px-4 py-2 font-medium text-red-600 text-sm transition-colors hover:bg-red-50"
+									>
+										Decline
+									</button>
+								</div>
+							</article>
+						))}
+					</div>
+				</section>
+			)}
+
+			{/* Organizations */}
+			<section>
+				<div className="mb-4 flex items-center justify-between">
+					<h2 className="font-bold text-gray-900 text-xl sm:text-2xl">
+						My Organizations
+					</h2>
+				</div>
+
+				{loading ? (
+					<div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+						{Array.from({ length: 3 }).map((_, index) => (
+							<div
+								key={`org-loading-${index}`}
+								className="h-32 animate-pulse rounded-xl border border-gray-200 bg-white"
+							/>
+						))}
+					</div>
+				) : activeOrgs.length > 0 ? (
+					<div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+						{activeOrgs.map((org) => {
 							const orgData = org.Organization || org;
 							return (
 								<Link
 									key={orgData.id}
 									to={`/orgs/${orgData.id}/overview`}
-									className="group block rounded-lg border border-transparent bg-white p-6 shadow-md transition-all duration-200 hover:border-blue-300 hover:shadow-lg focus:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+									className="group rounded-xl border border-gray-100 bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
 								>
-									<div className="flex items-center justify-between">
-										<h3 className="font-semibold text-gray-800 text-xl transition-colors group-hover:text-blue-600">
-											{orgData.name}
-										</h3>
+									<div className="flex h-full flex-col justify-between gap-4">
+										<div>
+											<p className="font-semibold text-blue-600 text-xs uppercase tracking-wider">
+												Organization
+											</p>
+											<h3 className="mt-2 font-semibold text-gray-900 text-lg transition-colors group-hover:text-blue-700">
+												{orgData.name}
+											</h3>
+										</div>
+
+										<div className="flex items-center justify-between">
+											<span className="rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1 font-semibold text-emerald-700 text-xs">
+												Active
+											</span>
+											<span className="font-semibold text-blue-600 text-sm transition-transform group-hover:translate-x-0.5">
+												Open →
+											</span>
+										</div>
 									</div>
 								</Link>
 							);
-						})
-					) : (
-						!loading && (
-							<div className="rounded-lg bg-white p-8 text-center shadow-md">
-								<p className="text-gray-600 text-lg">
-									You aren't a member of any organizations yet.
-								</p>
-								<p className="mt-2 text-gray-500 text-sm">
-									Create your first organization to get started!
-								</p>
-							</div>
-						)
-					)}
-				</div>
-			</div>
+						})}
+					</div>
+				) : (
+					<div className="rounded-xl border border-dashed border-gray-300 bg-white p-10 text-center shadow-sm">
+						<p className="font-medium text-gray-700 text-lg">
+							You are not in any organizations yet.
+						</p>
+						<p className="mt-2 text-gray-500 text-sm">
+							Create your first organization to start managing shows, members, and inventory.
+						</p>
+						<button
+							type="button"
+							onClick={() => setIsModalOpen(true)}
+							className="mt-5 inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 font-medium text-sm text-white transition-colors hover:bg-blue-700"
+						>
+							Create Organization
+						</button>
+					</div>
+				)}
+			</section>
 		</div>
 	);
 }
