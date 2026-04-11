@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>DATABASE</ID>
+  <OriginalElement>e4d6c896-03dc-4e06-b385-1cfb5ff14808.SCHEMA:performing-arts-manager</OriginalElement>
+  <nodes>
+    <node x="-186.5" y="937.5">e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.org_roles</node>
+    <node x="1248.0" y="563.5">e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.budgets</node>
+    <node x="153.5" y="-202.5">e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.organizations</node>
+    <node x="1001.0" y="549.5">e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.expenses</node>
+    <node x="1262.0" y="1711.5">e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.lighting_plots</node>
+    <node x="490.5" y="53.5">e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.users</node>
+    <node x="1581.0" y="1341.5">e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.cues</node>
+    <node x="147.0" y="1426.0">e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.schedules_has_users</node>
+    <node x="-53.0" y="1866.0">e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.org_assignment_has_roles</node>
+    <node x="606.0" y="909.5">e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.show_has_users</node>
+    <node x="1042.0" y="1271.5">e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.stage_objects</node>
+    <node x="1600.5" y="493.5">e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.inventory</node>
+    <node x="1121.0" y="909.5">e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.layouts</node>
+    <node x="399.0" y="1866.0">e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.show_assignment_has_roles</node>
+    <node x="1452.5" y="895.5">e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.notes</node>
+    <node x="853.5" y="909.5">e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.casting</node>
+    <node x="-94.0" y="577.5">e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.org_has_users</node>
+    <node x="313.5" y="937.5">e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.roles</node>
+    <node x="413.5" y="577.5">e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.show_roles</node>
+    <node x="846.5" y="1837.5">e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.inventory_has_shows</node>
+    <node x="1558.0" y="165.5">e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.departments</node>
+    <node x="793.5" y="95.5">e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.shows</node>
+    <node x="110.5" y="839.5">e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.schedules</node>
+    <node x="620.5" y="1426.0">e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.schedules_has_casting</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.casting" target="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.shows" relationship="REFERENCES">
+      <point x="37.75" y="-104.5" />
+      <point x="966.75" y="514.0" />
+      <point x="909.0" y="514.0" />
+      <point x="909.0" y="354.0" />
+      <point x="906.75" y="354.0" />
+      <point x="37.75" y="118.5" />
+    </edge>
+    <edge source="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.schedules" target="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.users" relationship="REFERENCES">
+      <point x="-52.333333333333314" y="-174.5" />
+      <point x="136.66666666666669" y="434.0" />
+      <point x="510.20000000000005" y="434.0" />
+      <point x="-78.8" y="160.5" />
+    </edge>
+    <edge source="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.notes" target="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.users" relationship="REFERENCES">
+      <point x="0.0" y="-118.5" />
+      <point x="1529.0" y="474.0" />
+      <point x="628.4" y="474.0" />
+      <point x="39.400000000000006" y="160.5" />
+    </edge>
+    <edge source="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.show_assignment_has_roles" target="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.roles" relationship="REFERENCES">
+      <point x="-65.0" y="-48.0" />
+      <point x="464.0" y="1834.0" />
+      <point x="469.0" y="1834.0" />
+      <point x="469.0" y="1794.0" />
+      <point x="389.0" y="1794.0" />
+      <point x="0.0" y="76.5" />
+    </edge>
+    <edge source="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.inventory_has_shows" target="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.users" relationship="REFERENCES">
+      <point x="-76.875" y="-76.5" />
+      <point x="872.125" y="1334.0" />
+      <point x="589.0" y="1334.0" />
+      <point x="0.0" y="160.5" />
+    </edge>
+    <edge source="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.schedules_has_users" target="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.users" relationship="REFERENCES">
+      <point x="51.0" y="-48.0" />
+      <point x="300.0" y="1394.0" />
+      <point x="289.0" y="1394.0" />
+      <point x="289.0" y="554.0" />
+      <point x="509.0" y="554.0" />
+      <point x="509.0" y="414.0" />
+      <point x="549.6" y="414.0" />
+      <point x="-39.400000000000006" y="160.5" />
+    </edge>
+    <edge source="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.shows" target="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.organizations" relationship="REFERENCES">
+      <point x="0.0" y="-118.5" />
+      <point x="869.0" y="14.0" />
+      <point x="266.75" y="14.0" />
+      <point x="37.75" y="76.5" />
+    </edge>
+    <edge source="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.schedules_has_casting" target="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.schedules" relationship="REFERENCES">
+      <point x="-54.25" y="-48.0" />
+      <point x="674.75" y="1354.0" />
+      <point x="189.0" y="1354.0" />
+      <point x="0.0" y="174.5" />
+    </edge>
+    <edge source="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.org_assignment_has_roles" target="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.roles" relationship="REFERENCES">
+      <point x="61.0" y="-48.0" />
+      <point x="130.0" y="1834.0" />
+      <point x="129.0" y="1834.0" />
+      <point x="129.0" y="1374.0" />
+      <point x="389.0" y="1374.0" />
+      <point x="0.0" y="76.5" />
+    </edge>
+    <edge source="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.inventory_has_shows" target="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.casting" relationship="REFERENCES">
+      <point x="25.625" y="-76.5" />
+      <point x="974.625" y="1814.0" />
+      <point x="966.75" y="1814.0" />
+      <point x="37.75" y="104.5" />
+    </edge>
+    <edge source="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.inventory" target="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.users" relationship="REFERENCES">
+      <point x="0.0" y="-160.5" />
+      <point x="1689.0" y="414.0" />
+      <point x="667.8" y="414.0" />
+      <point x="78.80000000000001" y="160.5" />
+    </edge>
+    <edge source="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.lighting_plots" target="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.layouts" relationship="REFERENCES">
+      <point x="0.0" y="-202.5" />
+      <point x="1449.0" y="1234.0" />
+      <point x="1229.0" y="1234.0" />
+      <point x="1229.0" y="1154.0" />
+      <point x="1209.0" y="1154.0" />
+      <point x="0.0" y="104.5" />
+    </edge>
+    <edge source="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.schedules_has_casting" target="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.casting" relationship="REFERENCES">
+      <point x="54.25" y="-48.0" />
+      <point x="783.25" y="1394.0" />
+      <point x="891.25" y="1394.0" />
+      <point x="-37.75" y="104.5" />
+    </edge>
+    <edge source="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.casting" target="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.users" relationship="REFERENCES">
+      <point x="-37.75" y="-104.5" />
+      <point x="891.25" y="554.0" />
+      <point x="509.0" y="554.0" />
+      <point x="509.0" y="414.0" />
+      <point x="549.6" y="414.0" />
+      <point x="-39.400000000000006" y="160.5" />
+    </edge>
+    <edge source="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.org_assignment_has_roles" target="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.org_has_users" relationship="REFERENCES">
+      <point x="-61.0" y="-48.0" />
+      <point x="8.0" y="1834.0" />
+      <point x="9.0" y="1834.0" />
+      <point x="0.0" y="76.5" />
+    </edge>
+    <edge source="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.inventory" target="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.organizations" relationship="REFERENCES">
+      <point x="59.0" y="-160.5" />
+      <point x="1748.0" y="454.0" />
+      <point x="1749.0" y="454.0" />
+      <point x="1749.0" y="34.0" />
+      <point x="189.0" y="34.0" />
+      <point x="189.0" y="-26.0" />
+      <point x="191.25" y="-26.0" />
+      <point x="-37.75" y="76.5" />
+    </edge>
+    <edge source="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.schedules" target="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.organizations" relationship="REFERENCES">
+      <point x="0.0" y="-174.5" />
+      <point x="189.0" y="-26.0" />
+      <point x="191.25" y="-26.0" />
+      <point x="-37.75" y="76.5" />
+    </edge>
+    <edge source="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.schedules" target="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.shows" relationship="REFERENCES">
+      <point x="52.33333333333333" y="-174.5" />
+      <point x="241.33333333333326" y="514.0" />
+      <point x="909.0" y="514.0" />
+      <point x="909.0" y="354.0" />
+      <point x="906.75" y="354.0" />
+      <point x="37.75" y="118.5" />
+    </edge>
+    <edge source="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.org_has_users" target="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.organizations" relationship="REFERENCES">
+      <point x="-51.5" y="-76.5" />
+      <point x="-42.5" y="534.0" />
+      <point x="89.0" y="534.0" />
+      <point x="89.0" y="34.0" />
+      <point x="189.0" y="34.0" />
+      <point x="189.0" y="-26.0" />
+      <point x="191.25" y="-26.0" />
+      <point x="-37.75" y="76.5" />
+    </edge>
+    <edge source="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.show_has_users" target="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.shows" relationship="REFERENCES">
+      <point x="51.5" y="-104.5" />
+      <point x="760.5" y="514.0" />
+      <point x="909.0" y="514.0" />
+      <point x="909.0" y="354.0" />
+      <point x="906.75" y="354.0" />
+      <point x="37.75" y="118.5" />
+    </edge>
+    <edge source="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.cues" target="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.inventory" relationship="REFERENCES">
+      <point x="44.0" y="-132.5" />
+      <point x="1713.0" y="1314.0" />
+      <point x="1733.25" y="1314.0" />
+      <point x="44.25" y="160.5" />
+    </edge>
+    <edge source="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.notes" target="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.shows" relationship="REFERENCES">
+      <point x="-51.0" y="-118.5" />
+      <point x="1478.0" y="514.0" />
+      <point x="909.0" y="514.0" />
+      <point x="909.0" y="354.0" />
+      <point x="906.75" y="354.0" />
+      <point x="37.75" y="118.5" />
+    </edge>
+    <edge source="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.stage_objects" target="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.layouts" relationship="REFERENCES">
+      <point x="0.0" y="-202.5" />
+      <point x="1229.0" y="1154.0" />
+      <point x="1209.0" y="1154.0" />
+      <point x="0.0" y="104.5" />
+    </edge>
+    <edge source="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.inventory" target="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.departments" relationship="REFERENCES">
+      <point x="-59.0" y="-160.5" />
+      <point x="1630.0" y="454.0" />
+      <point x="1629.0" y="454.0" />
+      <point x="0.0" y="48.5" />
+    </edge>
+    <edge source="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.show_assignment_has_roles" target="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.show_roles" relationship="REFERENCES">
+      <point x="-65.0" y="-48.0" />
+      <point x="464.0" y="1834.0" />
+      <point x="469.0" y="1834.0" />
+      <point x="469.0" y="1814.0" />
+      <point x="489.0" y="1814.0" />
+      <point x="0.0" y="76.5" />
+    </edge>
+    <edge source="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.inventory_has_shows" target="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.inventory" relationship="REFERENCES">
+      <point x="76.875" y="-76.5" />
+      <point x="1025.875" y="1254.0" />
+      <point x="1644.75" y="1254.0" />
+      <point x="-44.25" y="160.5" />
+    </edge>
+    <edge source="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.org_assignment_has_roles" target="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.org_roles" relationship="REFERENCES">
+      <point x="61.0" y="-48.0" />
+      <point x="130.0" y="1834.0" />
+      <point x="129.0" y="1834.0" />
+      <point x="129.0" y="1814.0" />
+      <point x="-111.0" y="1814.0" />
+      <point x="0.0" y="76.5" />
+    </edge>
+    <edge source="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.expenses" target="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.shows" relationship="REFERENCES">
+      <point x="0.0" y="-104.5" />
+      <point x="1089.0" y="514.0" />
+      <point x="909.0" y="514.0" />
+      <point x="909.0" y="354.0" />
+      <point x="906.75" y="354.0" />
+      <point x="37.75" y="118.5" />
+    </edge>
+    <edge source="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.org_has_users" target="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.users" relationship="REFERENCES">
+      <point x="51.5" y="-76.5" />
+      <point x="60.5" y="554.0" />
+      <point x="509.0" y="554.0" />
+      <point x="509.0" y="414.0" />
+      <point x="549.6" y="414.0" />
+      <point x="-39.400000000000006" y="160.5" />
+    </edge>
+    <edge source="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.show_assignment_has_roles" target="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.show_has_users" relationship="REFERENCES">
+      <point x="65.0" y="-48.0" />
+      <point x="594.0" y="1414.0" />
+      <point x="709.0" y="1414.0" />
+      <point x="0.0" y="104.5" />
+    </edge>
+    <edge source="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.show_has_users" target="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.users" relationship="REFERENCES">
+      <point x="-51.5" y="-104.5" />
+      <point x="657.5" y="554.0" />
+      <point x="509.0" y="554.0" />
+      <point x="509.0" y="414.0" />
+      <point x="549.6" y="414.0" />
+      <point x="-39.400000000000006" y="160.5" />
+    </edge>
+    <edge source="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.inventory_has_shows" target="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.shows" relationship="REFERENCES">
+      <point x="-25.625" y="-76.5" />
+      <point x="923.375" y="1314.0" />
+      <point x="829.0" y="1314.0" />
+      <point x="829.0" y="494.0" />
+      <point x="831.25" y="494.0" />
+      <point x="-37.75" y="118.5" />
+    </edge>
+    <edge source="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.notes" target="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.departments" relationship="REFERENCES">
+      <point x="51.0" y="-118.5" />
+      <point x="1580.0" y="454.0" />
+      <point x="1629.0" y="454.0" />
+      <point x="0.0" y="48.5" />
+    </edge>
+    <edge source="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.budgets" target="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.shows" relationship="REFERENCES">
+      <point x="0.0" y="-90.5" />
+      <point x="1329.0" y="514.0" />
+      <point x="909.0" y="514.0" />
+      <point x="909.0" y="354.0" />
+      <point x="906.75" y="354.0" />
+      <point x="37.75" y="118.5" />
+    </edge>
+    <edge source="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.layouts" target="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.shows" relationship="REFERENCES">
+      <point x="0.0" y="-104.5" />
+      <point x="1209.0" y="514.0" />
+      <point x="909.0" y="514.0" />
+      <point x="909.0" y="354.0" />
+      <point x="906.75" y="354.0" />
+      <point x="37.75" y="118.5" />
+    </edge>
+    <edge source="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.cues" target="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.shows" relationship="REFERENCES">
+      <point x="-44.0" y="-132.5" />
+      <point x="1625.0" y="1214.0" />
+      <point x="1429.0" y="1214.0" />
+      <point x="1429.0" y="514.0" />
+      <point x="909.0" y="514.0" />
+      <point x="909.0" y="354.0" />
+      <point x="906.75" y="354.0" />
+      <point x="37.75" y="118.5" />
+    </edge>
+    <edge source="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.schedules_has_users" target="e4d6c896-03dc-4e06-b385-1cfb5ff14808.TABLE:performing-arts-manager.schedules" relationship="REFERENCES">
+      <point x="-51.0" y="-48.0" />
+      <point x="198.0" y="1354.0" />
+      <point x="189.0" y="1354.0" />
+      <point x="0.0" y="174.5" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Compact" zoom="1.0349893162393162" showDependencies="false" x="795.4999999999998" y="956.9999999999999" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Columns</Category>
+    <Category>Comments</Category>
+    <Category>Key columns</Category>
+    <Category>Virtual foreign keys</Category>
+  </Categories>
+</Diagram>
+
