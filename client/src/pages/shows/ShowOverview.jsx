@@ -98,7 +98,18 @@ export default function ShowOverview() {
 	});
 
 	const getRoleSubtitle = (member) => {
-		const roles = (member.assignedRoles || []).map((role) => role.name).filter(Boolean);
+		const toTitleCaseRole = (roleName) =>
+			String(roleName)
+				.replace(/[-_]+/g, " ")
+				.split(" ")
+				.filter(Boolean)
+				.map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+				.join(" ");
+
+		const roles = (member.assignedRoles || [])
+			.map((role) => role.name)
+			.filter(Boolean)
+			.map(toTitleCaseRole);
 		return roles.length > 0 ? roles.join(", ") : "No roles assigned";
 	};
 
@@ -177,7 +188,7 @@ export default function ShowOverview() {
 				</div>
 			)}
 
-			{/* Sidebar Navigation - UNTOUCHED */}
+			{/* Sidebar Navigation */}
 			<aside className="flex w-64 shrink-0 flex-col overflow-hidden rounded-2xl bg-white shadow-xl ring-1 ring-gray-200">
 				<div className="bg-gray-800 p-6 text-white">
 					<h2 className="truncate font-bold text-xl" title={showData.title}>
@@ -222,7 +233,7 @@ export default function ShowOverview() {
 							/>
 						</DashboardSection>
 
-						{/* Compact Budget Widget - UNTOUCHED */}
+						{/* Compact Budget Widget */}
 						<DashboardSection
 							title="Budget Overview"
 							actionTitle="Manage Budget"
@@ -246,7 +257,7 @@ export default function ShowOverview() {
 						</DashboardSection>
 					</div>
 
-					{/* Right Column: People - UNTOUCHED */}
+					{/* Right Column: People  */}
 					<div className="flex h-full min-h-0 flex-col gap-6 self-stretch">
 						<DashboardSection
 							title="Cast & Crew"

@@ -1,152 +1,12 @@
 import bcrypt from "bcryptjs";
 
+import { seedUsers } from "./seed-users.local.js";
 import models from "./src/models/index.js";
 import sequelize from "./src/services/db.service.js";
 
-const SHOW_PROFILE_DATA_BY_USER_ID = {
-    1: {
-        photo_path: "/uploads/profiles/Laura.jpg",
-        bio: `This fall, Laura found herself listening to the radio and discovering Panto songs. "So ok, it's time to direct again." She then chose this script because she imagined how much fun the cast would have with a space and alien theme. Watching the cast bring characters to life has been a delight. She thanks all the many hands and hearts that have said yes to bringing this project into its full glory. She hopes our colourful production will bring you, the audience, some lightness of being and some great belly laughs! Thank you for coming. Enjoy the show!`,
-    },
-    2: {
-        photo_path: "/uploads/profiles/Jade.jpg",
-        bio: `Jade, artist & dog lover by day, actor & singer by night, has been with the Shawnigan Players for 8 years. You might remember her role as Ellen-a-dale or Jacquenetta, Diana, Mercy Lewis, or as a mime in Hamlet. This panto will mark her first time playing a real man! Jade and Captain Dick Daring have lots in common, especially their gentlemanly ways. Need a pickle jar opened? Can't reach the top shelf? A pesky puddle blocking your way? Handkerchief in hand she's your man! Captain Dick Daring beloved by moms everywhere. Just ask nicely!`,
-    },
-    3: {
-        photo_path: "/uploads/profiles/Joshua.jpg",
-        bio: `Joshua is excited to be directing his first play (the Tales of Conall Cra Bhuidhe) and to be playing the role of Void in Santa in Space. He has found a real passion for set design and thanks the Shawnigan Players for being such a welcoming group.`,
-    },
-    4: {
-        photo_path: "/uploads/profiles/Bill.jpg",
-        bio: `Bill is happy once again to be playing the part of 'ethereal fog!' That thing that lodges in yer mind when you're in the swamp of jollity and good cheer! Like chocolate peanut butter balls, ethereal fog will be playing in your mind as the bells ring and the swirling lights descend. Merry Bliss, travellers!`,
-    },
-    5: {
-        photo_path: "/uploads/profiles/Aiden.jpg",
-        bio: `Aiden is thrilled to be working with the Shawnigan Players stage managing his first show! He started with the players as Dick in the 2024 production of Puss in Boots, and was recently spotted in both of the 2025 Shakespeare Festival shows. He would like to thank Cathy for being such an influential person in his life, and helping him grow into the person he is today.`,
-    },
-    6: {
-        photo_path: "/uploads/profiles/Cathy.jpg",
-        bio: `It is an absolute honour to work with Laura Sirmul and the cast and crew of Santa in Space!! Cathy has been a choreographer in the valley for over 35 years, and is glad to be back for another Shawnigan Players pantomime!`,
-    },
-    7: {
-        photo_path: "/uploads/profiles/Lily.jpg",
-        bio: `After playing Princess Pamela in last years Puss In Boots, Lily is excited for the opportunity to play the chaotic Astra in this years panto! Lily was also seen recently with the Players in their Shakespeare Festival this past summer as Adriana in The Comedy of Errors and as the stage manger for Antony and Cleopatra. You can catch her in the New Year in Ladysmith Little Theatres production of Cabaret.`,
-    },
-    8: {
-        photo_path: "/uploads/profiles/Raine.jpg",
-        bio: `Raine is a sound designer and performer currently based in Vancouver. You may have seen him in other Shawnigan Players shows such as The Crucible, Tom Thumb, or the many Shakespeare plays. He is delighted to provide the sound effects for this production and hopes you have as much fun hearing them as he did making them!`,
-    },
-    9: {
-        photo_path: "/uploads/profiles/Alex.jpg",
-        bio: null,
-    },
-    10: {
-        photo_path: "/uploads/profiles/Dan.jpg",
-        bio: `Dan Leckey has previously appeared in Cymbeline, The Crucible, All's Well That Ends Well, Puss In Boots and had a wonderful time working with the crazy bunch of people who come together to stage these shows for our appreciative audiences. I hope you enjoy this show as much as we enjoy bringing them to you!`,
-    },
-    11: {
-        photo_path: "/uploads/profiles/Bowie.jpg",
-        bio: `A Muppet brought to life by some dark magic, Bowie Farquharson is excited for their third production with the Shawnigan Players. After destroying audiences with their devastatingly emotional performance as Dromio in The Comedy of Errors they hope to bring the same visceral feeling to the role of Null in Santa in Space!`,
-    },
-    12: {
-        photo_path: "/uploads/profiles/Nora.jpg",
-        bio: `Nora has previously been seen on stage as the Serpent Dancer in Shawnigan Players' production of Antony and Cleopatra. It is a rare sight to see Nora outside of her natural habitat: Her living room. You can find her trying to get a pet crow, attempting to draw animals, drawing people in her own quirky style, listening to the most random music and nerding out over things like Deltarune, Undertale, fashion and fantasy fiction.`,
-    },
-    13: {
-        photo_path: "/uploads/profiles/Jasmine.jpg",
-        bio: `Meet jay-01. Jay can sing, it can act, and heck, on good days it can dance half decently! Jay has been featured in past shows such as the Comedy Of Errors and Love's Labour's Lost in the 2024 and 2025 Shakespeare festivals, alongside the Robin Hood pantomime in 2023! Get your own jay-01 today!! (Disclaimer: you cannot get your own jay today or ever as there is only one that has been made). We hope you enjoy the show!`,
-    },
-    14: {
-        photo_path: "/uploads/profiles/Rob.jpg",
-        bio: `Too fond of all the roles he's played for Shawnigan and Mercury Players over past six years, Rob could not choose a favourite. He is also grateful to Joni for the magical wisdom of her lyrics: "We are stardust - billion year old carbon. We are golden - caught up in the devil's bargain. And we've got to get ourselves back to the Garden." - 'Woodstock' 1969.`,
-    },
-    15: {
-        photo_path: "/uploads/profiles/Lara.jpg",
-        bio: `Lara is a Bellydancer and thrilled to combine her isolation skills with Santa's magic! Last years pantomime she starred as Puss in "Puss in Boots" and slithered this summer as Charmian in Shakespeare's "Antony and Cleopatra". When she's not costuming or on stage, you'll find Lara surrounded with other creative wakkyness in her boutique "Spinning Ninny", downtown Duncan.`,
-    },
-    16: {
-        photo_path: "/uploads/profiles/Arwen.jpg",
-        bio: `This is Arwen's second performance with the Shawnigan Players, but not her first time on the stage. She has also acted in Honk the Musical, in which she played Penny; her school's rendition of Shrek, in which she played Fiona; and multiple others including being an extra in a Hallmark movie. Somehow, she always ends up with the role of 'girlfriend.' (She's not complaining, though) She also sings, composes music, and is an avid writer.`,
-    },
-    17: {
-        photo_path: "/uploads/profiles/Sarah.jpg",
-        bio: `Having worked her way up the ladder of social hierarchy in previous pantos by playing Maid Marian in Robin Hood followed by Queen Brenda in Puss in Boots, Sarah has finally stumbled upon the role which truly holds the reigns of power: screaming five-year-old. Non-panto roles include Iras in Antony and Cleopatra, Nathaniel in Love's Labours Lost, and Mariane in Tartuffe. When not playing theatrically, Sarah plays and teaches piano, cello, and classical voice.`,
-    },
-    18: {
-        photo_path: "/uploads/profiles/Aaron.jpg",
-        bio: `This is Aaron's second Panto with the Shawnigan Players. He loves the fun energy of it. He thanks Laura for giving him the role of Monster and all the gravitas such a character entails.`,
-    },
-    19: {
-        photo_path: "/uploads/profiles/Phillip.jpg",
-        bio: `Philip Allingham moved from Thunder Bay, Ontario, to Victoria, BC upon retirement from Lakehead University in June 2015, but has continued with The Victorian Web. He was last seen in Shawnigan Player's productions as Proculeius in Antony and Cleopatra and Reynaldo in Two Gentlemen of Verona. After decades off the boards with UBC and Vancouver Little Theatre, Philip returned to his first theatrical love, Shakespeare.`,
-    },
-    20: {
-        photo_path: "/uploads/profiles/Jessie.jpg",
-        bio: `Jessie Johnson returns for another Pantomime adventure! You may remember her as Slugslime the giant evil slug, or the sweet and cheeky Daisy the Cow! When she's not bringing creatures to life on stage, Jessie is in her studio crafting one-of-a-kind art doll beings.`,
-    },
-    21: {
-        photo_path: null,
-        bio: `This summer Jordan Lyric joined the Shawnigan Players for the first time in their madcap presentation of The Comedy of Errors with his wife, Jessica and daughter, Ruby. Jordan is looking forward to sharing the stage with his daughter again this holiday season in their very first pantomime, Santa in Space.`,
-    },
-    22: {
-        photo_path: "/uploads/profiles/Kael.jpg",
-        bio: `Kael debuted with Shawnigan Players as the Tour Guide, in 2024's Puss 'N Boots. He stepped out of his comfort zone and joined the 2025 Shakespeare Festival and now he's happy to be back to choreography and regular English in Santa in Space and to test new skills at miming in The Tales of Conall Cra Bhuidhe.`,
-    },
-    23: {
-        photo_path: "/uploads/profiles/Cameron.jpg",
-        bio: `Cameron is excited to play the leader of the varboites in the pantomime! He has been in the acting industry for 6 years. He thanks you for reading, and enjoy the show!`,
-    },
-    24: {
-        photo_path: "/uploads/profiles/Will.jpg",
-        bio: null,
-    },
-    25: {
-        photo_path: "/uploads/profiles/Max.jpg",
-        bio: `Max is very excited to be following in his Dad's footsteps and joining the Shawnigan Players for his first production. In his regular life he is busy with school at the Grove's Nature program and with 1st Cobble Hill Cub Scouts.`,
-    },
-    26: {
-        photo_path: null,
-        bio: `Ruby Lyric is very excited to perform in her second show with the Shawnigan Players after appearing in the Children's Chorus in The Comedy of Errors this past summer. Ruby also played the role of Flower Girl in the QMS production of Mamma Mia last year.`,
-    },
-    27: {
-        photo_path: "/uploads/profiles/Tamalane.jpg",
-        bio: `Tamalane Garside is returning to the theater after a 30-or-so year hiatus wherein she pretended to be a busy adult. While not sorting through piles of books or hunting down costumes, Tamalane can be found helping the Dame into her glamorous frock and ensuring the kids have snacks.`,
-    },
-    28: {
-        photo_path: "/uploads/profiles/Elys.jpg",
-        bio: `Elys Garside has recently done a drum performance. She is also interested in singing, dancing, making realistic drawings and folding paper claws. Elys hopes you enjoy the show.`,
-    },
-    29: {
-        photo_path: null,
-        bio: `Tamalane Garside is returning to the theater after a 30-or-so year hiatus wherein she pretended to be a busy adult. While not sorting through piles of books or hunting down costumes, Tamalane can be found helping the Dame into her glamorous frock and ensuring the kids have snacks.`,
-    },
-    30: {
-        photo_path: null,
-        bio: `Elys Garside has recently done a drum performance. She is also interested in singing, dancing, making realistic drawings and folding paper claws. Another craft she likes doing is beading on safety pins. She enjoys hanging out with her friends and family and playing with the family cat and her hamster. Elys hopes you enjoy the show.`,
-    },
-    31: {
-        photo_path: null,
-        bio: null,
-    },
-    32: {
-        photo_path: null,
-        bio: null,
-    },
-    33: {
-        photo_path: null,
-        bio: null,
-    },
-    34: {
-        photo_path: null,
-        bio: null,
-    },
-    35: {
-        photo_path: null,
-        bio: null,
-    },
-};
+const { usersData, showProfileDataByUserId } = seedUsers;
 
-export default async function seed() {
+async function seed() {
     try {
         console.log("🔄 Wiping database and syncing tables...");
         await sequelize.sync({ force: true }); // Wipes and recreates tables based on models
@@ -187,46 +47,11 @@ export default async function seed() {
         // ------------------------
         console.log("👥 Seeding Users from CSV...");
         const passwordHash = await bcrypt.hash("password123", 10);
-
-        const usersData = [
-            // Santa in Space Cast/Crew
-            { id: 1, fname: "Laura", lname: "Sirmul", email: "laura.sirmul@gmail.com", phone: "250-510-3153", passwordHash },
-            { id: 2, fname: "Jade", lname: "Edgar", email: "jadesnow5@protonmail.com", phone: "250-510-8394", passwordHash },
-            { id: 3, fname: "Joshua", lname: "Farquarson", email: "write.far@gmail.com", phone: "250-815-5102", passwordHash },
-            { id: 4, fname: "Bill", lname: "Levity", email: "levitybill@gmail.com", phone: "250-701-1042", passwordHash },
-            { id: 5, fname: "Aiden", lname: "Adzich", email: "aidenadzich@gmail.com", phone: "250-510-9202", passwordHash },
-            { id: 6, fname: "Cathy", lname: "Schmidt", email: "cathyschmidt59@gmail.com", phone: "250-715-8763", passwordHash },
-            { id: 7, fname: "Lily", lname: "Wilson", email: "lilyparker25@outlook.com", phone: "250-710-8433", passwordHash },
-            { id: 8, fname: "Raine", lname: "Edgar", email: "raineedgar@gmail.com", phone: "236-594-9971", passwordHash },
-            { id: 9, fname: "Alex", lname: "Gallacher", email: "gallacher_alex@yahoo.ca", phone: "250-701-7973", passwordHash },
-            { id: 10, fname: "Dan", lname: "Leckey", email: "jdanleckey@gmail.com", phone: "250-737-3073", passwordHash },
-            { id: 11, fname: "Bowie", lname: "Farquarson", email: "cheshcraft@gmail.com", phone: "250-252-1584", passwordHash },
-            { id: 12, fname: "Nora", lname: "Perry", email: "747780@gmail.com", phone: "780-839-5635", passwordHash },
-            { id: 13, fname: "Jasmine", lname: "Wilson", email: "jazzyskywilson@gmail.com", phone: "250-815-5860", passwordHash },
-            { id: 14, fname: "Rob", lname: "Foell", email: "yambertam@hotmail.com", phone: "250-884-0178", passwordHash },
-            { id: 15, fname: "Lara", lname: "Brunshot", email: "spinningninnylara@gmail.com", phone: "250-815-7746", passwordHash },
-            { id: 16, fname: "Arwen", lname: "Garside", email: "garsidearwen@gmail.com", phone: "250-709-2558", passwordHash },
-            { id: 17, fname: "Sarah", lname: "Chapeskie", email: "sarahcc@spinnaker.com", phone: "236-969-5214", passwordHash },
-            { id: 18, fname: "Aaron", lname: "Montan", email: "montanworkshop@gmail.com", phone: "250-413-7299", passwordHash },
-            { id: 19, fname: "Phillip", lname: "Allingham", email: "pallingh@lakeheadu.ca", phone: "250-889-9755", passwordHash },
-            { id: 20, fname: "Jessie", lname: "Johnson", email: "thecosmicforest2019@gmail.com", phone: "250-732-5271", passwordHash },
-            { id: 21, fname: "Jordan", lname: "Lyric", email: "jordanlyricart@gmail.com", phone: "604-226-7621", passwordHash },
-            { id: 22, fname: "Kael", lname: "Reintjes", email: "kaelreintjes07@gmail.com", phone: "250-510-7720", passwordHash },
-            { id: 23, fname: "Cameron", lname: "Clark", email: "cameronc3549@gmail.com", phone: "778-700-3811", passwordHash },
-            { id: 24, fname: "William", lname: "Gallacher", email: "gallacher_alex@yahoo.ca", phone: "250-701-7973", passwordHash },
-            { id: 25, fname: "Max", lname: "Farquarson", email: "write.far@gmail.com", phone: "250-815-5102", passwordHash },
-            { id: 26, fname: "Ruby", lname: "Lyric", email: "jordanlyricart@gmail.com", phone: "604-226-7621", passwordHash },
-            { id: 27, fname: "Tamalane", lname: "Garside", email: "tamalane.hilderley@gmail.com", phone: "250-709-4531", passwordHash },
-            { id: 28, fname: "Elys", lname: "Garside", email: "tamalane.hilderley@gmail.com", phone: "250-709-4531", passwordHash },
-            { id: 29, fname: "Roland", lname: "Graham", email: "rolandgrahame69@gmail.com", phone: "250-857-7648", passwordHash },
-            { id: 30, fname: "Kahlan", lname: "McLean", email: "kahlanfox9@gmail.com", phone: "236-882-3296", passwordHash },
-            { id: 31, fname: "Bekah", lname: "Vanderzee", email: "rebekah.vanderzee@gmail.com", phone: "250-268-9837", passwordHash },
-            { id: 32, fname: "Ward", lname: "Knoll", email: "maibybeantree@gmail.com", phone: "250-252-6789", passwordHash },
-            { id: 33, fname: "Maia", lname: "Knoll", email: "pancakecitrus@gmail.com", phone: "250-510-3870", passwordHash },
-            { id: 34, fname: "Kendra", lname: "Vanderzee", email: "kendravanderzee@gmail.com", phone: "778-269-1436", passwordHash },
-            { id: 35, fname: "Joel", lname: "Perry", email: "747780@gmail.com", phone: "780-839-5635", passwordHash }
-        ];
-        await models.User.bulkCreate(usersData);
+        const usersWithPasswordHash = usersData.map((user) => ({
+            ...user,
+            passwordHash,
+        }));
+        await models.User.bulkCreate(usersWithPasswordHash);
 
         // ------------------------
         // 3. Organization & Memberships
@@ -256,7 +81,7 @@ export default async function seed() {
         // 4. Shows & Show Memberships
         // ------------------------
         console.log("🎭 Seeding Shows & Cast/Crew...");
-        const shows = await models.Show.bulkCreate([
+        await models.Show.bulkCreate([
             { id: 1, title: "Santa in Space", start_date: now, end_date: inOneMonth, organization_id: org.id },
             { id: 2, title: "The Tales of Conall Cra Bhuidhe", start_date: inOneMonth, end_date: inTwoMonths, organization_id: org.id }
         ]);
@@ -300,8 +125,8 @@ export default async function seed() {
         ];
         const santaMembersWithPhotos = santaMembersData.map(member => ({
             ...member,
-            bio: SHOW_PROFILE_DATA_BY_USER_ID[member.users_id]?.bio ?? null,
-            photo_path: SHOW_PROFILE_DATA_BY_USER_ID[member.users_id]?.photo_path ?? null,
+            bio: showProfileDataByUserId[member.users_id]?.bio ?? null,
+            photo_path: showProfileDataByUserId[member.users_id]?.photo_path ?? null,
         }));
         const santaMembers = await models.ShowMembership.bulkCreate(santaMembersWithPhotos, { returning: true });
 
@@ -320,8 +145,8 @@ export default async function seed() {
         ];
         const spMembersWithPhotos = spMembersData.map(member => ({
             ...member,
-            bio: SHOW_PROFILE_DATA_BY_USER_ID[member.users_id]?.bio ?? null,
-            photo_path: SHOW_PROFILE_DATA_BY_USER_ID[member.users_id]?.photo_path ?? null,
+            bio: showProfileDataByUserId[member.users_id]?.bio ?? null,
+            photo_path: showProfileDataByUserId[member.users_id]?.photo_path ?? null,
         }));
         const spMembers = await models.ShowMembership.bulkCreate(spMembersWithPhotos, { returning: true });
 
@@ -329,11 +154,12 @@ export default async function seed() {
         await models.ShowRoleRelationship.bulkCreate([
             { assignment_id: santaMembers.find(m => m.users_id === 1).assignment_id, role_id: 100 }, // Laura: Director
             { assignment_id: santaMembers.find(m => m.users_id === 2).assignment_id, role_id: 101 }, // Jade: Co-Director
-            { assignment_id: santaMembers.find(m => m.users_id === 2).assignment_id, role_id: 103 }, // Jade: Co-Director
+            { assignment_id: santaMembers.find(m => m.users_id === 2).assignment_id, role_id: 103 }, // Jade: Actor
             { assignment_id: santaMembers.find(m => m.users_id === 5).assignment_id, role_id: 102 }, // Aiden: Stage Manager
+            { assignment_id: spMembers.find(m => m.users_id === 5).assignment_id, role_id: 112 }, // Aiden: Photographer
             { assignment_id: santaMembers.find(m => m.users_id === 6).assignment_id, role_id: 104 }, // Cathy: Choreographer
             { assignment_id: santaMembers.find(m => m.users_id === 7).assignment_id, role_id: 105 }, // Lily: Dance Captain
-            { assignment_id: santaMembers.find(m => m.users_id === 7).assignment_id, role_id: 103 }, // Lily: Dance Captain
+            { assignment_id: santaMembers.find(m => m.users_id === 7).assignment_id, role_id: 103 }, // Lily: Actor
             { assignment_id: santaMembers.find(m => m.users_id === 8).assignment_id, role_id: 106 }, // Raine: Sound Design
             { assignment_id: santaMembers.find(m => m.users_id === 4).assignment_id, role_id: 113 }, // Bill: Producer
             { assignment_id: santaMembers.find(m => m.users_id === 9).assignment_id, role_id: 103 }, // Alex: Actor
@@ -371,6 +197,7 @@ export default async function seed() {
             { assignment_id: spMembers.find(m => m.users_id === 2).assignment_id, role_id: 101 }, // Jade: Co-Director
             { assignment_id: spMembers.find(m => m.users_id === 5).assignment_id, role_id: 102 }, // Aiden: Stage Manager
             { assignment_id: spMembers.find(m => m.users_id === 5).assignment_id, role_id: 112 }, // Aiden: Photographer
+            { assignment_id: spMembers.find(m => m.users_id === 5).assignment_id, role_id: 103 }, // Aiden: Actor
             { assignment_id: spMembers.find(m => m.users_id === 14).assignment_id, role_id: 103 }, // Rob: Actor
             { assignment_id: spMembers.find(m => m.users_id === 17).assignment_id, role_id: 103 }, // Sarah: Actor
             { assignment_id: spMembers.find(m => m.users_id === 18).assignment_id, role_id: 103 }, // Aaron: Actor
