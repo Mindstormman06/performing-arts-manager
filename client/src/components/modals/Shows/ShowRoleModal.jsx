@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { updateShowUserRoles, getAvailableShowRoles, getShowUser } from "../../../services/api.js";
+import { BACKEND_URL } from "../../../services/config.js";
 import {
     ModalBody,
     ModalCancelButton,
@@ -8,14 +9,12 @@ import {
     ModalFooter,
     ModalHeader,
     ModalLabel,
-    ModalSubHeader,
-    ModalSubmitButton,
     ModalSubWrapper,
     ModalWrapper
 } from "../../ui/modals/index.js";
 
-export default function ShowRoleModal({ isOpen, onClose, onSuccess, showId, user, canEditRoles = false }) {
-    const [loading, setLoading] = useState(false);
+export default function ShowRoleModal({ isOpen, onClose, showId, user, canEditRoles = false }) {
+    const loading = false;
     const [error, setError] = useState("");
     const [availableRoles, setAvailableRoles] = useState([]);
     const [selectedRoles, setSelectedRoles] = useState([]);
@@ -26,10 +25,12 @@ export default function ShowRoleModal({ isOpen, onClose, onSuccess, showId, user
 
     useEffect(() => {
         if (isOpen && user) {
-            setSelectedRoles(user.assignedRoles?.map((r) => r.name) || []);
-            setError("");
-            setIsEditingRoles(false);
-            setResolvedMember(user);
+            const timer = window.setTimeout(() => {
+                setError("");
+                setIsEditingRoles(false);
+                setResolvedMember(user);
+                setSelectedRoles(user.assignedRoles?.map((r) => r.name) || []);
+            }, 0);
 
             getShowUser(showId, user.users_id)
                 .then((response) => {
@@ -39,7 +40,6 @@ export default function ShowRoleModal({ isOpen, onClose, onSuccess, showId, user
                     }
                 })
                 .catch(() => {
-                    // Keep current member payload if detailed fetch fails.
                 });
 
             getAvailableShowRoles()
@@ -51,6 +51,8 @@ export default function ShowRoleModal({ isOpen, onClose, onSuccess, showId, user
                     console.error("Failed to load available roles:", err);
                     setError("Failed to load available roles");
                 });
+
+            return () => window.clearTimeout(timer);
         }
     }, [isOpen, user, showId]);
 
@@ -75,7 +77,6 @@ export default function ShowRoleModal({ isOpen, onClose, onSuccess, showId, user
     const handleToggle = async (role) => {
         setError("");
 
-        // Optimistically update the UI instantly
         const isAdding = !selectedRoles.includes(role);
         const updatedRoles = isAdding
             ? [...selectedRoles, role]
@@ -87,25 +88,24 @@ export default function ShowRoleModal({ isOpen, onClose, onSuccess, showId, user
             const hiddenRoles = user?.assignedRoles?.map((r) => r.name).filter((name) => !availableRoles.includes(name)) || [];
             const finalRoles = [...new Set([...updatedRoles, ...hiddenRoles])];
 
-            // Make the API call in the background
             await updateShowUserRoles(showId, user.users_id, finalRoles);
 
-            // Note: onSuccess() is removed from here so it doesn't trigger a page reload
-            // or parent state refresh while the user is actively clicking checkboxes.
+
         } catch (err) {
-            // If it fails, revert the checkbox visually and show an error
             setSelectedRoles(selectedRoles);
             setError(err.response?.data?.message || "Failed to update role");
         }
     };
 
-    // Optional: If you DO need the parent to refresh, do it when the modal closes instead
     const handleClose = () => {
         // onSuccess(); // Uncomment this if the parent needs to refetch data after editing
         onClose();
     };
 
     const memberUser = resolvedMember?.User || user?.User || {};
+    const memberBio = resolvedMember?.bio ?? user?.bio ?? "";
+    const memberPhotoPath = resolvedMember?.photo_path ?? user?.photo_path ?? "";
+    const memberPhotoUrl = memberPhotoPath ? `${BACKEND_URL}${memberPhotoPath}` : "";
 
     return (
         <ModalWrapper>
@@ -147,7 +147,7 @@ export default function ShowRoleModal({ isOpen, onClose, onSuccess, showId, user
                                                 </div>
                                                 <div className="max-h-48 space-y-1 overflow-y-auto p-2">
                                                     {availableRoles.map((role) => (
-                                                        <ModalLabel key={role} variant="checkbox" className="!mb-0 flex items-center rounded p-1 hover:bg-gray-50 cursor-pointer">
+                                                        <ModalLabel key={role} variant="checkbox" className="mb-0 flex items-center rounded p-1 hover:bg-gray-50 cursor-pointer">
                                                             <ModalCheckbox
                                                                 checked={selectedRoles.includes(role)}
                                                                 onChange={() => handleToggle(role)}
@@ -184,15 +184,23 @@ export default function ShowRoleModal({ isOpen, onClose, onSuccess, showId, user
                             <div className="mt-5">
                                 <h3 className="mb-1 font-medium text-xl text-gray-700">Bio</h3>
                                 <p className="text-base text-gray-600 leading-7">
-                                    {memberUser.bio || "Bio placeholder"}
+                                    {memberBio || "Bio placeholder"}
                                 </p>
                             </div>
                         </div>
 
                         <div className="flex items-start justify-center md:justify-end">
-                            <div className="flex h-72 w-60 items-center justify-center rounded-2xl bg-gray-500 text-6xl font-light text-white">
-                                Photo
-                            </div>
+                            {memberPhotoUrl ? (
+                                <img
+                                    src={memberPhotoUrl}
+                                    alt={`${memberUser.fname || "Member"} ${memberUser.lname || ""}`.trim()}
+                                    className="h-72 w-60 rounded-2xl object-cover shadow-sm"
+                                />
+                            ) : (
+                                <div className="flex h-72 w-60 items-center justify-center rounded-2xl bg-gray-500 text-6xl font-light text-white">
+                                    Photo
+                                </div>
+                            )}
                         </div>
                     </div>
                 </ModalBody>
