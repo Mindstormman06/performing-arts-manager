@@ -143,7 +143,7 @@ export default function ShowOverview() {
 				onClose={() => setIsRoleModalOpen(false)}
 				user={selectedUser}
 				showId={showId}
-				canEditRoles={canEditRoles}
+				canEditRoles={false}
 				currentUserId={currentUserId}
 				currentUserRoles={currentUserRoles}
 				onSuccess={fetchData}
@@ -293,7 +293,7 @@ export default function ShowOverview() {
 							title="Cast & Crew"
 							actionTitle="Manage Roster"
 							className={`${desktopPanelHeightClass} min-h-0`}
-							onActionClick={() => setIsManageMembersModalOpen(true)}
+										onActionClick={canEditRoles ? () => setIsManageMembersModalOpen(true) : undefined}
 						>
 							<ul className="space-y-3">
 								{sortedMembers.length > 0 ? (
