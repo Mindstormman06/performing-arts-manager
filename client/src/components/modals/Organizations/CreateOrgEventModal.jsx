@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { assignOrgEventUsers, createOrgEvent, getOrganizationUsers } from "../../../services/api.js";
+import { localDateAndTimeToUtcIso } from "../../../utils/dateTime.js";
 import {
     ModalCancelButton,
     ModalCheckbox,
@@ -95,10 +96,12 @@ export default function CreateOrgEventModal({ isOpen, onClose, orgId, onSuccess,
         setError("");
 
         try {
+            const startUtc = localDateAndTimeToUtcIso(formData.date, formData.start_time);
+            const endUtc = localDateAndTimeToUtcIso(formData.date, formData.end_time);
             const payload = {
                 ...formData,
-                start_time: `${formData.date}T${formData.start_time}`,
-                end_time: `${formData.date}T${formData.end_time}`
+                start_time: startUtc,
+                end_time: endUtc
             };
             const res = await createOrgEvent(orgId, payload);
 
