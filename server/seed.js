@@ -156,7 +156,7 @@ async function seed() {
             { assignment_id: santaMembers.find(m => m.users_id === 2).assignment_id, role_id: 101 }, // Jade: Co-Director
             { assignment_id: santaMembers.find(m => m.users_id === 2).assignment_id, role_id: 103 }, // Jade: Actor
             { assignment_id: santaMembers.find(m => m.users_id === 5).assignment_id, role_id: 102 }, // Aiden: Stage Manager
-            { assignment_id: spMembers.find(m => m.users_id === 5).assignment_id, role_id: 112 }, // Aiden: Photographer
+            { assignment_id: santaMembers.find(m => m.users_id === 5).assignment_id, role_id: 112 }, // Aiden: Photographer
             { assignment_id: santaMembers.find(m => m.users_id === 6).assignment_id, role_id: 104 }, // Cathy: Choreographer
             { assignment_id: santaMembers.find(m => m.users_id === 7).assignment_id, role_id: 105 }, // Lily: Dance Captain
             { assignment_id: santaMembers.find(m => m.users_id === 7).assignment_id, role_id: 103 }, // Lily: Actor
