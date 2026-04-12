@@ -50,14 +50,12 @@ function App() {
 				<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 					<div className="flex h-16 justify-between">
 
-						<div className="flex items-center gap-3">
-							<Link to={token ? "/" : "/"}>
-								<Logo className="h-10 w-auto drop-shadow-md hover:opacity-90 transition-opacity" />
-							</Link>
-							<h1 className="font-bold text-xl hidden sm:block">
-								Performing Arts Manager
-							</h1>
-						</div>
+					<Link to="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
+						<Logo className="h-10 w-auto drop-shadow-md" />
+						<h1 className="font-bold text-xl hidden sm:block">
+							Performing Arts Manager
+						</h1>
+					</Link>
 						<div className="flex items-center space-x-4">
 							{!token ? (
 								<>

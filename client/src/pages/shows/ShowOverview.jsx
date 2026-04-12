@@ -143,7 +143,7 @@ export default function ShowOverview() {
 				onClose={() => setIsRoleModalOpen(false)}
 				user={selectedUser}
 				showId={showId}
-				canEditRoles={false}
+				canEditRoles={canEditRoles}
 				currentUserId={currentUserId}
 				currentUserRoles={currentUserRoles}
 				onSuccess={fetchData}
@@ -164,7 +164,7 @@ export default function ShowOverview() {
 							<button
 								type="button"
 								onClick={() => setSelectedCalendarEvent(null)}
-								className="rounded-lg px-2 py-1 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
+								className="cursor-pointer rounded-lg px-2 py-1 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
 							>
 								✕
 							</button>
@@ -184,14 +184,14 @@ export default function ShowOverview() {
 							<button
 								type="button"
 								onClick={() => setSelectedCalendarEvent(null)}
-								className="rounded-lg border border-gray-200 px-4 py-2 text-gray-700 text-sm font-medium hover:bg-gray-50"
+								className="cursor-pointer rounded-lg border border-gray-200 px-4 py-2 text-gray-700 text-sm font-medium hover:bg-gray-50"
 							>
 								Close
 							</button>
 							<button
 								type="button"
 								onClick={() => navigate(`/orgs/${orgId}/shows/${showId}/scheduling`)}
-								className="rounded-lg bg-blue-600 px-4 py-2 text-white text-sm font-semibold hover:bg-blue-700"
+								className="cursor-pointer rounded-lg bg-blue-600 px-4 py-2 text-white text-sm font-semibold hover:bg-blue-700"
 							>
 								Open Full Schedule
 							</button>

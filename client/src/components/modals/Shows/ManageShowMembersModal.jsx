@@ -77,7 +77,7 @@ export default function ManageShowMembersModal({ isOpen, onClose, members, orgId
 
 	return (
 		<ModalWrapper>
-	            <ShowRoleModal isOpen={isRoleModalOpen} onClose={() => setIsRoleModalOpen(false)} user={selectedUser} showId={showId} canEditRoles={canEditRoles} onSuccess={onSuccess} />
+			<ShowRoleModal isOpen={isRoleModalOpen} onClose={() => setIsRoleModalOpen(false)} user={selectedUser} showId={showId} canEditRoles={canEditRoles} onSuccess={onSuccess} />
             <InviteMemberModal isOpen={isInviteModalOpen} onClose={() => setIsInviteModalOpen(false)} orgId={orgId} showId={showId} onSuccess={onSuccess} />
 
 			<ModalSubWrapper>

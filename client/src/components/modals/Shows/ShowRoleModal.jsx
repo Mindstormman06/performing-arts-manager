@@ -203,12 +203,13 @@ export default function ShowRoleModal({ isOpen, onClose, showId, user, canEditRo
                                         {isEditingRoles && (
                                             <div
                                                 ref={popoverRef}
-                                                className="absolute left-full top-1/2 -translate-y-1/2 ml-3 z-50 w-48 rounded-lg border border-gray-200 bg-white shadow-xl"
+                                                className="absolute left-full top-1/2 -translate-y-1/2 ml-3 z-50 rounded-lg border border-gray-200 bg-white shadow-xl"
+                                                style={{ width: "448px" }}
                                             >
                                                 <div className="border-b border-gray-100 bg-gray-50 px-3 py-2 text-xs font-semibold text-gray-600 rounded-t-lg">
                                                     Assign Roles
                                                 </div>
-                                                <div className="max-h-48 space-y-1 overflow-y-auto p-2">
+                                                <div className="max-h-48 overflow-y-auto p-2 grid grid-cols-3 gap-2 w-full">
                                                     {availableRoles.map((role) => {
                                                         const isLockedHighestRole = selectedRoles.includes(role) && lockedHighestRoles.has(role);
                                                         const isHigherSelfPromotionRole = isEditingSelf && !selectedRoles.includes(role) && getRoleWeight(role) > highestBaseRoleWeight;
@@ -226,7 +227,7 @@ export default function ShowRoleModal({ isOpen, onClose, showId, user, canEditRo
                                                         <ModalLabel
                                                             key={role}
                                                             variant="checkbox"
-                                                            className={`mb-0 flex items-center rounded p-1 ${isDisabledRole
+                                                            className={`flex items-center rounded p-1 ${isDisabledRole
                                                                 ? "cursor-not-allowed bg-gray-100"
                                                                 : "cursor-pointer hover:bg-gray-50"
                                                                 }`}
