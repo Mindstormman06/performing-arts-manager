@@ -29,7 +29,11 @@ router.delete(
 router.post("/:orgId/join", orgMembershipController.join);
 
 // PUT /api/organizations/1/users/1/roles -> Appends roles to that assignment_id
-router.put("/:orgId/users/:userId/roles", orgMembershipController.addRoles);
+router.put(
+	"/:orgId/users/:userId/roles",
+	authenticate,
+	orgMembershipController.addRoles,
+);
 
 // GET all users in an organizations
 router.get("/:orgId/users", orgMembershipController.getAllUsers);
@@ -46,6 +50,7 @@ router.delete("/:orgId/users/:userId", orgMembershipController.leave);
 // DELETE a specific role from a user
 router.delete(
 	"/:orgId/users/:userId/roles",
+	authenticate,
 	orgMembershipController.removeRole,
 );
 

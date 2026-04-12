@@ -20,6 +20,7 @@ export default function ShowOverview() {
 	const [selectedUser, setSelectedUser] = useState(null);
 	const [selectedCalendarEvent, setSelectedCalendarEvent] = useState(null);
 	const [currentUserRoles, setCurrentUserRoles] = useState([]);
+	const [currentUserId, setCurrentUserId] = useState(null);
 
 	const fetchData = useCallback(async () => {
 		try {
@@ -30,6 +31,7 @@ export default function ShowOverview() {
 				verifyToken(),
 			]);
 			const currentUserId = authRes.data.user.id;
+			setCurrentUserId(currentUserId);
 			const currentMember = (dashboardRes.data.data?.members || []).find(
 				(member) => member.User?.id === currentUserId || member.users_id === currentUserId,
 			);
@@ -142,6 +144,8 @@ export default function ShowOverview() {
 				user={selectedUser}
 				showId={showId}
 				canEditRoles={canEditRoles}
+				currentUserId={currentUserId}
+				currentUserRoles={currentUserRoles}
 				onSuccess={fetchData}
 			/>
 

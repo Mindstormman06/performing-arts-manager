@@ -680,6 +680,53 @@ describe("Show Management API", () => {
 			);
 			expect(res.message).toContain("role(s) removed successfully");
 		});
+
+		it("removeRolesFromUser - should block removing your own highest role", async () => {
+			await showRoleService.appendRolesToAssignment(testShowId, testUserId, [
+				"stage-manager",
+				"actor",
+			]);
+
+			await expect(
+				showRoleService.removeRolesFromUser(
+					testShowId,
+					testUserId,
+					["stage-manager"],
+					testUserId,
+				),
+			).rejects.toThrow("You cannot remove your highest role from yourself");
+		});
+
+		it("appendRolesToAssignment - should block self-demotion to a lower role", async () => {
+			await showRoleService.appendRolesToAssignment(testShowId, testUserId, [
+				"director",
+				"stage-manager",
+			]);
+
+			await expect(
+				showRoleService.appendRolesToAssignment(
+					testShowId,
+					testUserId,
+					["stage-manager"],
+					testUserId,
+				),
+			).rejects.toThrow("You cannot remove your highest role from yourself");
+		});
+
+		it("appendRolesToAssignment - should block self-promotion to a higher role", async () => {
+			await showRoleService.appendRolesToAssignment(testShowId, testUserId, [
+				"actor",
+			]);
+
+			await expect(
+				showRoleService.appendRolesToAssignment(
+					testShowId,
+					testUserId,
+					["stage-manager", "actor"],
+					testUserId,
+				),
+			).rejects.toThrow("You cannot assign yourself a higher role");
+		});
 	});
 
 	describe("show.service.js - Direct Service Tests", () => {

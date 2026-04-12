@@ -1,21 +1,49 @@
 import models from "../models/index.js";
+import {
+	getHighestRoleWeight,
+	isSelfDemotion,
+	normalizeRoleNames,
+	SHOW_ROLE_PRIORITY,
+} from "./rolePriority.service.js";
 
-async function appendRolesToAssignment(showId, userId, roleNames) {
+async function appendRolesToAssignment(showId, userId, roleNames, actingUserId = null) {
 	const show = await models.Show.findOne({ where: { id: showId } });
 	if (!show) throw new Error("Show not found");
 	
 	const membership = await models.ShowMembership.findOne({
 		where: { show_id: showId, users_id: userId },
+		include: [{ model: models.ShowRole, as: "assignedRoles" }],
 	});
 	if (!membership) throw new Error("User is not a member of this show");
 
-    let roles = [];
-    if (roleNames && roleNames.length > 0) {
-        roles = await models.ShowRole.findAll({
-            where: { name: roleNames },
-        });
-        if (!roles.length) throw new Error("No valid roles provided");
-    }
+	let roles = [];
+	if (roleNames && roleNames.length > 0) {
+		roles = await models.ShowRole.findAll({
+			where: { name: roleNames },
+		});
+		if (!roles.length) throw new Error("No valid roles provided");
+	}
+
+	if (Number(actingUserId) === Number(userId)) {
+		const currentRoleNames = membership.assignedRoles.map((role) => role.name);
+		const nextRoleNames = normalizeRoleNames(roles.map((role) => role.name));
+		const currentHighestWeight = getHighestRoleWeight(
+			currentRoleNames,
+			SHOW_ROLE_PRIORITY,
+		);
+		const nextHighestWeight = getHighestRoleWeight(
+			nextRoleNames,
+			SHOW_ROLE_PRIORITY,
+		);
+
+		if (nextHighestWeight > currentHighestWeight) {
+			throw new Error("You cannot assign yourself a higher role");
+		}
+
+		if (isSelfDemotion(currentRoleNames, nextRoleNames, SHOW_ROLE_PRIORITY)) {
+			throw new Error("You cannot remove your highest role from yourself");
+		}
+	}
 
 	await membership.setAssignedRoles(roles);
 
@@ -92,8 +120,10 @@ async function removeUserFromShow(showId, userId) {
 	return { message: "User removed from show successfully" };
 }
 
-async function removeRolesFromUser(showId, userId, roleNames) {
-	const namesArray = Array.isArray(roleNames) ? roleNames : [roleNames];
+async function removeRolesFromUser(showId, userId, roleNames, actingUserId = null) {
+	const namesArray = normalizeRoleNames(
+		Array.isArray(roleNames) ? roleNames : [roleNames],
+	);
 
 	if (!namesArray.length || !namesArray[0])
 		throw new Error("Role names are required");
@@ -115,6 +145,19 @@ async function removeRolesFromUser(showId, userId, roleNames) {
 		.filter((n) => namesArray.includes(n));
 	if (!hasAny.length) {
 		throw new Error("User does not have any of these roles");
+	}
+
+	if (Number(actingUserId) === Number(userId)) {
+		const currentRoleNames = normalizeRoleNames(
+			membership.assignedRoles.map((role) => role.name),
+		);
+		const nextRoleNames = currentRoleNames.filter(
+			(roleName) => !namesArray.includes(roleName),
+		);
+
+		if (isSelfDemotion(currentRoleNames, nextRoleNames, SHOW_ROLE_PRIORITY)) {
+			throw new Error("You cannot remove your highest role from yourself");
+		}
 	}
 
 	await membership.removeAssignedRoles(roles);

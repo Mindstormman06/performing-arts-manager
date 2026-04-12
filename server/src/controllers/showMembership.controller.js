@@ -53,6 +53,7 @@ async function addRoles(req, res, next) {
 			showId,
 			userId,
 			roles,
+			req.user?.id,
 		);
 
 		return res.json({
@@ -60,6 +61,14 @@ async function addRoles(req, res, next) {
 			data: updatedRoles,
 		});
 	} catch (error) {
+		if (
+			error.message.includes("higher role") ||
+			error.message.includes("highest role") ||
+			error.message.includes("cannot remove")
+		) {
+			return res.status(403).json({ success: false, message: error.message });
+		}
+
 		if (
 			error.message.includes("No valid") ||
 			error.message.includes("not a member") ||
@@ -144,10 +153,18 @@ async function removeRole(req, res, next) {
 			showId,
 			userId,
 			rolesToRemove,
+			req.user?.id,
 		);
 		// Tested but not recognizing coverage. Ignoring for now.
 		/* v8 ignore next */ res.json(result);
 	} catch (error) {
+		if (
+			error.message.includes("highest role") ||
+			error.message.includes("cannot remove")
+		) {
+			return res.status(403).json({ success: false, message: error.message });
+		}
+
 		if (
 			error.message.includes("required") ||
 			error.message.includes("not found") ||

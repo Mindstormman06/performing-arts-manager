@@ -53,7 +53,11 @@ router.post(
 );
 
 // PUT /api/shows/1/users/1/roles -> Appends roles to that assignment_id
-router.put("/:showId/users/:userId/roles", showMembershipController.addRoles);
+router.put(
+	"/:showId/users/:userId/roles",
+	authenticate,
+	showMembershipController.addRoles,
+);
 
 // GET all users in an show
 router.get("/:showId/users", showMembershipController.getAllUsers);
@@ -70,6 +74,7 @@ router.delete("/:showId/users/:userId", showMembershipController.leave);
 // DELETE a specific role from a user
 router.delete(
 	"/:showId/users/:userId/roles",
+	authenticate,
 	showMembershipController.removeRole,
 );
 
