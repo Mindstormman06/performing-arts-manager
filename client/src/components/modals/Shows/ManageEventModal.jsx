@@ -6,6 +6,7 @@ import {
     getShowUsers,
     getShowCasting,
 } from "../../../services/api.js";
+import { localDateTimeToUtcIso, utcToLocalDateTimeInput } from "../../../utils/dateTime.js";
 import {
     ModalCancelButton,
     ModalCheckbox,
@@ -56,17 +57,10 @@ export default function ManageEventModal({ isOpen, onClose, showId, event, onSuc
             setActiveTab("details");
             setError("");
 
-            const formatForInput = (dateString) => {
-                if (!dateString) return "";
-                const d = new Date(dateString);
-                d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
-                return d.toISOString().slice(0, 16);
-            };
-
             setFormData({
                 title: event.title || "",
-                start_time: formatForInput(event.start_time),
-                end_time: formatForInput(event.end_time),
+                start_time: utcToLocalDateTimeInput(event.start_time),
+                end_time: utcToLocalDateTimeInput(event.end_time),
                 location: event.location || "",
                 description: event.description || ""
             });
@@ -130,7 +124,11 @@ export default function ManageEventModal({ isOpen, onClose, showId, event, onSuc
         setError("");
 
         try {
-            await updateShowEvent(showId, event.id, formData);
+            await updateShowEvent(showId, event.id, {
+                ...formData,
+                start_time: localDateTimeToUtcIso(formData.start_time),
+                end_time: localDateTimeToUtcIso(formData.end_time),
+            });
 
             // Always persist assignments so removals (empty array) are saved too.
             await assignShowEventUsers(showId, event.id, {

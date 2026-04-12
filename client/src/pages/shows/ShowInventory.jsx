@@ -205,7 +205,7 @@ export default function ShowInventory() {
 
 			<DashboardSection 
 				title="Items Assigned to this Show"
-				actionTitle="Manage Inventory"
+				actionTitle={hasAnyAddPermission ? "Manage Inventory" : undefined}
 				onActionClick={hasAnyAddPermission ? () => setIsManageModalOpen(true) : undefined}
 				className="flex-1"
 			>

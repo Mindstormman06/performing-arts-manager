@@ -20,6 +20,7 @@ export default function ShowOverview() {
 	const [selectedUser, setSelectedUser] = useState(null);
 	const [selectedCalendarEvent, setSelectedCalendarEvent] = useState(null);
 	const [currentUserRoles, setCurrentUserRoles] = useState([]);
+	const [currentUserId, setCurrentUserId] = useState(null);
 
 	const fetchData = useCallback(async () => {
 		try {
@@ -30,6 +31,7 @@ export default function ShowOverview() {
 				verifyToken(),
 			]);
 			const currentUserId = authRes.data.user.id;
+			setCurrentUserId(currentUserId);
 			const currentMember = (dashboardRes.data.data?.members || []).find(
 				(member) => member.User?.id === currentUserId || member.users_id === currentUserId,
 			);
@@ -142,6 +144,8 @@ export default function ShowOverview() {
 				user={selectedUser}
 				showId={showId}
 				canEditRoles={canEditRoles}
+				currentUserId={currentUserId}
+				currentUserRoles={currentUserRoles}
 				onSuccess={fetchData}
 			/>
 
@@ -160,7 +164,7 @@ export default function ShowOverview() {
 							<button
 								type="button"
 								onClick={() => setSelectedCalendarEvent(null)}
-								className="rounded-lg px-2 py-1 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
+								className="cursor-pointer rounded-lg px-2 py-1 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
 							>
 								✕
 							</button>
@@ -180,14 +184,14 @@ export default function ShowOverview() {
 							<button
 								type="button"
 								onClick={() => setSelectedCalendarEvent(null)}
-								className="rounded-lg border border-gray-200 px-4 py-2 text-gray-700 text-sm font-medium hover:bg-gray-50"
+								className="cursor-pointer rounded-lg border border-gray-200 px-4 py-2 text-gray-700 text-sm font-medium hover:bg-gray-50"
 							>
 								Close
 							</button>
 							<button
 								type="button"
 								onClick={() => navigate(`/orgs/${orgId}/shows/${showId}/scheduling`)}
-								className="rounded-lg bg-blue-600 px-4 py-2 text-white text-sm font-semibold hover:bg-blue-700"
+								className="cursor-pointer rounded-lg bg-blue-600 px-4 py-2 text-white text-sm font-semibold hover:bg-blue-700"
 							>
 								Open Full Schedule
 							</button>
@@ -289,7 +293,7 @@ export default function ShowOverview() {
 							title="Cast & Crew"
 							actionTitle="Manage Roster"
 							className={`${desktopPanelHeightClass} min-h-0`}
-							onActionClick={() => setIsManageMembersModalOpen(true)}
+										onActionClick={canEditRoles ? () => setIsManageMembersModalOpen(true) : undefined}
 						>
 							<ul className="space-y-3">
 								{sortedMembers.length > 0 ? (

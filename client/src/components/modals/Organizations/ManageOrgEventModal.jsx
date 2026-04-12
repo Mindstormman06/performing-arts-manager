@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { assignOrgEventUsers, deleteOrgEvent, getOrganizationUsers, updateOrgEvent } from "../../../services/api.js";
+import { localDateTimeToUtcIso, utcToLocalDateTimeInput } from "../../../utils/dateTime.js";
 import {
     ModalCancelButton,
     ModalCheckbox,
@@ -37,17 +38,10 @@ export default function ManageOrgEventModal({ isOpen, onClose, orgId, event, onS
             setActiveTab("details");
             setError("");
 
-            const formatForInput = (dateString) => {
-                if (!dateString) return "";
-                const date = new Date(dateString);
-                date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
-                return date.toISOString().slice(0, 16);
-            };
-
             setFormData({
                 title: event.title || "",
-                start_time: formatForInput(event.start_time),
-                end_time: formatForInput(event.end_time),
+                start_time: utcToLocalDateTimeInput(event.start_time),
+                end_time: utcToLocalDateTimeInput(event.end_time),
                 location: event.location || "",
                 description: event.description || ""
             });
@@ -85,7 +79,11 @@ export default function ManageOrgEventModal({ isOpen, onClose, orgId, event, onS
         setError("");
 
         try {
-            await updateOrgEvent(orgId, event.id, formData);
+            await updateOrgEvent(orgId, event.id, {
+                ...formData,
+                start_time: localDateTimeToUtcIso(formData.start_time),
+                end_time: localDateTimeToUtcIso(formData.end_time),
+            });
 
             // Always persist assignments so removals (empty array) are saved too.
             await assignOrgEventUsers(orgId, event.id, {

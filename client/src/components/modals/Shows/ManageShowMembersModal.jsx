@@ -77,7 +77,7 @@ export default function ManageShowMembersModal({ isOpen, onClose, members, orgId
 
 	return (
 		<ModalWrapper>
-	            <ShowRoleModal isOpen={isRoleModalOpen} onClose={() => setIsRoleModalOpen(false)} user={selectedUser} showId={showId} canEditRoles={canEditRoles} onSuccess={onSuccess} />
+			<ShowRoleModal isOpen={isRoleModalOpen} onClose={() => setIsRoleModalOpen(false)} user={selectedUser} showId={showId} canEditRoles={canEditRoles} onSuccess={onSuccess} />
             <InviteMemberModal isOpen={isInviteModalOpen} onClose={() => setIsInviteModalOpen(false)} orgId={orgId} showId={showId} onSuccess={onSuccess} />
 
 			<ModalSubWrapper>
@@ -86,6 +86,7 @@ export default function ManageShowMembersModal({ isOpen, onClose, members, orgId
 				{error && <ModalError>{error}</ModalError>}
 
 				<ModalBody>
+					{canEditRoles && (
 					<ModalSubsection>
 							<ModalSubHeader>Add New Members</ModalSubHeader>
 							<div className="flex items-center justify-between gap-4 rounded-lg border border-gray-200 bg-gray-50 p-4 sm:flex-row flex-col">
@@ -121,6 +122,7 @@ export default function ManageShowMembersModal({ isOpen, onClose, members, orgId
 								</button>
 							</div>
 						</ModalSubsection>
+					)}
 
 					<ModalSubsection>
 						<ModalSubHeader>Current Roster</ModalSubHeader>

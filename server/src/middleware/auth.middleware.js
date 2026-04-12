@@ -96,7 +96,7 @@ export const authorizeShow = (requiredRoles = []) => {
 
 		if (orgMembership) {
 			const orgRoles = orgMembership.assignedRoles.map(r => r.name);
-			if (orgRoles.includes("president") || orgRoles.includes("board-member")) {
+			if (orgRoles.includes("president") || orgRoles.includes("board-member") || orgRoles.includes("admin")) {
 				return next();
 			}
 		}

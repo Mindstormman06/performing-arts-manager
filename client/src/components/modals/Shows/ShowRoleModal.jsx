@@ -13,7 +13,31 @@ import {
     ModalWrapper
 } from "../../ui/modals/index.js";
 
-export default function ShowRoleModal({ isOpen, onClose, showId, user, canEditRoles = false }) {
+const SHOW_ROLE_PRIORITY = [
+    "director",
+    "co-director",
+    "stage-manager",
+    "producer",
+    "choreographer",
+    "dance-captain",
+    "sound-design",
+    "lighting-design",
+    "costumes",
+    "props",
+    "sets",
+    "tech",
+    "photographer",
+    "crew",
+    "actor",
+];
+
+const getRoleWeight = (roleName) => {
+    const normalized = String(roleName || "").toLowerCase();
+    const index = SHOW_ROLE_PRIORITY.indexOf(normalized);
+    return index >= 0 ? SHOW_ROLE_PRIORITY.length - index : 1;
+};
+
+export default function ShowRoleModal({ isOpen, onClose, showId, user, canEditRoles = false, currentUserId = null, currentUserRoles = [] }) {
     const loading = false;
     const [error, setError] = useState("");
     const [availableRoles, setAvailableRoles] = useState([]);
@@ -74,8 +98,47 @@ export default function ShowRoleModal({ isOpen, onClose, showId, user, canEditRo
 
     if (!isOpen) return null;
 
+    const highestSelectedRoleWeight = selectedRoles.reduce(
+        (highest, roleName) => Math.max(highest, getRoleWeight(roleName)),
+        0,
+    );
+    const lockedHighestRoles = new Set(
+        selectedRoles.filter((roleName) => getRoleWeight(roleName) === highestSelectedRoleWeight),
+    );
+    const memberId = resolvedMember?.users_id ?? user?.users_id ?? null;
+    const isEditingSelf = Number(currentUserId) === Number(memberId);
+    const normalizedCurrentUserRoles = currentUserRoles.map((role) => String(role || "").toLowerCase());
+    const hasOrgLevelOverride = normalizedCurrentUserRoles.some((role) =>
+        ["president", "board-member", "admin"].includes(role),
+    );
+    const currentUserHighestRoleWeight = normalizedCurrentUserRoles.reduce(
+        (highest, roleName) => Math.max(highest, getRoleWeight(roleName)),
+        0,
+    );
+    const maxAssignableRoleWeight = hasOrgLevelOverride ? Number.POSITIVE_INFINITY : currentUserHighestRoleWeight;
+    const baseAssignedRoles = (resolvedMember?.assignedRoles || user?.assignedRoles || []).map((role) => role.name);
+    const highestBaseRoleWeight = baseAssignedRoles.reduce(
+        (highest, roleName) => Math.max(highest, getRoleWeight(roleName)),
+        0,
+    );
+
     const handleToggle = async (role) => {
         setError("");
+
+        if (selectedRoles.includes(role) && lockedHighestRoles.has(role)) {
+            setError("Highest role cannot be removed");
+            return;
+        }
+
+        if (isEditingSelf && !selectedRoles.includes(role) && getRoleWeight(role) > highestBaseRoleWeight) {
+            setError("You cannot assign yourself a higher role");
+            return;
+        }
+
+        if (!selectedRoles.includes(role) && getRoleWeight(role) > maxAssignableRoleWeight) {
+            setError("You cannot assign roles higher than your highest role");
+            return;
+        }
 
         const isAdding = !selectedRoles.includes(role);
         const updatedRoles = isAdding
@@ -140,21 +203,45 @@ export default function ShowRoleModal({ isOpen, onClose, showId, user, canEditRo
                                         {isEditingRoles && (
                                             <div
                                                 ref={popoverRef}
-                                                className="absolute left-full top-1/2 -translate-y-1/2 ml-3 z-50 w-48 rounded-lg border border-gray-200 bg-white shadow-xl"
+                                                className="absolute left-full top-1/2 -translate-y-1/2 ml-3 z-50 rounded-lg border border-gray-200 bg-white shadow-xl"
+                                                style={{ width: "448px" }}
                                             >
                                                 <div className="border-b border-gray-100 bg-gray-50 px-3 py-2 text-xs font-semibold text-gray-600 rounded-t-lg">
                                                     Assign Roles
                                                 </div>
-                                                <div className="max-h-48 space-y-1 overflow-y-auto p-2">
-                                                    {availableRoles.map((role) => (
-                                                        <ModalLabel key={role} variant="checkbox" className="mb-0 flex items-center rounded p-1 hover:bg-gray-50 cursor-pointer">
+                                                <div className="max-h-48 overflow-y-auto p-2 grid grid-cols-3 gap-2 w-full">
+                                                    {availableRoles.map((role) => {
+                                                        const isLockedHighestRole = selectedRoles.includes(role) && lockedHighestRoles.has(role);
+                                                        const isHigherSelfPromotionRole = isEditingSelf && !selectedRoles.includes(role) && getRoleWeight(role) > highestBaseRoleWeight;
+                                                        const isHigherThanEditorRole = !selectedRoles.includes(role) && getRoleWeight(role) > maxAssignableRoleWeight;
+                                                        const isDisabledRole = isLockedHighestRole || isHigherSelfPromotionRole || isHigherThanEditorRole;
+                                                        const disabledTitle = isLockedHighestRole
+                                                            ? "Highest role cannot be removed"
+                                                            : isHigherSelfPromotionRole
+                                                                ? "You cannot assign yourself a higher role"
+                                                                : isHigherThanEditorRole
+                                                                    ? "You cannot assign roles higher than your highest role"
+                                                                    : undefined;
+
+                                                        return (
+                                                        <ModalLabel
+                                                            key={role}
+                                                            variant="checkbox"
+                                                            className={`flex items-center rounded p-1 ${isDisabledRole
+                                                                ? "cursor-not-allowed bg-gray-100"
+                                                                : "cursor-pointer hover:bg-gray-50"
+                                                                }`}
+                                                            title={disabledTitle}
+                                                        >
                                                             <ModalCheckbox
                                                                 checked={selectedRoles.includes(role)}
+                                                                disabled={isDisabledRole}
                                                                 onChange={() => handleToggle(role)}
                                                             />
-                                                            <span className="ml-2 text-sm capitalize text-gray-700">{role}</span>
+                                                            <span className={`ml-2 text-sm capitalize ${isDisabledRole ? "text-gray-400" : "text-gray-700"}`}>{role}</span>
                                                         </ModalLabel>
-                                                    ))}
+                                                        );
+                                                    })}
                                                 </div>
                                             </div>
                                         )}

@@ -158,7 +158,7 @@ export default function OrgInventory() {
 
 			<DashboardSection
 				title="Inventory Database"
-				actionTitle="Add New Item"
+				actionTitle={hasAnyAddPermission ? "Add New Item" : undefined}
 				onActionClick={
 					hasAnyAddPermission ? () => setIsCreateModalOpen(true) : undefined
 				}

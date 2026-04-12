@@ -50,12 +50,14 @@ export default function MemberRow({
 						Edit Roles
 					</ModalHyperButton>
 				)}
-				<ModalDeleteButton
-					type="button"
-					onClick={() => onRemove(member.users_id)}
-				>
-					Remove
-				</ModalDeleteButton>
+				{canEditRoles && (
+					<ModalDeleteButton
+						type="button"
+						onClick={() => onRemove(member.users_id)}
+					>
+						Remove
+					</ModalDeleteButton>
+				)}
 			</div>
 		</div>
 	);

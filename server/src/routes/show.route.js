@@ -43,7 +43,12 @@ router.delete(
 );
 
 // POST /api/shows/1/join -> Links User 1 to Show 1 (assignment_id created)
-router.post("/:showId/join", showMembershipController.join);
+router.post(
+	"/:showId/join",
+	authenticate,
+	authorizeShow(["director", "stage-manager"]),
+	showMembershipController.join,
+);
 
 router.post(
 	"/:showId/invite",
@@ -53,7 +58,12 @@ router.post(
 );
 
 // PUT /api/shows/1/users/1/roles -> Appends roles to that assignment_id
-router.put("/:showId/users/:userId/roles", showMembershipController.addRoles);
+router.put(
+	"/:showId/users/:userId/roles",
+	authenticate,
+	authorizeShow(["director", "stage-manager"]),
+	showMembershipController.addRoles,
+);
 
 // GET all users in an show
 router.get("/:showId/users", showMembershipController.getAllUsers);
@@ -65,11 +75,18 @@ router.get("/:showId/users/search", showMembershipController.getByRole);
 router.get("/:showId/users/:userId", showMembershipController.getUser);
 
 // DELETE user from show (Leave)
-router.delete("/:showId/users/:userId", showMembershipController.leave);
+router.delete(
+	"/:showId/users/:userId",
+	authenticate,
+	authorizeShow(["director", "stage-manager"]),
+	showMembershipController.leave,
+);
 
 // DELETE a specific role from a user
 router.delete(
 	"/:showId/users/:userId/roles",
+	authenticate,
+	authorizeShow(["director", "stage-manager"]),
 	showMembershipController.removeRole,
 );
 
