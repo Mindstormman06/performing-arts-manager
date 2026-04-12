@@ -4,17 +4,11 @@ services:
       context: ./server
       dockerfile: Dockerfile
     container_name: pam-server
+    restart: always
     ports:
       - "8050:8050"
-    environment:
-      - API_PORT=8050
-      - DB_NAME=
-      - DB_USER=
-      - DB_PASSWORD=
-      - DB_HOST=
-      - DB_DIALECT=mysql
-      - DB_PORT=
-      - DB_SSL=
+    env_file:
+      - .env
     volumes:
       - server_uploads:/app/uploads
 
@@ -22,14 +16,14 @@ services:
     build:
       context: ./client
       dockerfile: Dockerfile
+      args:
+        - VITE_BACKEND_URL=https://localhost:8050
     container_name: pam-client
+    restart: always
     depends_on:
       - server
     ports:
-      - "5173:5173"
-    environment:
-      - VITE_BACKEND_URL=http://localhost:8050
-    command: npm run dev -- --host 0.0.0.0 --port 5173
+      - "8080:80"
 
 volumes:
   server_uploads:

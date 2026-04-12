@@ -6,4 +6,9 @@ yarn-debug.log*
 yarn-error.log*
 Dockerfile*
 .dockerignore
-
+.gitignore
+coverage
+*.log
+.idea
+.vscode
+.DS_Store
