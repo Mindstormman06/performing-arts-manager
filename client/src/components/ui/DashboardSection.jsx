@@ -12,6 +12,8 @@ export default function DashboardSection({
     style,
     children
 }) {
+    const shouldShowActionButton = Boolean(actionTitle) && typeof onActionClick === "function";
+
     return (
         <section className={`flex flex-col ${className}`} style={style}>
             <div className="mb-4 flex items-center justify-between">
@@ -28,7 +30,7 @@ export default function DashboardSection({
                         title
                     )}
                 </h2>
-                {actionTitle && (
+                {shouldShowActionButton && (
                     <IconButton
                         onClick={onActionClick}
                         title={actionTitle}
