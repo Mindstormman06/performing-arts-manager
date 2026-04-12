@@ -81,7 +81,7 @@ export default function OrgDashboard() {
 					<button
 						type="button"
 						onClick={() => setIsModalOpen(true)}
-						className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-5 py-3 font-semibold text-sm text-white shadow-sm transition-colors hover:bg-blue-700"
+						className="cursor-pointer inline-flex items-center justify-center rounded-xl bg-blue-600 px-5 py-3 font-semibold text-sm text-white shadow-sm transition-colors hover:bg-blue-700"
 					>
 						+ New Organization
 					</button>
@@ -117,14 +117,14 @@ export default function OrgDashboard() {
 									<button
 										type="button"
 										onClick={() => handleInviteAction(invite.org_id, "accept")}
-										className="inline-flex items-center justify-center rounded-lg bg-green-600 px-4 py-2 font-medium text-sm text-white transition-colors hover:bg-green-700"
+										className="cursor-pointer inline-flex items-center justify-center rounded-lg bg-green-600 px-4 py-2 font-medium text-sm text-white transition-colors hover:bg-green-700"
 									>
 										Accept
 									</button>
 									<button
 										type="button"
 										onClick={() => handleInviteAction(invite.org_id, "decline")}
-										className="inline-flex items-center justify-center rounded-lg border border-red-300 bg-white px-4 py-2 font-medium text-red-600 text-sm transition-colors hover:bg-red-50"
+										className="cursor-pointer inline-flex items-center justify-center rounded-lg border border-red-300 bg-white px-4 py-2 font-medium text-red-600 text-sm transition-colors hover:bg-red-50"
 									>
 										Decline
 									</button>

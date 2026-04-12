@@ -115,7 +115,7 @@ export default function ManageShowMembersModal({ isOpen, onClose, members, orgId
 								<button
 									type="button"
 									onClick={() => setIsInviteModalOpen(true)}
-									className="w-full whitespace-nowrap rounded bg-green-600 px-4 py-2 font-medium text-white transition-colors hover:bg-green-700 sm:w-auto"
+									className="cursor-pointer w-full whitespace-nowrap rounded bg-green-600 px-4 py-2 font-medium text-white transition-colors hover:bg-green-700 sm:w-auto"
 								>
 									+ Email Invite
 								</button>
