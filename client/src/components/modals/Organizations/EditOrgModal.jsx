@@ -49,7 +49,7 @@ export default function EditOrgModal({ isOpen, onClose, onSuccess, org }) {
 	return (
 		<ModalWrapper>
 			<ModalSubWrapper>
-				<ModalHeader>Edit Organization</ModalHeader>
+				<ModalHeader onClick={onClose}>Edit Organization</ModalHeader>
 
 				{error && <ModalError>{error}</ModalError>}
 
