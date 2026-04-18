@@ -20,7 +20,10 @@ app.use(express.json());
 app.use("/uploads", express.static("uploads"));
 
 /* v8 ignore start */
-if (typeof process.env.VITEST === "undefined" && process.env.NODE_ENV !== "test") {
+if (
+	typeof process.env.VITEST === "undefined" &&
+	process.env.NODE_ENV !== "test"
+) {
 	sequelize
 		.sync({ alter: true })
 		.then(() => console.log("Database synchronized!"))

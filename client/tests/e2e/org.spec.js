@@ -11,7 +11,9 @@ test("should open the Create Organization modal", async ({ page }) => {
 	await page.click('button:has-text("Login")');
 
 	await page.waitForLoadState("networkidle");
-	await page.waitForSelector('button:has-text("+ New Organization")', { timeout: 10000 });
+	await page.waitForSelector('button:has-text("+ New Organization")', {
+		timeout: 10000,
+	});
 	await page.click('button:has-text("+ New Organization")');
 
 	const modalHeading = page.locator("text=Create New Organization");
