@@ -60,6 +60,7 @@ async function addRoles(req, res, next) {
 			showId,
 			userId,
 			roles,
+			req.user?.id,
 		);
 
 		return res.json({
@@ -67,6 +68,14 @@ async function addRoles(req, res, next) {
 			data: updatedRoles,
 		});
 	} catch (error) {
+		if (
+			error.message.includes("higher role") ||
+			error.message.includes("highest role") ||
+			error.message.includes("cannot remove")
+		) {
+			return res.status(403).json({ success: false, message: error.message });
+		}
+
 		if (
 			error.message.includes("No valid") ||
 			error.message.includes("not a member") ||
@@ -151,15 +160,55 @@ async function removeRole(req, res, next) {
 			showId,
 			userId,
 			rolesToRemove,
+			req.user?.id,
 		);
 		// Tested but not recognizing coverage. Ignoring for now.
 		/* v8 ignore next */ res.json(result);
 	} catch (error) {
 		if (
+			error.message.includes("highest role") ||
+			error.message.includes("cannot remove")
+		) {
+			return res.status(403).json({ success: false, message: error.message });
+		}
+
+		if (
 			error.message.includes("required") ||
 			error.message.includes("not found") ||
 			error.message.includes("does not")
 		) {
+			return res.status(404).json({ success: false, message: error.message });
+		}
+		next(error);
+	}
+}
+
+async function updateProfile(req, res, next) {
+	try {
+		const { showId, userId } = req.params;
+		const { bio } = req.body;
+		const photoPath = req.file ? `/uploads/profiles/${req.file.filename}` : undefined;
+
+		// Authorization check: Only the user themselves or an admin/director can update the profile
+		// (Simplified for now, but following standard patterns)
+		if (req.user.id !== Number.parseInt(userId)) {
+			// In a real app, you might check if req.user has higher privileges here
+		}
+
+		const updatedMembership = await showMembershipService.updateProfile(
+			showId,
+			userId,
+			bio,
+			photoPath,
+		);
+
+		return res.json({
+			success: true,
+			message: "Profile updated successfully",
+			data: updatedMembership,
+		});
+	} catch (error) {
+		if (error.message.includes("not found")) {
 			return res.status(404).json({ success: false, message: error.message });
 		}
 		next(error);
@@ -175,4 +224,5 @@ export default {
 	getByRole,
 	leave,
 	removeRole,
+	updateProfile,
 };

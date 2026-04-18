@@ -1,0 +1,29 @@
+services:
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: pam-server
+    restart: always
+    ports:
+      - "8050:8050"
+    env_file:
+      - .env
+    volumes:
+      - server_uploads:/app/uploads
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      args:
+        - VITE_BACKEND_URL=https://localhost:8050
+    container_name: pam-client
+    restart: always
+    depends_on:
+      - server
+    ports:
+      - "8080:80"
+
+volumes:
+  server_uploads:

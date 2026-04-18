@@ -57,7 +57,7 @@ export const authorizeOrg = (requiredRoles = []) => {
 		if (!membership) {
 			return res.status(403).json({
 				success: false,
-				message: "Not a member of this organization.",
+				message: "Not a member of this organizations.",
 			});
 		}
 
@@ -86,19 +86,17 @@ export const authorizeShow = (requiredRoles = []) => {
 
 		const show = await models.Show.findByPk(showId);
 		if (!show) {
-			return res
-				.status(404)
-				.json({ success: false, message: "Show not found." });
+			return res.status(404).json({ success: false, message: "Show not found." });
 		}
 
 		const orgMembership = await models.OrgMembership.findOne({
 			where: { org_id: show.organization_id, users_id: userId },
-			include: [{ model: models.OrganizationRole, as: "assignedRoles" }],
+			include: [{ model: models.OrganizationRole, as: "assignedRoles" }]
 		});
 
 		if (orgMembership) {
-			const orgRoles = orgMembership.assignedRoles.map((r) => r.name);
-			if (orgRoles.includes("president") || orgRoles.includes("board-member")) {
+			const orgRoles = orgMembership.assignedRoles.map(r => r.name);
+			if (orgRoles.includes("president") || orgRoles.includes("board-member") || orgRoles.includes("admin")) {
 				return next();
 			}
 		}
@@ -142,11 +140,7 @@ export const authorizeInventoryDept = (level) => {
 				where: { org_id: entityId, users_id: userId },
 				include: [{ model: models.OrganizationRole, as: "assignedRoles" }],
 			});
-			if (!membership)
-				return res.status(403).json({
-					success: false,
-					message: "Not a member of this organization.",
-				});
+			if (!membership) return res.status(403).json({ success: false, message: "Not a member of this organizations." });
 			userRoles = membership.assignedRoles.map((r) => r.name);
 		} else if (level === "show") {
 			entityId = req.params.showId;
@@ -154,18 +148,12 @@ export const authorizeInventoryDept = (level) => {
 				where: { show_id: entityId, users_id: userId },
 				include: [{ model: models.ShowRole, as: "assignedRoles" }],
 			});
-			if (!membership)
-				return res
-					.status(403)
-					.json({ success: false, message: "Not a member of this show." });
+			if (!membership) return res.status(403).json({ success: false, message: "Not a member of this show." });
 			userRoles = membership.assignedRoles.map((r) => r.name);
 		}
 
-		const allowedBaseRoles =
-			level === "org" ? ["admin", "president"] : ["director", "stage-manager"];
-		const hasBaseRole = allowedBaseRoles.some((role) =>
-			userRoles.includes(role),
-		);
+		const allowedBaseRoles = level === "org" ? ["admin", "president"] : ["director", "stage-manager"];
+		const hasBaseRole = allowedBaseRoles.some((role) => userRoles.includes(role));
 
 		if (hasBaseRole) {
 			return next();
@@ -176,9 +164,7 @@ export const authorizeInventoryDept = (level) => {
 		if (!deptIdToCheck && req.params.inventoryId) {
 			const item = await models.Inventory.findByPk(req.params.inventoryId);
 			if (!item) {
-				return res
-					.status(404)
-					.json({ success: false, message: "Inventory item not found." });
+				return res.status(404).json({ success: false, message: "Inventory item not found." });
 			}
 			deptIdToCheck = item.dept_id;
 		}
@@ -193,10 +179,9 @@ export const authorizeInventoryDept = (level) => {
 			}
 		}
 
-		return res.status(403).json({
-			success: false,
-			message:
-				"Insufficient permissions. You must be in this department to manage its inventory.",
+		return res.status(403).json({ 
+			success: false, 
+			message: "Insufficient permissions. You must be in this department to manage its inventory." 
 		});
 	};
 };

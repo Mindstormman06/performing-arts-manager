@@ -6,7 +6,7 @@ import models from "../models/index.js";
 // 	const membership = await models.OrgMembership.findOne({
 // 		where: { org_id: orgId, users_id: userId },
 // 	});
-// 	if (!membership) throw new Error("User is not a member of this organization");
+// 	if (!membership) throw new Error("User is not a member of this organizations");
 
 // 	const roles = await models.Role.findAll({
 // 		where: { name: roleNames },
@@ -29,7 +29,7 @@ async function setRolesForAssignment(orgId, userId, roleNames) {
 	const membership = await models.OrgMembership.findOne({
 		where: { org_id: orgId, users_id: userId },
 	});
-	if (!membership) throw new Error("User is not a member of this organization");
+	if (!membership) throw new Error("User is not a member of this organizations");
 
 	// Remove all existing roles
 	await models.OrgRoleRelationship.destroy({
@@ -65,7 +65,7 @@ async function getOrgUsers(orgId) {
 		],
 	});
 	if (!memberships.length)
-		throw new Error("No users found for this organization");
+		throw new Error("No users found for this organizations");
 	return memberships;
 }
 
@@ -80,7 +80,7 @@ async function getOrgUserById(orgId, userId) {
 			{ model: models.OrganizationRole, as: "assignedRoles" },
 		],
 	});
-	if (!membership) throw new Error("User not found in this organization");
+	if (!membership) throw new Error("User not found in this organizations");
 	return membership;
 }
 
@@ -88,9 +88,7 @@ async function getUsersByRole(orgId, roleName) {
 	const org = await models.Organization.findOne({ where: { id: orgId } });
 	if (!org) throw new Error("Organization not found");
 
-	const role = await models.OrganizationRole.findOne({
-		where: { name: roleName },
-	});
+	const role = await models.OrganizationRole.findOne({ where: { name: roleName } });
 	if (!role) throw new Error("Role not found");
 
 	return await models.User.findAll({
@@ -117,8 +115,8 @@ async function removeUserFromOrg(orgId, userId) {
 	const deleted = await models.OrgMembership.destroy({
 		where: { org_id: orgId, users_id: userId },
 	});
-	if (!deleted) throw new Error("User is not a member of this organization");
-	return { message: "User removed from organization successfully" };
+	if (!deleted) throw new Error("User is not a member of this organizations");
+	return { message: "User removed from organizations successfully" };
 }
 
 async function removeRolesFromUser(orgId, userId, roleNames) {

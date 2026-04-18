@@ -16,15 +16,18 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Serve uploaded files statically
+app.use("/uploads", express.static("uploads"));
+
 /* v8 ignore start */
 if (process.env.NODE_ENV !== "test") {
 	sequelize
 		.sync({ alter: true })
 		.then(() => console.log("Database synchronized!"))
-		.then(() => {
-			seedRoles();
-			seedDepartments();
-		})
+		// .then(() => {
+		// 	seedRoles();
+		// 	seedDepartments();
+		// })
 		.catch((err) => console.error("Error syncing database:", err));
 
 	const seedRoles = async () => {
@@ -38,7 +41,7 @@ if (process.env.NODE_ENV !== "test") {
 			"tech", // Both
 		];
 		const showRoles = [
-			"director", // Show
+		    "director", // Show
 			"stage-manager", // Show
 			"actor", // Show
 			"stagehand", // Show
@@ -49,17 +52,13 @@ if (process.env.NODE_ENV !== "test") {
 		];
 
 		for (const roleName of orgRoles) {
-			const [created] = await OrganizationRole.findOrCreate({
-				where: { name: roleName },
-			});
+			const [created] = await OrganizationRole.findOrCreate({ where: { name: roleName } });
 			if (created) {
 				console.log(`Created organization role: ${roleName}`);
 			}
 		}
 		for (const roleName of showRoles) {
-			const [created] = await ShowRole.findOrCreate({
-				where: { name: roleName },
-			});
+			const [created] = await ShowRole.findOrCreate({ where: { name: roleName } });
 			if (created) {
 				console.log(`Created show role: ${roleName}`);
 			}
@@ -72,15 +71,14 @@ if (process.env.NODE_ENV !== "test") {
 		const departments = ["Costumes", "Props", "Sets", "Tech"];
 
 		for (const deptName of departments) {
-			const [created] = await Department.findOrCreate({
-				where: { name: deptName },
-			});
+			const [created] = await Department.findOrCreate({ where: { name: deptName } });
 			if (created) {
 				console.log(`Created department: ${deptName}`);
 			}
 		}
 		console.log("Departments seeding complete");
 	};
+
 }
 /* v8 ignore stop */
 
@@ -96,6 +94,10 @@ app.get("/crash-test-minimal", (_req, _res, next) => {
 	next({});
 });
 
+app.get("/test", (_req, res) => {
+	res.json({ message: "This is a test route." });
+});
+
 app.use("/api/users", userRouter);
 app.use("/api/orgs", organzationRouter);
 app.use("/api/shows", showRouter);
@@ -103,7 +105,7 @@ app.use("/api/auth", authRouter);
 // Usage: curl -X POST http://localhost:3000/api/admin/reset-db \ -H "Authorization: Bearer YOUR_JWT_TOKEN"
 app.use("/api/admin", adminRouter);
 app.use("/api/inventory", inventoryRouter);
-app.use("/api/schedule", scheduleRouter);
+app.use("/api/schedule", scheduleRouter)
 
 app.use((_req, _res, next) => {
 	next({

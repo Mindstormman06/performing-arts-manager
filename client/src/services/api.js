@@ -1,7 +1,8 @@
 import axios from "axios";
+import { API_BASE_URL } from "./config.js";
 
 const API = axios.create({
-	baseURL: "http://localhost:8050/api",
+	baseURL: API_BASE_URL,
 });
 
 API.interceptors.request.use((config) => {
@@ -24,7 +25,7 @@ API.interceptors.response.use(
 			}
 		}
 		return Promise.reject(error);
-	},
+	}
 );
 
 // Authentication
@@ -71,27 +72,45 @@ export const removeUserFromShow = (showId, userId) =>
 export const removeShowUserRole = (showId, userId, roles) =>
 	API.delete(`/shows/${showId}/users/${userId}/roles`, { roles });
 export const getShowDashboard = (id) => API.get(`/shows/${id}/dashboard`);
+export const getAvailableShowRoles = () => API.get("/shows/roles/available");
+
+// Casting
+export const getShowCasting = (showId) => API.get(`/shows/${showId}/casting`);
+export const getShowCharacter = (showId, characterId) =>
+	API.get(`/shows/${showId}/casting/${characterId}`);
+export const createShowCharacter = (showId, data) =>
+	API.post(`/shows/${showId}/casting`, data);
+export const updateShowCharacter = (showId, characterId, data) =>
+	API.put(`/shows/${showId}/casting/${characterId}`, data);
+export const assignShowCharacter = (showId, characterId, users_id) =>
+	API.put(`/shows/${showId}/casting/${characterId}/assign`, { users_id });
+export const deleteShowCharacter = (showId, characterId) =>
+	API.delete(`/shows/${showId}/casting/${characterId}`);
 
 // --- Inventory ---
 export const getDepartments = () => API.get("/inventory/departments");
 
 // Global Org Inventory
-export const getGlobalInventory = (orgId) =>
-	API.get(`/inventory/orgs/${orgId}`);
-export const createGlobalInventoryItem = (orgId, data) =>
-	API.post(`/inventory/orgs/${orgId}`, data);
-export const deleteGlobalInventoryItem = (orgId, itemId) =>
-	API.delete(`/inventory/orgs/${orgId}/items/${itemId}`);
+export const getGlobalInventory = (orgId) => API.get(`/inventory/orgs/${orgId}`);
+export const createGlobalInventoryItem = (orgId, data) => API.post(`/inventory/orgs/${orgId}`, data);
+export const updateGlobalInventoryItem = (orgId, itemId, data) => API.put(`/inventory/orgs/${orgId}/items/${itemId}`, data);
+export const deleteGlobalInventoryItem = (orgId, itemId) => API.delete(`/inventory/orgs/${orgId}/items/${itemId}`);
 
 // Show Inventory
-export const getShowInventory = (showId) =>
-	API.get(`/inventory/shows/${showId}`);
-export const createShowItem = (showId, data) =>
-	API.post(`/inventory/shows/${showId}`, data);
-export const pullGlobalItemToShow = (showId, itemId) =>
-	API.post(`/inventory/shows/${showId}/pull/${itemId}`);
-export const removeShowItem = (showId, itemId) =>
-	API.delete(`/inventory/shows/${showId}/items/${itemId}`);
+export const getShowInventory = (showId) => API.get(`/inventory/shows/${showId}`);
+export const createShowItem = (showId, data) => API.post(`/inventory/shows/${showId}`, data);
+export const updateShowInventoryItem = (showId, itemId, data) => API.put(`/inventory/shows/${showId}/items/${itemId}`, data);
+export const assignShowInventoryItem = (showId, itemId, data) => API.put(`/inventory/shows/${showId}/items/${itemId}/assign`, data);
+export const createShowItemWithPhoto = (showId, formData) => API.post(`/inventory/shows/${showId}`, formData, {
+	headers: { "Content-Type": "multipart/form-data" }
+});
+export const pullGlobalItemToShow = (showId, itemId) => API.post(`/inventory/shows/${showId}/pull/${itemId}`);
+export const removeShowItem = (showId, itemId) => API.delete(`/inventory/shows/${showId}/items/${itemId}`);
+
+// Global Org Inventory
+export const createGlobalInventoryItemWithPhoto = (orgId, formData) => API.post(`/inventory/orgs/${orgId}`, formData, {
+	headers: { "Content-Type": "multipart/form-data" }
+});
 
 // -- Schedules --
 
@@ -101,28 +120,17 @@ export const getShowCalendar = (showId) => API.get(`/schedule/shows/${showId}`);
 export const getPersonalCalendar = () => API.get("/schedule/personal");
 
 // Managing (Show Level)
-export const createShowEvent = (showId, eventData) =>
-	API.post(`/schedule/shows/${showId}`, eventData);
-export const updateShowEvent = (showId, eventId, eventData) =>
-	API.put(`/schedule/shows/${showId}/${eventId}`, eventData);
-1;
-export const deleteShowEvent = (showId, eventId) =>
-	API.delete(`/schedule/shows/${showId}/${eventId}`);
-export const assignShowEventUsers = (showId, eventId, assignData) =>
-	API.put(`/schedule/shows/${showId}/${eventId}/users`, assignData);
+export const createShowEvent = (showId, eventData) => API.post(`/schedule/shows/${showId}`, eventData);
+export const updateShowEvent = (showId, eventId, eventData) => API.put(`/schedule/shows/${showId}/${eventId}`, eventData);1
+export const deleteShowEvent = (showId, eventId) => API.delete(`/schedule/shows/${showId}/${eventId}`);
+export const assignShowEventUsers = (showId, eventId, assignData) => API.put(`/schedule/shows/${showId}/${eventId}/users`, assignData);
 
 // Managing (Org Level)
-export const createOrgEvent = (orgId, eventData) =>
-	API.post(`/schedule/orgs/${orgId}`, eventData);
-export const updateOrgEvent = (orgId, eventId, eventData) =>
-	API.put(`/schedule/orgs/${orgId}/${eventId}`, eventData);
-export const deleteOrgEvent = (orgId, eventId) =>
-	API.delete(`/schedule/orgs/${orgId}/${eventId}`);
-export const assignOrgEventUsers = (orgId, eventId, assignData) =>
-	API.put(`/schedule/orgs/${orgId}/${eventId}/users`, assignData);
+export const createOrgEvent = (orgId, eventData) => API.post(`/schedule/orgs/${orgId}`, eventData);
+export const updateOrgEvent = (orgId, eventId, eventData) => API.put(`/schedule/orgs/${orgId}/${eventId}`, eventData);
+export const deleteOrgEvent = (orgId, eventId) => API.delete(`/schedule/orgs/${orgId}/${eventId}`);
+export const assignOrgEventUsers = (orgId, eventId, assignData) => API.put(`/schedule/orgs/${orgId}/${eventId}/users`, assignData);
 
 // -- Membership --
-export const addUserToShow = (showId, userId) =>
-	API.post(`/shows/${showId}/join`, { userId });
-export const inviteUserToShow = (showId, data) =>
-	API.post(`/shows/${showId}/invite`, data);
+export const addUserToShow = (showId, userId) => API.post(`/shows/${showId}/join`, { userId });
+export const inviteUserToShow = (showId, data) => API.post(`/shows/${showId}/invite`, data);

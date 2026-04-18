@@ -1,0 +1,16 @@
+node_modules
+.env
+biome.json
+eslint.config.js
+seed.js
+seed-users.local.js
+vitest.config.js
+tests
+.dockerignore
+coverage
+.nyc_output
+uploads
+*.log
+.idea
+.vscode
+.DS_Store

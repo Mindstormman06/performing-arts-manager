@@ -15,6 +15,7 @@ import OrganizationRoleModel from "./OrganizationRole.js";
 import OrgMembershipModel from "./OrgMembership.js";
 import OrgRoleRelationshipsModel from "./OrgRoleRelationships.js";
 import ScheduleModel from "./Schedule.js";
+import ScheduleCastingModel from "./ScheduleCasting.js";
 import ShowModel from "./Show.js";
 import ShowInventoryModel from "./ShowInventory.js";
 import ShowMembershipModel from "./ShowMembership.js";
@@ -41,6 +42,7 @@ const models = {
 	Organization: OrganizationModel(sequelize, DataTypes),
 	ShowInventory: ShowInventoryModel(sequelize, DataTypes),
 	UserSchedule: UserScheduleModel(sequelize, DataTypes),
+	ScheduleCasting: ScheduleCastingModel(sequelize, DataTypes),
 	Casting: CastingModel(sequelize, DataTypes),
 	OrgMembership: OrgMembershipModel(sequelize, DataTypes),
 	OrgRoleRelationship: OrgRoleRelationshipsModel(sequelize, DataTypes),
@@ -64,6 +66,10 @@ models.ShowInventory.belongsTo(models.User, {
 	foreignKey: "user_id",
 	as: "assignedUser",
 });
+models.ShowInventory.belongsTo(models.Casting, {
+	foreignKey: "assigned_character_id",
+	as: "assignedCharacter",
+});
 
 // Schedules Many-to-Many
 models.Schedule.belongsToMany(models.User, {
@@ -79,6 +85,19 @@ models.User.belongsToMany(models.Schedule, {
 	as: "scheduledEvents",
 });
 
+models.Schedule.belongsToMany(models.Casting, {
+	through: models.ScheduleCasting,
+	foreignKey: "schedules_id",
+	otherKey: "casting_id",
+	as: "requiredCharacters",
+});
+models.Casting.belongsToMany(models.Schedule, {
+	through: models.ScheduleCasting,
+	foreignKey: "casting_id",
+	otherKey: "schedules_id",
+	as: "scheduledCharacterCalls",
+});
+
 models.Show.hasMany(models.Schedule, { foreignKey: "show_id" });
 models.Schedule.belongsTo(models.Show, { foreignKey: "show_id" });
 
@@ -87,14 +106,8 @@ models.Show.hasMany(models.Note, { foreignKey: "show_id" });
 models.Note.belongsTo(models.Show, { foreignKey: "show_id" });
 
 // A User (Director/Stage Manager) creates many Schedules
-models.User.hasMany(models.Schedule, {
-	foreignKey: "creator_id",
-	as: "createdSchedules",
-});
-models.Schedule.belongsTo(models.User, {
-	foreignKey: "creator_id",
-	as: "creator",
-});
+models.User.hasMany(models.Schedule, { foreignKey: "creator_id", as: "createdSchedules" });
+models.Schedule.belongsTo(models.User, { foreignKey: "creator_id", as: "creator" });
 
 // A User (Author) writes many Notes
 models.User.hasMany(models.Note, { foreignKey: "author_id" });
