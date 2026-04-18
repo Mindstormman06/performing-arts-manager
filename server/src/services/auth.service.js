@@ -26,11 +26,16 @@ async function login(email, password) {
 async function verify(userId) {
 	// Find the user by their ID (extracted from the token)
 	const user = await User.findByPk(userId);
-	
+
 	if (!user) throw new Error("User no longer exists");
 
 	// Return safe user data
-	return { id: user.id, fname: user.fname, lname: user.lname, email: user.email };
+	return {
+		id: user.id,
+		fname: user.fname,
+		lname: user.lname,
+		email: user.email,
+	};
 }
 
 export default { login, verify };

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { signup } from "../services/api";
 import PageInput from "../components/ui/PageInput.jsx";
+import { signup } from "../services/api";
 
 export default function SignupPage() {
 	const [formData, setFormData] = useState({

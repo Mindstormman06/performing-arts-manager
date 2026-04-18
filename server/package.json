@@ -7,9 +7,10 @@
 		"biome": "npx @biomejs/biome check",
 		"biome-fix": "npx @biomejs/biome check --fix",
 		"biome-fix-unsafe": "npx @biomejs/biome check --fix --unsafe",
-		"coverage": "vitest run tests/ --coverage",
+		"coverage": "vitest run tests/unit/ --coverage",
 		"dev": "nodemon ./server.js",
-		"test": "vitest run tests/",
+		"test": "vitest run tests/unit/",
+		"test:bdd": "cross-env NODE_ENV=test node seed.js && cross-env NODE_ENV=test cucumber-js",
 		"retire": "npx retire",
 		"seed": "node ./seed.js"
 	},
@@ -26,12 +27,12 @@
 		"eslint-plugin-security": "^4.0.0",
 		"express": "^5.2.1",
 		"jsonwebtoken": "^9.0.3",
-		"multer": "^2.1.1",
 		"mysql2": "^3.16.0",
 		"retire": "^5.4.2",
-		"sequelize": "6.37.8"
+		"sequelize": "^6.37.7"
 	},
 	"devDependencies": {
+		"@cucumber/cucumber": "^12.7.0",
 		"@eslint/js": "^10.0.1",
 		"@vitest/coverage-v8": "^4.0.18",
 		"eslint": "^10.0.0",
@@ -39,6 +40,7 @@
 		"globals": "^17.3.0",
 		"nodemon": "^3.1.11",
 		"supertest": "^7.2.2",
-		"vitest": "^4.0.18"
+		"vitest": "^4.0.18",
+		"wait-on": "^9.0.4"
 	}
 }

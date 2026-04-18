@@ -1,8 +1,8 @@
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
-import app from "../server.js";
-import scheduleService from "../src/services/schedule.service.js";
+import app from "../../server.js";
+import scheduleService from "../../src/services/schedule.service.js";
 import { closeDatabase, setupTestDatabase } from "./utils/test-setup.js";
 
 /**
@@ -54,7 +54,9 @@ describe("Schedule Routes", () => {
 		testOrgId = orgRes.body.id;
 
 		// join and elevate to president (required for org schedule endpoints)
-		await request(app).post(`/api/orgs/${testOrgId}/join`).send({ userId: testUserId });
+		await request(app)
+			.post(`/api/orgs/${testOrgId}/join`)
+			.send({ userId: testUserId });
 		await request(app)
 			.put(`/api/orgs/${testOrgId}/users/${testUserId}/roles`)
 			.set("Authorization", `Bearer ${authToken}`)
@@ -73,24 +75,32 @@ describe("Schedule Routes", () => {
 		testShowId = showRes.body.id;
 
 		// join the show and grant a director role (required for show schedule)
-		await request(app).post(`/api/shows/${testShowId}/join`).send({ userId: testUserId });
+		await request(app)
+			.post(`/api/shows/${testShowId}/join`)
+			.send({ userId: testUserId });
 		await request(app)
 			.put(`/api/shows/${testShowId}/users/${testUserId}/roles`)
 			.set("Authorization", `Bearer ${authToken}`)
 			.send({ roles: ["director"] });
 
 		// make another user to play with assignment and personal calendar
-		const otherRes = await request(app).post("/api/users").send({
-			fname: "Other",
-			lname: "User",
-			email: `other-${Date.now()}@viu.ca`,
-			password: "password123",
-		});
+		const otherRes = await request(app)
+			.post("/api/users")
+			.send({
+				fname: "Other",
+				lname: "User",
+				email: `other-${Date.now()}@viu.ca`,
+				password: "password123",
+			});
 		otherUserId = otherRes.body.id;
 
 		// ensure the other user is a member of both org and show
-		await request(app).post(`/api/orgs/${testOrgId}/join`).send({ userId: otherUserId });
-		await request(app).post(`/api/shows/${testShowId}/join`).send({ userId: otherUserId });
+		await request(app)
+			.post(`/api/orgs/${testOrgId}/join`)
+			.send({ userId: otherUserId });
+		await request(app)
+			.post(`/api/shows/${testShowId}/join`)
+			.send({ userId: otherUserId });
 	}, 30000);
 
 	afterAll(async () => {

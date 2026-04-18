@@ -1,11 +1,11 @@
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
-import app from "../server.js";
-import models from "../src/models/index.js";
-import showService from "../src/services/show.service.js";
-import showMembershipService from "../src/services/showMembership.service.js";
-import showRoleService from "../src/services/showRole.service.js";
+import app from "../../server.js";
+import models from "../../src/models/index.js";
+import showService from "../../src/services/show.service.js";
+import showMembershipService from "../../src/services/showMembership.service.js";
+import showRoleService from "../../src/services/showRole.service.js";
 import { closeDatabase, setupTestDatabase } from "./utils/test-setup.js";
 
 describe("Show Management API", () => {

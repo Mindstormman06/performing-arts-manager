@@ -29,7 +29,11 @@ async function invite(req, res, next) {
 		const { showId } = req.params;
 		const { orgId, email } = req.body;
 
-		const invitation = await showMembershipService.inviteByEmail(orgId, showId, email);
+		const invitation = await showMembershipService.inviteByEmail(
+			orgId,
+			showId,
+			email,
+		);
 
 		return res.status(201).json({
 			success: true,
@@ -37,7 +41,10 @@ async function invite(req, res, next) {
 			data: invitation,
 		});
 	} catch (error) {
-		if (error.message.includes("already in") || error.message.includes("No user found")) {
+		if (
+			error.message.includes("already in") ||
+			error.message.includes("No user found")
+		) {
 			return res.status(400).json({ success: false, message: error.message });
 		}
 		next(error);

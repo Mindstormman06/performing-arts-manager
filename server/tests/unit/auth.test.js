@@ -1,8 +1,8 @@
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
-import app from "../server.js";
-import authService from "../src/services/auth.service.js";
+import app from "../../server.js";
+import authService from "../../src/services/auth.service.js";
 import { closeDatabase, setupTestDatabase } from "./utils/test-setup.js";
 
 describe("Authentication & Registration", () => {
@@ -84,6 +84,57 @@ describe("Authentication & Registration", () => {
 
 			// Clean up the mock so it doesn't affect other tests
 			authSpy.mockRestore();
+		});
+	});
+
+	describe("Verify Controller - Happy Path", () => {
+		it("should verify user and return user data successfully", async () => {
+			// Use the existing test user that was registered earlier
+			const loginRes = await request(app).post("/api/auth/login").send({
+				email: testUserEmail,
+				password: testUserPassword,
+			});
+
+			const token = loginRes.body.token;
+
+			// Now verify the user with the token
+			const verifyRes = await request(app)
+				.get("/api/auth/verify")
+				.set("Authorization", `Bearer ${token}`);
+
+			expect(verifyRes.statusCode).toEqual(200);
+			expect(verifyRes.body.success).toBe(true);
+			expect(verifyRes.body).toHaveProperty("user");
+			expect(verifyRes.body.user).toHaveProperty("id");
+		});
+	});
+
+	describe("Verify Controller - Error Handling", () => {
+		it("should return 401 when authService.verify throws an error", async () => {
+			// Mock authService.verify to throw an error
+			const verifySpy = vi
+				.spyOn(authService, "verify")
+				.mockRejectedValue(new Error("User not found"));
+
+			// Use the existing test user
+			const loginRes = await request(app).post("/api/auth/login").send({
+				email: testUserEmail,
+				password: testUserPassword,
+			});
+
+			const token = loginRes.body.token;
+
+			// Now attempt to verify with the mocked error
+			const verifyRes = await request(app)
+				.get("/api/auth/verify")
+				.set("Authorization", `Bearer ${token}`);
+
+			expect(verifyRes.statusCode).toEqual(401);
+			expect(verifyRes.body.success).toBe(false);
+			expect(verifyRes.body.message).toBe("User not found");
+
+			// Clean up the mock
+			verifySpy.mockRestore();
 		});
 	});
 

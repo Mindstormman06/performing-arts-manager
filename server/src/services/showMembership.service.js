@@ -38,7 +38,7 @@ async function inviteByEmail(orgId, showId, email) {
 	}
 
 	const existingShowMembership = await models.ShowMembership.findOne({
-		where: {show_id: showId, users_id: user.id }
+		where: { show_id: showId, users_id: user.id },
 	});
 
 	if (existingShowMembership) {
@@ -52,7 +52,6 @@ async function inviteByEmail(orgId, showId, email) {
 		users_id: user.id,
 		status: showStatus,
 	});
-
 }
 
 async function updateProfile(showId, userId, bio, photoPath) {
