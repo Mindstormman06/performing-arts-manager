@@ -1,18 +1,18 @@
 import { useEffect, useState } from "react";
 import { updateOrganization } from "../../../services/api.js";
 import {
-	ModalWrapper,
-	ModalSubWrapper,
-	ModalHeader,
-	ModalLabel,
-	ModalInput,
-	ModalSubmitButton,
+	ModalBody,
 	ModalCancelButton,
 	ModalError,
-	ModalBody,
 	ModalFooter,
+	ModalHeader,
+	ModalInput,
 	ModalInputContainer,
 	ModalInputParent,
+	ModalLabel,
+	ModalSubmitButton,
+	ModalSubWrapper,
+	ModalWrapper,
 } from "../../ui/modals/index.js";
 
 export default function EditOrgModal({ isOpen, onClose, onSuccess, org }) {
@@ -70,7 +70,11 @@ export default function EditOrgModal({ isOpen, onClose, onSuccess, org }) {
 
 				<ModalFooter>
 					<ModalCancelButton onClick={onClose}>Cancel</ModalCancelButton>
-					<ModalSubmitButton type="button" onClick={handleUpdateOrg} disabled={loading}>
+					<ModalSubmitButton
+						type="button"
+						onClick={handleUpdateOrg}
+						disabled={loading}
+					>
 						{loading ? "Saving..." : "Save Changes"}
 					</ModalSubmitButton>
 				</ModalFooter>

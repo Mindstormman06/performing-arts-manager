@@ -3,18 +3,29 @@ import { expect, test } from "@playwright/test";
 test.describe("Authentication Flow", () => {
 	test("should log in successfully as the President", async ({ page }) => {
 		await page.goto("/login");
+		await page.waitForLoadState("networkidle");
 
-		await page.fill('input[placeholder="Email"]', "sarah@example.com");
+		// Log to check for any error messages on login page
+		const initialError = page.locator("p.text-red-500");
+		const errorVisible = await initialError.isVisible().catch(() => false);
+		if (errorVisible) {
+			const errorText = await initialError.textContent();
+			console.log("Initial error:", errorText);
+		}
+
+		await page.fill('input[placeholder="Email"]', "levitybill@gmail.com");
 		await page.fill('input[placeholder="Password"]', "password123");
 
 		await page.click('button:has-text("Login")');
 
+		// Wait for navigation to /organizations after successful login
+		await page.waitForURL(/\/organizations/, { timeout: 10000 });
 		await expect(page).toHaveURL("/organizations");
 
-		const header = page.locator('h2:has-text("Your Organizations")');
+		const header = page.locator('h1:has-text("Your Organizations")');
 		await expect(header).toBeVisible();
 
-		await expect(page.locator("text=Cowichan Valley Players")).toBeVisible();
+		await expect(page.locator("text=Shawnigan Players")).toBeVisible();
 	});
 
 	test("should show an error message on failed login", async ({ page }) => {

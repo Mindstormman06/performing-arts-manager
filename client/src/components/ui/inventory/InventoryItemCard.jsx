@@ -15,10 +15,7 @@ export default function InventoryItemCard({
 		>
 			<div className="flex items-start gap-4">
 				<div className="shrink-0">
-					<InventoryPhotoCell
-						photoPath={item.photo_path}
-						itemName={title}
-					/>
+					<InventoryPhotoCell photoPath={item.photo_path} itemName={title} />
 				</div>
 
 				<div className="min-w-0 flex-1">
@@ -28,7 +25,7 @@ export default function InventoryItemCard({
 								{title}
 							</h3>
 							{description && (
-								<p className="mt-1 text-sm leading-6 text-gray-600">
+								<p className="mt-1 text-gray-600 text-sm leading-6">
 									{description}
 								</p>
 							)}
@@ -50,11 +47,10 @@ export default function InventoryItemCard({
 			</div>
 
 			{actions ? (
-				<div className="flex flex-wrap items-center justify-end gap-3 border-t border-gray-100 pt-4">
+				<div className="flex flex-wrap items-center justify-end gap-3 border-gray-100 border-t pt-4">
 					{actions}
 				</div>
 			) : null}
 		</article>
 	);
 }
-

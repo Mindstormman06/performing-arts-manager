@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { updateOrganizationUserRoles } from "../../../services/api.js";
 import {
 	ModalBody,
@@ -10,24 +10,18 @@ import {
 	ModalHeader,
 	ModalLabel,
 	ModalSubHeader,
-	ModalSubsection,
 	ModalSubmitButton,
+	ModalSubsection,
 	ModalSubWrapper,
-	ModalWrapper
+	ModalWrapper,
 } from "../../ui/modals/index.js";
 
 export default function RoleModal({ isOpen, onClose, onSuccess, orgId, user }) {
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState("");
 
-	const availableRoles = [
-		"board-member",
-		"costumes",
-		"props",
-		"sets",
-		"tech"
-	];
-	
+	const availableRoles = ["board-member", "costumes", "props", "sets", "tech"];
+
 	const [selectedRoles, setSelectedRoles] = useState([]);
 
 	useEffect(() => {
@@ -69,7 +63,9 @@ export default function RoleModal({ isOpen, onClose, onSuccess, orgId, user }) {
 	return (
 		<ModalWrapper>
 			<ModalSubWrapper>
-				<ModalHeader onClick={onClose}>Manage Roles for {user.User.fname}</ModalHeader>
+				<ModalHeader onClick={onClose}>
+					Manage Roles for {user.User.fname}
+				</ModalHeader>
 
 				{error && <ModalError>{error}</ModalError>}
 
@@ -78,8 +74,13 @@ export default function RoleModal({ isOpen, onClose, onSuccess, orgId, user }) {
 						<ModalSubHeader>Available Roles</ModalSubHeader>
 						<ModalBox>
 							{availableRoles.map((role) => (
-								<ModalLabel key={role} variant="checkbox">
+								<ModalLabel
+									key={role}
+									variant="checkbox"
+									htmlFor={`org-role-${role}`}
+								>
 									<ModalCheckbox
+										id={`org-role-${role}`}
 										checked={selectedRoles.includes(role)}
 										onChange={() => handleToggle(role)}
 									/>
@@ -92,7 +93,11 @@ export default function RoleModal({ isOpen, onClose, onSuccess, orgId, user }) {
 
 				<ModalFooter>
 					<ModalCancelButton onClick={onClose}>Cancel</ModalCancelButton>
-					<ModalSubmitButton onClick={handleSave} type="button" disabled={loading}>
+					<ModalSubmitButton
+						onClick={handleSave}
+						type="button"
+						disabled={loading}
+					>
 						{loading ? "Saving..." : "Save"}
 					</ModalSubmitButton>
 				</ModalFooter>

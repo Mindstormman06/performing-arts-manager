@@ -1,11 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link, useParams, useNavigate } from "react-router-dom";
-import { getShowDashboard, getShowCalendar, verifyToken } from "../../services/api.js";
-import DashboardSection from "../../components/ui/DashboardSection.jsx";
-import MemberListItem from "../../components/ui/users/MemberListItem.jsx";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import ManageShowMembersModal from "../../components/modals/Shows/ManageShowMembersModal.jsx";
 import RoleModal from "../../components/modals/Shows/ShowRoleModal.jsx";
+import DashboardSection from "../../components/ui/DashboardSection.jsx";
 import ScheduleCalendarView from "../../components/ui/scheduling/ScheduleCalendarView.jsx";
+import MemberListItem from "../../components/ui/users/MemberListItem.jsx";
+import {
+	getShowCalendar,
+	getShowDashboard,
+	verifyToken,
+} from "../../services/api.js";
 
 export default function ShowOverview() {
 	const { orgId, showId } = useParams();
@@ -15,7 +19,8 @@ export default function ShowOverview() {
 	const [events, setEvents] = useState([]);
 	const [isLoading, setIsLoading] = useState(true);
 
-	const [isManageMembersModalOpen, setIsManageMembersModalOpen] = useState(false);
+	const [isManageMembersModalOpen, setIsManageMembersModalOpen] =
+		useState(false);
 	const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
 	const [selectedUser, setSelectedUser] = useState(null);
 	const [selectedCalendarEvent, setSelectedCalendarEvent] = useState(null);
@@ -33,7 +38,9 @@ export default function ShowOverview() {
 			const currentUserId = authRes.data.user.id;
 			setCurrentUserId(currentUserId);
 			const currentMember = (dashboardRes.data.data?.members || []).find(
-				(member) => member.User?.id === currentUserId || member.users_id === currentUserId,
+				(member) =>
+					member.User?.id === currentUserId ||
+					member.users_id === currentUserId,
 			);
 			setCurrentUserRoles(
 				(currentMember?.assignedRoles || []).map((role) =>
@@ -56,12 +63,7 @@ export default function ShowOverview() {
 	const desktopPanelHeightClass = "xl:h-[clamp(44rem,calc(100vh-15rem),56rem)]";
 
 	// Add/remove paths here to mark sidebar items as under construction.
-	const underConstructionPaths = new Set([
-		"notes",
-		"budgets",
-		"tech",
-		"files",
-	]);
+	const underConstructionPaths = new Set(["notes", "budgets", "tech", "files"]);
 
 	const navLinks = [
 		{ name: "Inventory", path: "inventory", icon: "📦" },
@@ -113,7 +115,9 @@ export default function ShowOverview() {
 				.replace(/[-_]+/g, " ")
 				.split(" ")
 				.filter(Boolean)
-				.map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+				.map(
+					(part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase(),
+				)
 				.join(" ");
 
 		const roles = (member.assignedRoles || [])
@@ -124,7 +128,13 @@ export default function ShowOverview() {
 	};
 
 	const canEditRoles = currentUserRoles.some((role) =>
-		["president", "board-member", "director", "stage-manager", "admin"].includes(role),
+		[
+			"president",
+			"board-member",
+			"director",
+			"stage-manager",
+			"admin",
+		].includes(role),
 	);
 
 	return (
@@ -150,15 +160,20 @@ export default function ShowOverview() {
 			/>
 
 			{selectedCalendarEvent && (
-				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4" role="dialog" aria-modal="true">
+				<div
+					className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4"
+					role="dialog"
+					aria-modal="true"
+				>
 					<div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-xl">
 						<div className="mb-3 flex items-start justify-between gap-4">
 							<div>
 								<h3 className="font-bold text-gray-900 text-lg">
 									{selectedCalendarEvent.title || "(No title)"}
 								</h3>
-								<p className="mt-1 text-blue-600 text-sm font-medium">
-									{formatEventDateTime(selectedCalendarEvent.start_time)} - {formatEventDateTime(selectedCalendarEvent.end_time)}
+								<p className="mt-1 font-medium text-blue-600 text-sm">
+									{formatEventDateTime(selectedCalendarEvent.start_time)} -{" "}
+									{formatEventDateTime(selectedCalendarEvent.end_time)}
 								</p>
 							</div>
 							<button
@@ -171,27 +186,35 @@ export default function ShowOverview() {
 						</div>
 
 						{selectedCalendarEvent.location && (
-							<p className="mb-2 text-gray-700 text-sm">📍 {selectedCalendarEvent.location}</p>
+							<p className="mb-2 text-gray-700 text-sm">
+								📍 {selectedCalendarEvent.location}
+							</p>
 						)}
 
 						{selectedCalendarEvent.description ? (
-							<p className="mb-4 text-gray-600 text-sm leading-6">{selectedCalendarEvent.description}</p>
+							<p className="mb-4 text-gray-600 text-sm leading-6">
+								{selectedCalendarEvent.description}
+							</p>
 						) : (
-							<p className="mb-4 italic text-gray-500 text-sm">No description provided.</p>
+							<p className="mb-4 text-gray-500 text-sm italic">
+								No description provided.
+							</p>
 						)}
 
 						<div className="flex items-center justify-end gap-2">
 							<button
 								type="button"
 								onClick={() => setSelectedCalendarEvent(null)}
-								className="cursor-pointer rounded-lg border border-gray-200 px-4 py-2 text-gray-700 text-sm font-medium hover:bg-gray-50"
+								className="cursor-pointer rounded-lg border border-gray-200 px-4 py-2 font-medium text-gray-700 text-sm hover:bg-gray-50"
 							>
 								Close
 							</button>
 							<button
 								type="button"
-								onClick={() => navigate(`/orgs/${orgId}/shows/${showId}/scheduling`)}
-								className="cursor-pointer rounded-lg bg-blue-600 px-4 py-2 text-white text-sm font-semibold hover:bg-blue-700"
+								onClick={() =>
+									navigate(`/orgs/${orgId}/shows/${showId}/scheduling`)
+								}
+								className="cursor-pointer rounded-lg bg-blue-600 px-4 py-2 font-semibold text-sm text-white hover:bg-blue-700"
 							>
 								Open Full Schedule
 							</button>
@@ -241,12 +264,10 @@ export default function ShowOverview() {
 			</aside>
 
 			{/* Main Widget Grid */}
-			<main className="flex-1 min-h-0 overflow-y-auto">
+			<main className="min-h-0 flex-1 overflow-y-auto">
 				<div className="grid min-h-0 grid-cols-1 gap-6 xl:grid-cols-3 xl:items-stretch">
-
 					{/* Left/Center Column: Primary Widgets */}
 					<div className="flex min-h-0 flex-col gap-6 xl:col-span-2">
-
 						{/* Calendar Widget */}
 						<DashboardSection
 							title="Show Calendar"
@@ -254,7 +275,9 @@ export default function ShowOverview() {
 							buttonColour="blue"
 							buttonIcon="📅"
 							className={desktopPanelHeightClass}
-							onActionClick={() => navigate(`/orgs/${orgId}/shows/${showId}/scheduling`)}
+							onActionClick={() =>
+								navigate(`/orgs/${orgId}/shows/${showId}/scheduling`)
+							}
 						>
 							<ScheduleCalendarView
 								events={events}
@@ -293,7 +316,11 @@ export default function ShowOverview() {
 							title="Cast & Crew"
 							actionTitle="Manage Roster"
 							className={`${desktopPanelHeightClass} min-h-0`}
-										onActionClick={canEditRoles ? () => setIsManageMembersModalOpen(true) : undefined}
+							onActionClick={
+								canEditRoles
+									? () => setIsManageMembersModalOpen(true)
+									: undefined
+							}
 						>
 							<ul className="space-y-3">
 								{sortedMembers.length > 0 ? (
@@ -309,7 +336,7 @@ export default function ShowOverview() {
 										/>
 									))
 								) : (
-									<li className="py-4 text-center italic text-gray-500">
+									<li className="py-4 text-center text-gray-500 italic">
 										No members assigned to this show yet.
 									</li>
 								)}

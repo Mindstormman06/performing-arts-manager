@@ -1,17 +1,17 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import EditInventoryItemModal from "../../components/modals/Inventory/EditInventoryItemModal.jsx";
+import CreateInventoryModal from "../../components/modals/Organizations/CreateInventoryModal.jsx";
+import DashboardSection from "../../components/ui/DashboardSection.jsx";
+import InventoryItemCard from "../../components/ui/inventory/InventoryItemCard.jsx";
 import {
-	getGlobalInventory,
-	getDepartments,
 	deleteGlobalInventoryItem,
+	getDepartments,
+	getGlobalInventory,
 	getOrganizationUsers,
 	updateGlobalInventoryItem,
 	verifyToken,
 } from "../../services/api.js";
-import DashboardSection from "../../components/ui/DashboardSection.jsx";
-import CreateInventoryModal from "../../components/modals/Organizations/CreateInventoryModal.jsx";
-import EditInventoryItemModal from "../../components/modals/Inventory/EditInventoryItemModal.jsx";
-import InventoryItemCard from "../../components/ui/inventory/InventoryItemCard.jsx";
 
 export default function OrgInventory() {
 	const { orgId } = useParams();
@@ -47,10 +47,12 @@ export default function OrgInventory() {
 
 			// 3. Find current user's roles in this org
 			const myMembership = usersRes.data.find(
-				(u) => u.User?.id === currentUserId || u.users_id === currentUserId
+				(u) => u.User?.id === currentUserId || u.users_id === currentUserId,
 			);
-			if (myMembership && myMembership.assignedRoles) {
-				setUserRoles(myMembership.assignedRoles.map((r) => r.name.toLowerCase()));
+			if (myMembership?.assignedRoles) {
+				setUserRoles(
+					myMembership.assignedRoles.map((r) => r.name.toLowerCase()),
+				);
 			}
 		} catch (err) {
 			console.error("Failed to fetch inventory data:", err);
@@ -66,14 +68,15 @@ export default function OrgInventory() {
 	// Permission Checker
 	const canManageDept = (deptName) => {
 		if (!deptName) return false;
-		if (userRoles.includes("admin") || userRoles.includes("president")) return true;
+		if (userRoles.includes("admin") || userRoles.includes("president"))
+			return true;
 		return userRoles.includes(deptName.toLowerCase());
 	};
 
 	const handleDelete = async (itemId, itemName) => {
 		if (
 			window.confirm(
-				`Are you sure you want to permanently delete "${itemName}"? This will remove it from all shows as well.`
+				`Are you sure you want to permanently delete "${itemName}"? This will remove it from all shows as well.`,
 			)
 		) {
 			try {
@@ -100,14 +103,17 @@ export default function OrgInventory() {
 		const matchesSearch =
 			item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
 			item.description.toLowerCase().includes(searchTerm.toLowerCase());
-		const matchesDept = selectedDept === "All" || item.Department?.name === selectedDept;
+		const matchesDept =
+			selectedDept === "All" || item.Department?.name === selectedDept;
 		return matchesSearch && matchesDept;
 	});
 
 	if (isLoading) {
 		return (
 			<div className="flex min-h-[calc(100vh-9rem)] items-center justify-center">
-				<div className="text-xl font-semibold text-gray-500">Loading Inventory...</div>
+				<div className="font-semibold text-gray-500 text-xl">
+					Loading Inventory...
+				</div>
 			</div>
 		);
 	}
@@ -124,11 +130,11 @@ export default function OrgInventory() {
 				<div>
 					<Link
 						to={`/orgs/${orgId}/overview`}
-						className="text-sm font-medium text-blue-600 hover:underline"
+						className="font-medium text-blue-600 text-sm hover:underline"
 					>
 						&larr; Back to Organization
 					</Link>
-					<h1 className="mt-1 text-3xl font-bold text-gray-900">
+					<h1 className="mt-1 font-bold text-3xl text-gray-900">
 						Global Inventory Stock
 					</h1>
 				</div>
@@ -197,7 +203,7 @@ export default function OrgInventory() {
 								title={item.name}
 								description={item.description}
 								badges={
-									<span className="inline-flex items-center rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+									<span className="inline-flex items-center rounded-full border border-blue-100 bg-blue-50 px-3 py-1 font-semibold text-blue-700 text-xs">
 										{item.Department?.name || "Unknown"}
 									</span>
 								}
@@ -220,14 +226,16 @@ export default function OrgInventory() {
 											</button>
 										</>
 									) : (
-										<span className="text-xs italic text-gray-400">View Only</span>
+										<span className="text-gray-400 text-xs italic">
+											View Only
+										</span>
 									)
 								}
 							/>
 						))}
 					</div>
 				) : (
-					<div className="rounded-xl border border-dashed border-gray-300 bg-white px-6 py-10 text-center italic text-gray-500 shadow-sm">
+					<div className="rounded-xl border border-gray-300 border-dashed bg-white px-6 py-10 text-center text-gray-500 italic shadow-sm">
 						No inventory items found.
 					</div>
 				)}

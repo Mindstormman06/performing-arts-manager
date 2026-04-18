@@ -1,10 +1,16 @@
 import { execSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
+import { dirname, resolve } from "node:path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 async function globalSetup() {
 	console.log("🚀 Starting Global Setup: Seeding Database...");
 	try {
+		const serverPath = resolve(__dirname, "../../../server");
 		execSync("node seed.js", {
-			cwd: "../server",
+			cwd: serverPath,
 			stdio: "inherit",
 			// eslint-disable-next-line no-undef
 			env: { ...process.env, NODE_ENV: "test" },

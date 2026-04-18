@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import DashboardSection from "../../components/ui/DashboardSection.jsx";
 import {
 	assignShowCharacter,
 	createShowCharacter,
@@ -9,7 +10,6 @@ import {
 	updateShowCharacter,
 	verifyToken,
 } from "../../services/api.js";
-import DashboardSection from "../../components/ui/DashboardSection.jsx";
 
 export default function ShowCasting() {
 	const { orgId, showId } = useParams();
@@ -79,7 +79,11 @@ export default function ShowCasting() {
 
 	const displayNameForUser = (user) => {
 		if (!user) return "Unassigned";
-		return `${user.fname || ""} ${user.lname || ""}`.trim() || user.email || "Assigned";
+		return (
+			`${user.fname || ""} ${user.lname || ""}`.trim() ||
+			user.email ||
+			"Assigned"
+		);
 	};
 
 	const handleCreate = async () => {
@@ -139,11 +143,11 @@ export default function ShowCasting() {
 			<div className="mb-6">
 				<Link
 					to={`/orgs/${orgId}/shows/${showId}`}
-					className="text-sm font-medium text-blue-600 hover:underline"
+					className="font-medium text-blue-600 text-sm hover:underline"
 				>
 					&larr; Back to Show Dashboard
 				</Link>
-				<h1 className="mt-1 text-3xl font-bold text-gray-900">Casting</h1>
+				<h1 className="mt-1 font-bold text-3xl text-gray-900">Casting</h1>
 			</div>
 
 			<DashboardSection title="Characters" className="flex-1">
@@ -185,19 +189,21 @@ export default function ShowCasting() {
 				)}
 
 				<div className="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
-					<table className="w-full text-left text-sm text-gray-700">
+					<table className="w-full text-left text-gray-700 text-sm">
 						<thead className="bg-gray-50 text-gray-700">
 							<tr>
 								<th className="px-4 py-3 font-semibold">Character</th>
 								<th className="px-4 py-3 font-semibold">Assigned Member</th>
-								<th className="px-4 py-3 font-semibold text-right">Actions</th>
+								<th className="px-4 py-3 text-right font-semibold">Actions</th>
 							</tr>
 						</thead>
 						<tbody className="divide-y divide-gray-100">
 							{characters.length > 0 ? (
 								characters.map((character) => (
 									<tr key={character.id} className="hover:bg-gray-50">
-										<td className="px-4 py-3 font-medium text-gray-900">{character.name}</td>
+										<td className="px-4 py-3 font-medium text-gray-900">
+											{character.name}
+										</td>
 										<td className="px-4 py-3">
 											{canManage ? (
 												<select
@@ -237,14 +243,19 @@ export default function ShowCasting() {
 													</button>
 												</div>
 											) : (
-												<span className="text-gray-400 italic text-xs">View Only</span>
+												<span className="text-gray-400 text-xs italic">
+													View Only
+												</span>
 											)}
 										</td>
 									</tr>
 								))
 							) : (
 								<tr>
-									<td colSpan="3" className="px-4 py-8 text-center italic text-gray-500">
+									<td
+										colSpan="3"
+										className="px-4 py-8 text-center text-gray-500 italic"
+									>
 										No characters created yet.
 									</td>
 								</tr>
@@ -256,5 +267,3 @@ export default function ShowCasting() {
 		</div>
 	);
 }
-
-

@@ -1,7 +1,7 @@
 export default function ModalNav({ children, ...props }) {
-    return (
-        <div { ...props } className="mb-4 flex border-b border-gray-200">
-            { children }
-        </div>
-    )
+	return (
+		<div {...props} className="mb-4 flex border-gray-200 border-b">
+			{children}
+		</div>
+	);
 }

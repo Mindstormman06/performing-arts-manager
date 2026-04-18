@@ -10,8 +10,8 @@ import {
 	ModalInputContainer,
 	ModalInputParent,
 	ModalLabel,
-	ModalSubWrapper,
 	ModalSubmitButton,
+	ModalSubWrapper,
 	ModalTextarea,
 	ModalWrapper,
 } from "../../ui/modals/index.js";
@@ -90,7 +90,9 @@ export default function EditInventoryItemModal({
 						</ModalInputContainer>
 
 						<ModalInputContainer>
-							<ModalLabel htmlFor="edit-inventory-department">Department</ModalLabel>
+							<ModalLabel htmlFor="edit-inventory-department">
+								Department
+							</ModalLabel>
 							<ModalDropdown
 								id="edit-inventory-department"
 								required
@@ -111,7 +113,9 @@ export default function EditInventoryItemModal({
 						</ModalInputContainer>
 
 						<ModalInputContainer>
-							<ModalLabel htmlFor="edit-inventory-description">Description</ModalLabel>
+							<ModalLabel htmlFor="edit-inventory-description">
+								Description
+							</ModalLabel>
 							<ModalTextarea
 								id="edit-inventory-description"
 								required
@@ -139,4 +143,3 @@ export default function EditInventoryItemModal({
 		</ModalWrapper>
 	);
 }
-

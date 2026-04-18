@@ -1,14 +1,14 @@
-import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
+import FullCalendar from "@fullcalendar/react";
 import "./ScheduleCalendar.css";
 
 export default function ScheduleCalendarView({
-	 events = [],
-	 onDateClick,
-	 onEventClick,
+	events = [],
+	onDateClick,
+	onEventClick,
 	fillSpace = false,
- }) {
+}) {
 	const calendarEvents = events.map((event) => ({
 		id: String(event.id),
 		title: event.title || "(No title)",
@@ -18,7 +18,7 @@ export default function ScheduleCalendarView({
 	}));
 
 	return (
-		<div className="pam-calendar-wrapper h-full min-h-0 rounded-2xl bg-white shadow-sm p-4 sm:p-6 border border-gray-100">
+		<div className="pam-calendar-wrapper h-full min-h-0 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:p-6">
 			<FullCalendar
 				plugins={[dayGridPlugin, interactionPlugin]}
 				initialView="dayGridMonth"
@@ -31,7 +31,9 @@ export default function ScheduleCalendarView({
 				buttonText={{ today: "Today" }}
 				events={calendarEvents}
 				dateClick={(info) => onDateClick?.(info.date)}
-				eventClick={(info) => onEventClick?.(info.event.extendedProps.originalEvent)}
+				eventClick={(info) =>
+					onEventClick?.(info.event.extendedProps.originalEvent)
+				}
 				eventDisplay="block"
 				displayEventTime={false} /* <-- ADDED THIS PROP */
 				dayMaxEvents={3}

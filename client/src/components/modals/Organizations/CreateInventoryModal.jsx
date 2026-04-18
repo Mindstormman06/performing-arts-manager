@@ -4,24 +4,31 @@ import {
 	createGlobalInventoryItemWithPhoto,
 } from "../../../services/api.js";
 import {
+	ModalBody,
 	ModalCancelButton,
 	ModalDropdown,
 	ModalError,
+	ModalFooter,
 	ModalHeader,
-	ModalInput,
 	ModalImageInput,
+	ModalInput,
+	ModalInputContainer,
+	ModalInputParent,
 	ModalLabel,
 	ModalSubmitButton,
 	ModalSubWrapper,
 	ModalTextarea,
 	ModalWrapper,
-	ModalBody,
-	ModalFooter,
-	ModalInputContainer,
-	ModalInputParent,
 } from "../../ui/modals/index.js";
 
-export default function CreateInventoryModal({ isOpen, onClose, orgId, departments, userRoles, onSuccess }) {
+export default function CreateInventoryModal({
+	isOpen,
+	onClose,
+	orgId,
+	departments,
+	userRoles,
+	onSuccess,
+}) {
 	const [formData, setFormData] = useState({
 		name: "",
 		description: "",
@@ -33,9 +40,10 @@ export default function CreateInventoryModal({ isOpen, onClose, orgId, departmen
 	const [isLoading, setIsLoading] = useState(false);
 
 	// Filter departments based on user permissions
-	const isSuperAdmin = userRoles.includes("admin") || userRoles.includes("president");
-	const allowedDepartments = departments.filter(dept => 
-		isSuperAdmin || userRoles.includes(dept.name.toLowerCase())
+	const isSuperAdmin =
+		userRoles.includes("admin") || userRoles.includes("president");
+	const allowedDepartments = departments.filter(
+		(dept) => isSuperAdmin || userRoles.includes(dept.name.toLowerCase()),
 	);
 
 	const handleCreateItem = async () => {
@@ -78,7 +86,9 @@ export default function CreateInventoryModal({ isOpen, onClose, orgId, departmen
 			<ModalWrapper>
 				<ModalSubWrapper>
 					<ModalHeader>Add Global Inventory Item</ModalHeader>
-					<ModalError>You do not have permission to add inventory to any departments.</ModalError>
+					<ModalError>
+						You do not have permission to add inventory to any departments.
+					</ModalError>
 				</ModalSubWrapper>
 			</ModalWrapper>
 		);
@@ -100,33 +110,47 @@ export default function CreateInventoryModal({ isOpen, onClose, orgId, departmen
 								type="text"
 								required
 								value={formData.name}
-								onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+								onChange={(e) =>
+									setFormData({ ...formData, name: e.target.value })
+								}
 							/>
 						</ModalInputContainer>
 
 						<ModalInputContainer>
-							<ModalLabel htmlFor="create-inventory-department">Department</ModalLabel>
+							<ModalLabel htmlFor="create-inventory-department">
+								Department
+							</ModalLabel>
 							<ModalDropdown
 								id="create-inventory-department"
 								required
 								value={formData.dept_id}
-								onChange={(e) => setFormData({ ...formData, dept_id: e.target.value })}
+								onChange={(e) =>
+									setFormData({ ...formData, dept_id: e.target.value })
+								}
 							>
-								<option value="" disabled>Select a department...</option>
-								{allowedDepartments.map(dept => (
-									<option key={dept.id} value={dept.id}>{dept.name}</option>
+								<option value="" disabled>
+									Select a department...
+								</option>
+								{allowedDepartments.map((dept) => (
+									<option key={dept.id} value={dept.id}>
+										{dept.name}
+									</option>
 								))}
 							</ModalDropdown>
 						</ModalInputContainer>
 
 						<ModalInputContainer>
-							<ModalLabel htmlFor="create-inventory-description">Description</ModalLabel>
+							<ModalLabel htmlFor="create-inventory-description">
+								Description
+							</ModalLabel>
 							<ModalTextarea
 								id="create-inventory-description"
 								required
 								rows="3"
 								value={formData.description}
-								onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+								onChange={(e) =>
+									setFormData({ ...formData, description: e.target.value })
+								}
 							/>
 						</ModalInputContainer>
 

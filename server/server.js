@@ -20,7 +20,7 @@ app.use(express.json());
 app.use("/uploads", express.static("uploads"));
 
 /* v8 ignore start */
-if (process.env.NODE_ENV !== "test") {
+if (typeof process.env.VITEST === "undefined" && process.env.NODE_ENV !== "test") {
 	sequelize
 		.sync({ alter: true })
 		.then(() => console.log("Database synchronized!"))
@@ -131,7 +131,7 @@ app.use((err, _req, res, _next) => {
 });
 
 /* v8 ignore start */
-if (process.env.NODE_ENV !== "test") {
+if (typeof process.env.VITEST === "undefined") {
 	app.listen(expressConfig.port, () => {
 		console.log(`Server is running on http://localhost:${expressConfig.port}`);
 	});

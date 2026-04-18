@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PageInput from "../components/ui/PageInput.jsx";
-import { signup } from "../services/api";
+import { signup } from "../services/api.js";
 
 export default function SignupPage() {
 	const [formData, setFormData] = useState({
@@ -75,7 +75,7 @@ export default function SignupPage() {
 					/>
 					<button
 						type="submit"
-						className="cursor-pointer w-full rounded-md bg-blue-500 py-2 text-white transition duration-200 hover:bg-blue-600"
+						className="w-full cursor-pointer rounded-md bg-blue-500 py-2 text-white transition duration-200 hover:bg-blue-600"
 					>
 						Sign Up
 					</button>

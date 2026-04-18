@@ -1,10 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import CreateOrgModal from "../../components/modals/Organizations/CreateOrgModal.jsx";
-import {
-	getMyOrganizations,
-	respondToInvite,
-} from "../../services/api.js";
+import { getMyOrganizations, respondToInvite } from "../../services/api.js";
 
 export default function OrgDashboard() {
 	const [organizations, setOrganizations] = useState([]);
@@ -81,7 +78,7 @@ export default function OrgDashboard() {
 					<button
 						type="button"
 						onClick={() => setIsModalOpen(true)}
-						className="cursor-pointer inline-flex items-center justify-center rounded-xl bg-blue-600 px-5 py-3 font-semibold text-sm text-white shadow-sm transition-colors hover:bg-blue-700"
+						className="inline-flex cursor-pointer items-center justify-center rounded-xl bg-blue-600 px-5 py-3 font-semibold text-sm text-white shadow-sm transition-colors hover:bg-blue-700"
 					>
 						+ New Organization
 					</button>
@@ -117,14 +114,14 @@ export default function OrgDashboard() {
 									<button
 										type="button"
 										onClick={() => handleInviteAction(invite.org_id, "accept")}
-										className="cursor-pointer inline-flex items-center justify-center rounded-lg bg-green-600 px-4 py-2 font-medium text-sm text-white transition-colors hover:bg-green-700"
+										className="inline-flex cursor-pointer items-center justify-center rounded-lg bg-green-600 px-4 py-2 font-medium text-sm text-white transition-colors hover:bg-green-700"
 									>
 										Accept
 									</button>
 									<button
 										type="button"
 										onClick={() => handleInviteAction(invite.org_id, "decline")}
-										className="cursor-pointer inline-flex items-center justify-center rounded-lg border border-red-300 bg-white px-4 py-2 font-medium text-red-600 text-sm transition-colors hover:bg-red-50"
+										className="inline-flex cursor-pointer items-center justify-center rounded-lg border border-red-300 bg-white px-4 py-2 font-medium text-red-600 text-sm transition-colors hover:bg-red-50"
 									>
 										Decline
 									</button>
@@ -145,9 +142,9 @@ export default function OrgDashboard() {
 
 				{loading ? (
 					<div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-						{Array.from({ length: 3 }).map((_, index) => (
+						{[1, 2, 3].map((item) => (
 							<div
-								key={`org-loading-${index}`}
+								key={`org-loading-${item}`}
 								className="h-32 animate-pulse rounded-xl border border-gray-200 bg-white"
 							/>
 						))}
@@ -186,12 +183,13 @@ export default function OrgDashboard() {
 						})}
 					</div>
 				) : (
-					<div className="rounded-xl border border-dashed border-gray-300 bg-white p-10 text-center shadow-sm">
+					<div className="rounded-xl border border-gray-300 border-dashed bg-white p-10 text-center shadow-sm">
 						<p className="font-medium text-gray-700 text-lg">
 							You are not in any organizations yet.
 						</p>
 						<p className="mt-2 text-gray-500 text-sm">
-							Create your first organization to start managing shows, members, and inventory.
+							Create your first organization to start managing shows, members,
+							and inventory.
 						</p>
 						<button
 							type="button"

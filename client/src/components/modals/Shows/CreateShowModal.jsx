@@ -1,18 +1,18 @@
 import { useState } from "react";
 import { createShow } from "../../../services/api.js";
 import {
-	ModalWrapper,
-	ModalSubWrapper,
-	ModalHeader,
-	ModalLabel,
-	ModalInput,
-	ModalSubmitButton,
+	ModalBody,
 	ModalCancelButton,
 	ModalError,
-	ModalBody,
 	ModalFooter,
+	ModalHeader,
+	ModalInput,
 	ModalInputContainer,
 	ModalInputParent,
+	ModalLabel,
+	ModalSubmitButton,
+	ModalSubWrapper,
+	ModalWrapper,
 } from "../../ui/modals/index.js";
 
 export default function CreateShowModal({ isOpen, onClose, onSuccess, orgId }) {
@@ -80,10 +80,12 @@ export default function CreateShowModal({ isOpen, onClose, onSuccess, orgId }) {
 								placeholder="e.g. The Phantom of the Opera"
 							/>
 						</ModalInputContainer>
-						
+
 						<ModalInputContainer columns={2}>
 							<div>
-								<ModalLabel htmlFor="create-show-start-date">Start Date</ModalLabel>
+								<ModalLabel htmlFor="create-show-start-date">
+									Start Date
+								</ModalLabel>
 								<ModalInput
 									id="create-show-start-date"
 									type="date"
@@ -108,7 +110,11 @@ export default function CreateShowModal({ isOpen, onClose, onSuccess, orgId }) {
 
 				<ModalFooter>
 					<ModalCancelButton onClick={onClose}>Cancel</ModalCancelButton>
-					<ModalSubmitButton type="button" onClick={handleCreateShow} disabled={loading}>
+					<ModalSubmitButton
+						type="button"
+						onClick={handleCreateShow}
+						disabled={loading}
+					>
 						{loading ? "Creating..." : "Create Show"}
 					</ModalSubmitButton>
 				</ModalFooter>

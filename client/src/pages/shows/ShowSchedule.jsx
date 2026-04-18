@@ -1,206 +1,255 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { getShowCalendar, verifyToken, getShowUsers } from "../../services/api.js";
-import DashboardSection from "../../components/ui/DashboardSection.jsx";
 import CreateEventModal from "../../components/modals/Shows/CreateEventModal.jsx";
 import ManageEventModal from "../../components/modals/Shows/ManageEventModal.jsx";
+import DashboardSection from "../../components/ui/DashboardSection.jsx";
 import ScheduleCalendarView from "../../components/ui/scheduling/ScheduleCalendarView.jsx";
+import {
+	getShowCalendar,
+	getShowUsers,
+	verifyToken,
+} from "../../services/api.js";
 
 export default function ShowSchedule() {
-    const { orgId, showId } = useParams();
-    const [events, setEvents] = useState([]);
-    const [userRoles, setUserRoles] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-    const [selectedEvent, setSelectedEvent] = useState(null);
-    const [viewMode, setViewMode] = useState("calendar");
-    const [pendingCreateDate, setPendingCreateDate] = useState("");
+	const { orgId, showId } = useParams();
+	const [events, setEvents] = useState([]);
+	const [userRoles, setUserRoles] = useState([]);
+	const [isLoading, setIsLoading] = useState(true);
+	const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+	const [selectedEvent, setSelectedEvent] = useState(null);
+	const [viewMode, setViewMode] = useState("calendar");
+	const [pendingCreateDate, setPendingCreateDate] = useState("");
 
-    const fetchScheduleData = useCallback(async () => {
-        try {
-            setIsLoading(true);
-            const authRes = await verifyToken();
-            const currentUserId = authRes.data.user.id;
+	const fetchScheduleData = useCallback(async () => {
+		try {
+			setIsLoading(true);
+			const authRes = await verifyToken();
+			const currentUserId = authRes.data.user.id;
 
-            const [calendarRes, usersRes] = await Promise.all([
-                getShowCalendar(showId),
-                getShowUsers(showId)
-            ]);
+			const [calendarRes, usersRes] = await Promise.all([
+				getShowCalendar(showId),
+				getShowUsers(showId),
+			]);
 
-            setEvents(calendarRes.data.data);
+			setEvents(calendarRes.data.data);
 
-            const myMembership = usersRes.data.find(u => u.User?.id === currentUserId || u.users_id === currentUserId);
-            if (myMembership && myMembership.assignedRoles) {
-                setUserRoles(myMembership.assignedRoles.map(r => r.name.toLowerCase()));
-            }
-        } catch (err) {
-            console.error("Failed to fetch schedule data", err);
-        } finally {
-            setIsLoading(false);
-        }
-    }, [showId]);
+			const myMembership = usersRes.data.find(
+				(u) => u.User?.id === currentUserId || u.users_id === currentUserId,
+			);
+			if (myMembership?.assignedRoles) {
+				setUserRoles(
+					myMembership.assignedRoles.map((r) => r.name.toLowerCase()),
+				);
+			}
+		} catch (err) {
+			console.error("Failed to fetch schedule data", err);
+		} finally {
+			setIsLoading(false);
+		}
+	}, [showId]);
 
-    useEffect(() => {
-        fetchScheduleData();
-    }, [fetchScheduleData]);
+	useEffect(() => {
+		fetchScheduleData();
+	}, [fetchScheduleData]);
 
-    const canManageSchedule = userRoles.includes("director") || userRoles.includes("stage-manager");
+	const canManageSchedule =
+		userRoles.includes("director") || userRoles.includes("stage-manager");
 
-    const formatDateForInput = (date) => {
-        const local = new Date(date);
-        local.setMinutes(local.getMinutes() - local.getTimezoneOffset());
-        return local.toISOString().slice(0, 10);
-    };
+	const formatDateForInput = (date) => {
+		const local = new Date(date);
+		local.setMinutes(local.getMinutes() - local.getTimezoneOffset());
+		return local.toISOString().slice(0, 10);
+	};
 
-    const openCreateModal = (dateValue = "") => {
-        setPendingCreateDate(dateValue);
-        setIsCreateModalOpen(true);
-    };
+	const openCreateModal = (dateValue = "") => {
+		setPendingCreateDate(dateValue);
+		setIsCreateModalOpen(true);
+	};
 
-    const handleCalendarDateClick = (dateObj) => {
-        if (!canManageSchedule) return;
-        openCreateModal(formatDateForInput(dateObj));
-    };
+	const handleCalendarDateClick = (dateObj) => {
+		if (!canManageSchedule) return;
+		openCreateModal(formatDateForInput(dateObj));
+	};
 
-    const handleCalendarEventClick = (event) => {
-        if (!canManageSchedule) return;
-        setSelectedEvent(event);
-    };
+	const handleCalendarEventClick = (event) => {
+		if (!canManageSchedule) return;
+		setSelectedEvent(event);
+	};
 
-    const formatDateTime = (dateString) => {
-        const date = new Date(dateString);
-        return {
-            date: date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }),
-            time: date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
-        };
-    };
+	const formatDateTime = (dateString) => {
+		const date = new Date(dateString);
+		return {
+			date: date.toLocaleDateString(undefined, {
+				weekday: "short",
+				month: "short",
+				day: "numeric",
+			}),
+			time: date.toLocaleTimeString(undefined, {
+				hour: "2-digit",
+				minute: "2-digit",
+			}),
+		};
+	};
 
-    if (isLoading) {
-         return <div className="flex min-h-[calc(100vh-9rem)] items-center justify-center font-semibold text-gray-500 text-xl">Loading Schedule...</div>;
-    }
+	if (isLoading) {
+		return (
+			<div className="flex min-h-[calc(100vh-9rem)] items-center justify-center font-semibold text-gray-500 text-xl">
+				Loading Schedule...
+			</div>
+		);
+	}
 
-    return (
-        <div className="mx-auto flex min-h-[calc(100vh-9rem)] max-w-7xl flex-col p-4 sm:p-6 lg:p-8">
-            <CreateEventModal
-                isOpen={isCreateModalOpen} 
-            onClose={() => {
-              setIsCreateModalOpen(false);
-              setPendingCreateDate("");
-            }}
-                showId={showId}
-            initialDate={pendingCreateDate}
-                onSuccess={fetchScheduleData}
-            />
+	return (
+		<div className="mx-auto flex min-h-[calc(100vh-9rem)] max-w-7xl flex-col p-4 sm:p-6 lg:p-8">
+			<CreateEventModal
+				isOpen={isCreateModalOpen}
+				onClose={() => {
+					setIsCreateModalOpen(false);
+					setPendingCreateDate("");
+				}}
+				showId={showId}
+				initialDate={pendingCreateDate}
+				onSuccess={fetchScheduleData}
+			/>
 
-            <ManageEventModal 
-                isOpen={!!selectedEvent} 
-                onClose={() => setSelectedEvent(null)} 
-                showId={showId} 
-                event={selectedEvent} 
-                onSuccess={fetchScheduleData} 
-            />
-                  <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                    <div>
-                    <Link to={`/orgs/${orgId}/shows/${showId}`} className="text-sm font-medium text-blue-600 hover:underline">
-                        &larr; Back to Show Dashboard
-                    </Link>
-                    <h1 className="mt-1 text-3xl font-bold text-gray-900">Show Schedule</h1>
-                </div>
+			<ManageEventModal
+				isOpen={!!selectedEvent}
+				onClose={() => setSelectedEvent(null)}
+				showId={showId}
+				event={selectedEvent}
+				onSuccess={fetchScheduleData}
+			/>
+			<div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+				<div>
+					<Link
+						to={`/orgs/${orgId}/shows/${showId}`}
+						className="font-medium text-blue-600 text-sm hover:underline"
+					>
+						&larr; Back to Show Dashboard
+					</Link>
+					<h1 className="mt-1 font-bold text-3xl text-gray-900">
+						Show Schedule
+					</h1>
+				</div>
 
-                    <div className="inline-flex rounded-xl border border-gray-200 bg-white p-1 shadow-sm">
-                      <button
-                        type="button"
-                        onClick={() => setViewMode("calendar")}
-                        className={`rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${viewMode === "calendar" ? "bg-blue-600 text-white shadow-sm" : "text-gray-600 hover:bg-gray-100"}`}
-                      >
-                        Calendar
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setViewMode("list")}
-                        className={`rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${viewMode === "list" ? "bg-blue-600 text-white shadow-sm" : "text-gray-600 hover:bg-gray-100"}`}
-                      >
-                        Event List
-                      </button>
-                    </div>
-            </div>
+				<div className="inline-flex rounded-xl border border-gray-200 bg-white p-1 shadow-sm">
+					<button
+						type="button"
+						onClick={() => setViewMode("calendar")}
+						className={`rounded-lg px-4 py-2 font-semibold text-sm transition-colors ${viewMode === "calendar" ? "bg-blue-600 text-white shadow-sm" : "text-gray-600 hover:bg-gray-100"}`}
+					>
+						Calendar
+					</button>
+					<button
+						type="button"
+						onClick={() => setViewMode("list")}
+						className={`rounded-lg px-4 py-2 font-semibold text-sm transition-colors ${viewMode === "list" ? "bg-blue-600 text-white shadow-sm" : "text-gray-600 hover:bg-gray-100"}`}
+					>
+						Event List
+					</button>
+				</div>
+			</div>
 
-                  {viewMode === "calendar" ? (
-                    <DashboardSection
-                      title=""
-                      actionTitle={canManageSchedule ? "Create Event" : undefined}
-                      onActionClick={canManageSchedule ? () => openCreateModal() : undefined}
-                      className="flex-1 min-h-0 xl:h-[clamp(42rem,calc(100vh-15rem),56rem)]"
-                    >
-                      <ScheduleCalendarView
-                        events={events}
-                        onDateClick={handleCalendarDateClick}
-                        onEventClick={canManageSchedule ? handleCalendarEventClick : undefined}
-                      />
-                    </DashboardSection>
-                  ) : (
-                    <DashboardSection
-                      title="Upcoming Events"
-                      actionTitle="Create Event"
-                      onActionClick={canManageSchedule ? () => openCreateModal() : undefined}
-                      className="flex-1"
-                    >
-                      <div className="space-y-4">
-                        {events.length > 0 ? events.map(event => {
-                          const start = formatDateTime(event.start_time);
-                          const end = formatDateTime(event.end_time);
+			{viewMode === "calendar" ? (
+				<DashboardSection
+					title=""
+					actionTitle={canManageSchedule ? "Create Event" : undefined}
+					onActionClick={
+						canManageSchedule ? () => openCreateModal() : undefined
+					}
+					className="min-h-0 flex-1 xl:h-[clamp(42rem,calc(100vh-15rem),56rem)]"
+				>
+					<ScheduleCalendarView
+						events={events}
+						onDateClick={handleCalendarDateClick}
+						onEventClick={
+							canManageSchedule ? handleCalendarEventClick : undefined
+						}
+					/>
+				</DashboardSection>
+			) : (
+				<DashboardSection
+					title="Upcoming Events"
+					actionTitle="Create Event"
+					onActionClick={
+						canManageSchedule ? () => openCreateModal() : undefined
+					}
+					className="flex-1"
+				>
+					<div className="space-y-4">
+						{events.length > 0 ? (
+							events.map((event) => {
+								const start = formatDateTime(event.start_time);
+								const end = formatDateTime(event.end_time);
 
-                          return (
-                            <div key={event.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-lg border border-gray-200 bg-white shadow-sm hover:shadow transition-shadow">
-                              <div className="flex items-start gap-4">
-                                {/* Date Badge */}
-                                <div className="flex flex-col items-center justify-center bg-blue-50 text-blue-700 rounded-lg p-2 min-w-16 border border-blue-100">
-                                  <span className="text-xs font-bold uppercase tracking-wider">{start.date.split(',')[0]}</span>
-                                  <span className="text-lg font-extrabold">{start.date.split(' ')[2]}</span>
-                                </div>
+								return (
+									<div
+										key={event.id}
+										className="flex flex-col items-start justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow sm:flex-row sm:items-center"
+									>
+										<div className="flex items-start gap-4">
+											{/* Date Badge */}
+											<div className="flex min-w-16 flex-col items-center justify-center rounded-lg border border-blue-100 bg-blue-50 p-2 text-blue-700">
+												<span className="font-bold text-xs uppercase tracking-wider">
+													{start.date.split(",")[0]}
+												</span>
+												<span className="font-extrabold text-lg">
+													{start.date.split(" ")[2]}
+												</span>
+											</div>
 
-                                {/* Event Details */}
-                                <div>
-                                  <h3 className="font-bold text-gray-900 text-lg">{event.title}</h3>
-                                  <p className="text-sm font-semibold text-blue-600 uppercase tracking-tight">
-                                    {new Date(event.start_time).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
-                                  </p>
-                                  <p className="text-sm text-gray-600 font-medium">
-                                    {start.time} - {end.time}
-                                  </p>
-                                  {(event.location || event.description) && (
-                                    <div className="mt-1 text-sm text-gray-500">
-                                      {event.location && <span className="mr-3">📍 {event.location}</span>}
-                                      {event.description && <span>📝 {event.description}</span>}
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
+											{/* Event Details */}
+											<div>
+												<h3 className="font-bold text-gray-900 text-lg">
+													{event.title}
+												</h3>
+												<p className="font-semibold text-blue-600 text-sm uppercase tracking-tight">
+													{new Date(event.start_time).toLocaleDateString(
+														undefined,
+														{ month: "long", day: "numeric", year: "numeric" },
+													)}
+												</p>
+												<p className="font-medium text-gray-600 text-sm">
+													{start.time} - {end.time}
+												</p>
+												{(event.location || event.description) && (
+													<div className="mt-1 text-gray-500 text-sm">
+														{event.location && (
+															<span className="mr-3">📍 {event.location}</span>
+														)}
+														{event.description && (
+															<span>📝 {event.description}</span>
+														)}
+													</div>
+												)}
+											</div>
+										</div>
 
-                              {/* Manage Button */}
-                              {canManageSchedule && (
-                                <div className="mt-4 sm:mt-0">
-                                  <button
-                                    onClick={() => {
-                                      setSelectedEvent(event);
-                                    }}
-                                  className="px-4 py-2 bg-gray-100 text-gray-700 font-medium rounded hover:bg-gray-200 transition-colors"
-                                >
-                                  Manage
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        )
-                        }) : (
-                          <div className="text-center py-12 text-gray-500 italic">
-                            No events have been scheduled for this show yet.
-                          </div>
-                        )}
-                      </div>
-                    </DashboardSection>
-                  )}
-        </div>
-    );
-
+										{/* Manage Button */}
+										{canManageSchedule && (
+											<div className="mt-4 sm:mt-0">
+												<button
+													type="button"
+													onClick={() => {
+														setSelectedEvent(event);
+													}}
+													className="rounded bg-gray-100 px-4 py-2 font-medium text-gray-700 transition-colors hover:bg-gray-200"
+												>
+													Manage
+												</button>
+											</div>
+										)}
+									</div>
+								);
+							})
+						) : (
+							<div className="py-12 text-center text-gray-500 italic">
+								No events have been scheduled for this show yet.
+							</div>
+						)}
+					</div>
+				</DashboardSection>
+			)}
+		</div>
+	);
 }

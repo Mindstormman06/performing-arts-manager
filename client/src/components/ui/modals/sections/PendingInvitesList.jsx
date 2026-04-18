@@ -2,19 +2,14 @@ import ModalDeleteButton from "../buttons/ModalDeleteButton.jsx";
 import ModalSubHeader from "../text/ModalSubHeader.jsx";
 import ModalSubsection from "./ModalSubsection.jsx";
 
-export default function PendingInvitesList({
-	pendingMembers,
-	onRescind,
-}) {
+export default function PendingInvitesList({ pendingMembers, onRescind }) {
 	if (!pendingMembers || pendingMembers.length === 0) {
 		return null;
 	}
 
 	return (
 		<div className="mt-8">
-			<ModalSubHeader className="mb-4">
-				Pending Invitations
-			</ModalSubHeader>
+			<ModalSubHeader className="mb-4">Pending Invitations</ModalSubHeader>
 			<ModalSubsection>
 				<div className="grid gap-3 sm:gap-4">
 					{pendingMembers.map((member) => (
@@ -26,9 +21,7 @@ export default function PendingInvitesList({
 								<p className="font-medium text-gray-900">
 									{member.User?.email}
 								</p>
-								<p className="text-xs text-gray-500">
-									Awaiting acceptance
-								</p>
+								<p className="text-gray-500 text-xs">Awaiting acceptance</p>
 							</div>
 							<ModalDeleteButton
 								type="button"
@@ -44,4 +37,3 @@ export default function PendingInvitesList({
 		</div>
 	);
 }
-

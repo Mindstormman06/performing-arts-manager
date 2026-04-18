@@ -1,18 +1,18 @@
 import { useState } from "react";
 import { createOrganization } from "../../../services/api.js";
 import {
-	ModalWrapper,
-	ModalSubWrapper,
-	ModalHeader,
-	ModalLabel,
-	ModalInput,
-	ModalSubmitButton,
+	ModalBody,
 	ModalCancelButton,
 	ModalError,
-	ModalBody,
 	ModalFooter,
+	ModalHeader,
+	ModalInput,
 	ModalInputContainer,
 	ModalInputParent,
+	ModalLabel,
+	ModalSubmitButton,
+	ModalSubWrapper,
+	ModalWrapper,
 } from "../../ui/modals/index.js";
 
 export default function CreateOrgModal({ isOpen, onClose, onSuccess }) {
@@ -53,7 +53,9 @@ export default function CreateOrgModal({ isOpen, onClose, onSuccess }) {
 				<ModalBody>
 					<ModalInputParent>
 						<ModalInputContainer>
-							<ModalLabel htmlFor="create-org-name">Organization Name</ModalLabel>
+							<ModalLabel htmlFor="create-org-name">
+								Organization Name
+							</ModalLabel>
 							<ModalInput
 								id="create-org-name"
 								type="text"
@@ -68,7 +70,11 @@ export default function CreateOrgModal({ isOpen, onClose, onSuccess }) {
 
 				<ModalFooter>
 					<ModalCancelButton onClick={onClose}>Cancel</ModalCancelButton>
-					<ModalSubmitButton type="button" onClick={handleCreateOrg} disabled={loading}>
+					<ModalSubmitButton
+						type="button"
+						onClick={handleCreateOrg}
+						disabled={loading}
+					>
 						{loading ? "Creating..." : "Create"}
 					</ModalSubmitButton>
 				</ModalFooter>

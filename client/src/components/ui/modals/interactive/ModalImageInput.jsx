@@ -42,7 +42,7 @@ export default function ModalImageInput({
 					type="file"
 					accept="image/*"
 					onChange={handleFileChange}
-					className="block w-full text-sm text-gray-500 file:rounded file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-blue-700 hover:file:bg-blue-100"
+					className="block w-full text-gray-500 text-sm file:rounded file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:font-medium file:text-blue-700 file:text-sm hover:file:bg-blue-100"
 				/>
 				{previewUrl && (
 					<div className="relative inline-block max-w-xs">
@@ -54,7 +54,7 @@ export default function ModalImageInput({
 						<button
 							type="button"
 							onClick={handleRemoveImage}
-							className="absolute -right-2 -top-2 rounded-full bg-red-500 p-1 text-white shadow-lg hover:bg-red-600"
+							className="absolute -top-2 -right-2 rounded-full bg-red-500 p-1 text-white shadow-lg hover:bg-red-600"
 						>
 							✕
 						</button>
@@ -64,5 +64,3 @@ export default function ModalImageInput({
 		</div>
 	);
 }
-
-

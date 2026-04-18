@@ -1,232 +1,361 @@
 import { useEffect, useState } from "react";
-import { assignOrgEventUsers, deleteOrgEvent, getOrganizationUsers, updateOrgEvent } from "../../../services/api.js";
-import { localDateTimeToUtcIso, utcToLocalDateTimeInput } from "../../../utils/dateTime.js";
 import {
-    ModalCancelButton,
-    ModalCheckbox,
-    ModalError,
-    ModalInput,
-    ModalLabel,
-    ModalSubHeader,
-    ModalSubsection,
-    ModalSubmitButton,
-    ModalTextarea,
-    ModalWrapper,
-    ModalSubWrapper,
-    ModalHeader,
-    ModalNav,
-    ModalNavItem,
-    ModalBody,
-    ModalBox,
-    ModalCheckboxItem,
-    ModalFooter,
-    ModalInputContainer,
-    ModalInputParent,
+	assignOrgEventUsers,
+	deleteOrgEvent,
+	getOrganizationUsers,
+	updateOrgEvent,
+} from "../../../services/api.js";
+import {
+	localDateTimeToUtcIso,
+	utcToLocalDateTimeInput,
+} from "../../../utils/dateTime.js";
+import {
+	ModalBody,
+	ModalBox,
+	ModalCancelButton,
+	ModalCheckbox,
+	ModalCheckboxItem,
+	ModalError,
+	ModalFooter,
+	ModalHeader,
+	ModalInput,
+	ModalInputContainer,
+	ModalInputParent,
+	ModalLabel,
+	ModalNav,
+	ModalNavItem,
+	ModalSubHeader,
+	ModalSubmitButton,
+	ModalSubsection,
+	ModalSubWrapper,
+	ModalTextarea,
+	ModalWrapper,
 } from "../../ui/modals/index.js";
 
-export default function ManageOrgEventModal({ isOpen, onClose, orgId, event, onSuccess }) {
-    const [activeTab, setActiveTab] = useState("details");
-    const [formData, setFormData] = useState({ title: "", start_time: "", end_time: "", location: "", description: "" });
-    const [orgMembers, setOrgMembers] = useState([]);
-    const [availableRoles, setAvailableRoles] = useState([]);
-    const [selectedUserIds, setSelectedUserIds] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState("");
+export default function ManageOrgEventModal({
+	isOpen,
+	onClose,
+	orgId,
+	event,
+	onSuccess,
+}) {
+	const [activeTab, setActiveTab] = useState("details");
+	const [formData, setFormData] = useState({
+		title: "",
+		start_time: "",
+		end_time: "",
+		location: "",
+		description: "",
+	});
+	const [orgMembers, setOrgMembers] = useState([]);
+	const [availableRoles, setAvailableRoles] = useState([]);
+	const [selectedUserIds, setSelectedUserIds] = useState([]);
+	const [isLoading, setIsLoading] = useState(false);
+	const [error, setError] = useState("");
 
-    useEffect(() => {
-        if (isOpen && event) {
-            setActiveTab("details");
-            setError("");
+	useEffect(() => {
+		if (isOpen && event) {
+			setActiveTab("details");
+			setError("");
 
-            setFormData({
-                title: event.title || "",
-                start_time: utcToLocalDateTimeInput(event.start_time),
-                end_time: utcToLocalDateTimeInput(event.end_time),
-                location: event.location || "",
-                description: event.description || ""
-            });
-            setSelectedUserIds((event.attendees || event.Users || []).map((user) => user.id));
+			setFormData({
+				title: event.title || "",
+				start_time: utcToLocalDateTimeInput(event.start_time),
+				end_time: utcToLocalDateTimeInput(event.end_time),
+				location: event.location || "",
+				description: event.description || "",
+			});
+			setSelectedUserIds(
+				(event.attendees || event.Users || []).map((user) => user.id),
+			);
 
-            getOrganizationUsers(orgId).then((res) => {
-                const members = res.data;
-                setOrgMembers(members);
+			getOrganizationUsers(orgId)
+				.then((res) => {
+					const members = res.data;
+					setOrgMembers(members);
 
-                const roles = new Set();
-                members.forEach((member) => member.assignedRoles?.forEach((role) => roles.add(role.name)));
-                setAvailableRoles(Array.from(roles));
-            }).catch(() => {
-                setError("Failed to load organizations members");
-            });
-        }
-    }, [isOpen, event, orgId]);
+					const roles = new Set();
+					members.forEach((member) => {
+						member.assignedRoles?.forEach((role) => {
+							roles.add(role.name);
+						});
+					});
+					setAvailableRoles(Array.from(roles));
+				})
+				.catch(() => {
+					setError("Failed to load organizations members");
+				});
+		}
+	}, [isOpen, event, orgId]);
 
-    if (!isOpen || !event) return null;
+	if (!isOpen || !event) return null;
 
-    const handleSaveEvent = async () => {
-        if (!formData.title || !formData.start_time || !formData.end_time) {
-            setError("Complete the required event details before saving the event.");
-            setActiveTab("details");
-            return;
-        }
+	const handleSaveEvent = async () => {
+		if (!formData.title || !formData.start_time || !formData.end_time) {
+			setError("Complete the required event details before saving the event.");
+			setActiveTab("details");
+			return;
+		}
 
-        if (new Date(formData.end_time) <= new Date(formData.start_time)) {
-            setError("End time must be after start time.");
-            setActiveTab("details");
-            return;
-        }
+		if (new Date(formData.end_time) <= new Date(formData.start_time)) {
+			setError("End time must be after start time.");
+			setActiveTab("details");
+			return;
+		}
 
-        setIsLoading(true);
-        setError("");
+		setIsLoading(true);
+		setError("");
 
-        try {
-            await updateOrgEvent(orgId, event.id, {
-                ...formData,
-                start_time: localDateTimeToUtcIso(formData.start_time),
-                end_time: localDateTimeToUtcIso(formData.end_time),
-            });
+		try {
+			await updateOrgEvent(orgId, event.id, {
+				...formData,
+				start_time: localDateTimeToUtcIso(formData.start_time),
+				end_time: localDateTimeToUtcIso(formData.end_time),
+			});
 
-            // Always persist assignments so removals (empty array) are saved too.
-            await assignOrgEventUsers(orgId, event.id, {
-                type: "specific",
-                userIds: selectedUserIds
-            });
+			// Always persist assignments so removals (empty array) are saved too.
+			await assignOrgEventUsers(orgId, event.id, {
+				type: "specific",
+				userIds: selectedUserIds,
+			});
 
-            onSuccess();
-            onClose();
-        } catch {
-            setError("Failed to save event changes");
-        } finally {
-            setIsLoading(false);
-        }
-    };
+			onSuccess();
+			onClose();
+		} catch {
+			setError("Failed to save event changes");
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
-    const handleDelete = async () => {
-        if (window.confirm("Are you sure you want to delete this event?")) {
-            try {
-                await deleteOrgEvent(orgId, event.id);
-                onSuccess();
-                onClose();
-            } catch {
-                setError("Failed to delete event");
-            }
-        }
-    };
+	const handleDelete = async () => {
+		if (window.confirm("Are you sure you want to delete this event?")) {
+			try {
+				await deleteOrgEvent(orgId, event.id);
+				onSuccess();
+				onClose();
+			} catch {
+				setError("Failed to delete event");
+			}
+		}
+	};
 
-    const isRoleFullySelected = (role) => {
-        const usersWithRole = orgMembers.filter((member) =>
-            member.assignedRoles?.some((assignedRole) => assignedRole.name === role)
-        );
+	const isRoleFullySelected = (role) => {
+		const usersWithRole = orgMembers.filter((member) =>
+			member.assignedRoles?.some((assignedRole) => assignedRole.name === role),
+		);
 
-        return usersWithRole.length > 0 && usersWithRole.every((member) => selectedUserIds.includes(member.users_id));
-    };
+		return (
+			usersWithRole.length > 0 &&
+			usersWithRole.every((member) => selectedUserIds.includes(member.users_id))
+		);
+	};
 
-    const toggleRole = (role) => {
-        const usersWithRole = orgMembers
-            .filter((member) => member.assignedRoles?.some((assignedRole) => assignedRole.name === role))
-            .map((member) => member.users_id);
+	const toggleRole = (role) => {
+		const usersWithRole = orgMembers
+			.filter((member) =>
+				member.assignedRoles?.some(
+					(assignedRole) => assignedRole.name === role,
+				),
+			)
+			.map((member) => member.users_id);
 
-        if (isRoleFullySelected(role)) {
-            setSelectedUserIds((prev) => prev.filter((id) => !usersWithRole.includes(id)));
-            return;
-        }
+		if (isRoleFullySelected(role)) {
+			setSelectedUserIds((prev) =>
+				prev.filter((id) => !usersWithRole.includes(id)),
+			);
+			return;
+		}
 
-        setSelectedUserIds((prev) => Array.from(new Set([...prev, ...usersWithRole])));
-    };
+		setSelectedUserIds((prev) =>
+			Array.from(new Set([...prev, ...usersWithRole])),
+		);
+	};
 
-    const toggleUser = (userId) => {
-        setSelectedUserIds((prev) => prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId]);
-    };
+	const toggleUser = (userId) => {
+		setSelectedUserIds((prev) =>
+			prev.includes(userId)
+				? prev.filter((id) => id !== userId)
+				: [...prev, userId],
+		);
+	};
 
-    return (
-        <ModalWrapper>
-            <ModalSubWrapper>
-                <ModalHeader onClick={onClose}>Manage Event</ModalHeader>
+	return (
+		<ModalWrapper>
+			<ModalSubWrapper>
+				<ModalHeader onClick={onClose}>Manage Event</ModalHeader>
 
-                <ModalNav>
-                    <ModalNavItem isActive={activeTab === "details"} onClick={() => setActiveTab("details")}>
-                        Event Details
-                    </ModalNavItem>
-                    <ModalNavItem isActive={activeTab === "assignments"} onClick={() => setActiveTab("assignments")}>
-                        Assignments ({selectedUserIds.length})
-                    </ModalNavItem>
-                </ModalNav>
+				<ModalNav>
+					<ModalNavItem
+						isActive={activeTab === "details"}
+						onClick={() => setActiveTab("details")}
+					>
+						Event Details
+					</ModalNavItem>
+					<ModalNavItem
+						isActive={activeTab === "assignments"}
+						onClick={() => setActiveTab("assignments")}
+					>
+						Assignments ({selectedUserIds.length})
+					</ModalNavItem>
+				</ModalNav>
 
-                {error && <ModalError>{error}</ModalError>}
+				{error && <ModalError>{error}</ModalError>}
 
-                <ModalBody>
-                    {activeTab === "details" && (
-                        <ModalInputParent>
-                            <ModalInputContainer>
-                                <ModalLabel htmlFor="manage-org-event-title">Event Title</ModalLabel>
-                                <ModalInput id="manage-org-event-title" type="text" required value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} />
-                            </ModalInputContainer>
+				<ModalBody>
+					{activeTab === "details" && (
+						<ModalInputParent>
+							<ModalInputContainer>
+								<ModalLabel htmlFor="manage-org-event-title">
+									Event Title
+								</ModalLabel>
+								<ModalInput
+									id="manage-org-event-title"
+									type="text"
+									required
+									value={formData.title}
+									onChange={(e) =>
+										setFormData({ ...formData, title: e.target.value })
+									}
+								/>
+							</ModalInputContainer>
 
-                            <ModalInputContainer columns={2}>
-                                <div>
-                                    <ModalLabel htmlFor="manage-org-event-start-time">Start Time</ModalLabel>
-                                    <ModalInput id="manage-org-event-start-time" type="datetime-local" required value={formData.start_time} onChange={(e) => setFormData({ ...formData, start_time: e.target.value })} />
-                                </div>
-                                <div>
-                                    <ModalLabel htmlFor="manage-org-event-end-time">End Time</ModalLabel>
-                                    <ModalInput id="manage-org-event-end-time" type="datetime-local" required value={formData.end_time} onChange={(e) => setFormData({ ...formData, end_time: e.target.value })} />
-                                </div>
-                            </ModalInputContainer>
+							<ModalInputContainer columns={2}>
+								<div>
+									<ModalLabel htmlFor="manage-org-event-start-time">
+										Start Time
+									</ModalLabel>
+									<ModalInput
+										id="manage-org-event-start-time"
+										type="datetime-local"
+										required
+										value={formData.start_time}
+										onChange={(e) =>
+											setFormData({ ...formData, start_time: e.target.value })
+										}
+									/>
+								</div>
+								<div>
+									<ModalLabel htmlFor="manage-org-event-end-time">
+										End Time
+									</ModalLabel>
+									<ModalInput
+										id="manage-org-event-end-time"
+										type="datetime-local"
+										required
+										value={formData.end_time}
+										onChange={(e) =>
+											setFormData({ ...formData, end_time: e.target.value })
+										}
+									/>
+								</div>
+							</ModalInputContainer>
 
-                            <ModalInputContainer>
-                                <ModalLabel htmlFor="manage-org-event-location">Location</ModalLabel>
-                                <ModalInput id="manage-org-event-location" type="text" value={formData.location} onChange={(e) => setFormData({ ...formData, location: e.target.value })} placeholder="Optional" />
-                            </ModalInputContainer>
+							<ModalInputContainer>
+								<ModalLabel htmlFor="manage-org-event-location">
+									Location
+								</ModalLabel>
+								<ModalInput
+									id="manage-org-event-location"
+									type="text"
+									value={formData.location}
+									onChange={(e) =>
+										setFormData({ ...formData, location: e.target.value })
+									}
+									placeholder="Optional"
+								/>
+							</ModalInputContainer>
 
-                            <ModalInputContainer>
-                                <ModalLabel htmlFor="manage-org-event-description">Notes / Description</ModalLabel>
-                                <ModalTextarea id="manage-org-event-description" rows="3" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} placeholder="Optional notes..." />
-                            </ModalInputContainer>
-                        </ModalInputParent>
-                    )}
+							<ModalInputContainer>
+								<ModalLabel htmlFor="manage-org-event-description">
+									Notes / Description
+								</ModalLabel>
+								<ModalTextarea
+									id="manage-org-event-description"
+									rows="3"
+									value={formData.description}
+									onChange={(e) =>
+										setFormData({ ...formData, description: e.target.value })
+									}
+									placeholder="Optional notes..."
+								/>
+							</ModalInputContainer>
+						</ModalInputParent>
+					)}
 
-                    {activeTab === "assignments" && (
-                        <ModalInputParent>
-                            <p className="text-sm text-gray-600">Select roles or specific individuals who are required to attend this event.</p>
+					{activeTab === "assignments" && (
+						<ModalInputParent>
+							<p className="text-gray-600 text-sm">
+								Select roles or specific individuals who are required to attend
+								this event.
+							</p>
 
-                            {availableRoles.length > 0 && (
-                            <ModalSubsection>
-                                <ModalSubHeader>Quick Select</ModalSubHeader>
-                                    <ModalBox>
-                                        {availableRoles.map((role) => (
-                                            <ModalCheckboxItem key={role} role={role} isSelected={isRoleFullySelected(role)} onToggle={() => toggleRole(role)} />
-                                        ))}
-                                    </ModalBox>
-                                </ModalSubsection>
-                            )}
+							{availableRoles.length > 0 && (
+								<ModalSubsection>
+									<ModalSubHeader>Quick Select</ModalSubHeader>
+									<ModalBox>
+										{availableRoles.map((role) => (
+											<ModalCheckboxItem
+												key={role}
+												role={role}
+												isSelected={isRoleFullySelected(role)}
+												onToggle={() => toggleRole(role)}
+											/>
+										))}
+									</ModalBox>
+								</ModalSubsection>
+							)}
 
-                            <ModalSubsection>
-                                <ModalSubHeader>Assign Specific Individuals</ModalSubHeader>
-                                <ModalBox>
-                                    {orgMembers.map((member) => (
-                                        <ModalLabel key={member.users_id} variant="checkbox">
-                                            <ModalCheckbox checked={selectedUserIds.includes(member.users_id)} onChange={() => toggleUser(member.users_id)} />
-                                            <div>
-                                                <div className="text-sm font-medium">{member.User?.fname} {member.User?.lname}</div>
-                                                <div className="text-xs text-gray-500">{member.assignedRoles?.map((role) => role.name).join(", ")}</div>
-                                            </div>
-                                        </ModalLabel>
-                                    ))}
-                                </ModalBox>
-                            </ModalSubsection>
-                        </ModalInputParent>
-                    )}
-                </ModalBody>
+							<ModalSubsection>
+								<ModalSubHeader>Assign Specific Individuals</ModalSubHeader>
+								<ModalBox>
+									{orgMembers.map((member) => (
+										<ModalLabel
+											key={member.users_id}
+											variant="checkbox"
+											htmlFor={`org-event-member-${member.users_id}`}
+										>
+											<ModalCheckbox
+												id={`org-event-member-${member.users_id}`}
+												checked={selectedUserIds.includes(member.users_id)}
+												onChange={() => toggleUser(member.users_id)}
+											/>
+											<div>
+												<div className="font-medium text-sm">
+													{member.User?.fname} {member.User?.lname}
+												</div>
+												<div className="text-gray-500 text-xs">
+													{member.assignedRoles
+														?.map((role) => role.name)
+														.join(", ")}
+												</div>
+											</div>
+										</ModalLabel>
+									))}
+								</ModalBox>
+							</ModalSubsection>
+						</ModalInputParent>
+					)}
+				</ModalBody>
 
-                <ModalFooter>
-                    <button type="button" onClick={handleDelete} className="mr-auto font-medium text-red-600 text-sm transition-colors hover:text-red-800">
-                        Delete Event
-                    </button>
-                    <ModalCancelButton onClick={onClose}>Done</ModalCancelButton>
-                    <ModalSubmitButton type="button" onClick={handleSaveEvent} disabled={isLoading}>
-                        {isLoading ? "Saving..." : "Save Event"}
-                    </ModalSubmitButton>
-                </ModalFooter>
-            </ModalSubWrapper>
-        </ModalWrapper>
-    );
+				<ModalFooter>
+					<button
+						type="button"
+						onClick={handleDelete}
+						className="mr-auto font-medium text-red-600 text-sm transition-colors hover:text-red-800"
+					>
+						Delete Event
+					</button>
+					<ModalCancelButton onClick={onClose}>Done</ModalCancelButton>
+					<ModalSubmitButton
+						type="button"
+						onClick={handleSaveEvent}
+						disabled={isLoading}
+					>
+						{isLoading ? "Saving..." : "Save Event"}
+					</ModalSubmitButton>
+				</ModalFooter>
+			</ModalSubWrapper>
+		</ModalWrapper>
+	);
 }

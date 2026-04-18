@@ -1,7 +1,9 @@
-import { useState, useEffect } from "react";
-import { removeUserFromShow, addUserToShow, getOrganizationUsers } from "../../../services/api.js";
-import ShowRoleModal from "./ShowRoleModal.jsx";
-import InviteMemberModal from "../Organizations/InviteMemberModal.jsx";
+import { useEffect, useState } from "react";
+import {
+	addUserToShow,
+	getOrganizationUsers,
+	removeUserFromShow,
+} from "../../../services/api.js";
 import {
 	ModalBody,
 	ModalCancelButton,
@@ -9,38 +11,51 @@ import {
 	ModalError,
 	ModalFooter,
 	ModalHeader,
-	ModalSubHeader, ModalSubmitButton,
+	ModalSubHeader,
+	ModalSubmitButton,
 	ModalSubsection,
 	ModalSubWrapper,
-	ModalWrapper
+	ModalWrapper,
 } from "../../ui/modals/index.js";
 import MembersList from "../../ui/modals/sections/MembersList.jsx";
+import InviteMemberModal from "../Organizations/InviteMemberModal.jsx";
+import ShowRoleModal from "./ShowRoleModal.jsx";
 
-export default function ManageShowMembersModal({ isOpen, onClose, members, orgId, showId, onSuccess, canEditRoles = false }) {
+export default function ManageShowMembersModal({
+	isOpen,
+	onClose,
+	members,
+	orgId,
+	showId,
+	onSuccess,
+	canEditRoles = false,
+}) {
 	const [orgMembers, setOrgMembers] = useState([]);
-    const [selectedOrgUserId, setSelectedOrgUserId] = useState("");
+	const [selectedOrgUserId, setSelectedOrgUserId] = useState("");
 
-    const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
-    const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+	const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
+	const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
 	const [selectedUser, setSelectedUser] = useState(null);
 	const [error, setError] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
 
-    useEffect(() => {
-        if (isOpen) {
+	useEffect(() => {
+		if (isOpen) {
 			setSelectedOrgUserId("");
 			setError("");
 
 			getOrganizationUsers(orgId)
 				.then((res) => setOrgMembers(res.data))
 				.catch(() => setError("Failed to load organizations members"));
-        }
-    }, [isOpen, orgId]);
+		}
+	}, [isOpen, orgId]);
 
 	if (!isOpen) return null;
 
 	const handleRemove = async (userId) => {
-		if (window.confirm("Are you sure you want to remove this user from the show?")) {
+		if (
+			window.confirm("Are you sure you want to remove this user from the show?")
+		) {
 			setIsLoading(true);
 			setError("");
 
@@ -55,30 +70,45 @@ export default function ManageShowMembersModal({ isOpen, onClose, members, orgId
 		}
 	};
 
-    const handleAddOrgMember = async () => {
-        if (!selectedOrgUserId) return;
+	const handleAddOrgMember = async () => {
+		if (!selectedOrgUserId) return;
 
 		setIsLoading(true);
 		setError("");
 
-        try {
-            await addUserToShow(showId, selectedOrgUserId);
-            setSelectedOrgUserId("");
-            onSuccess();
-        } catch (err) {
+		try {
+			await addUserToShow(showId, selectedOrgUserId);
+			setSelectedOrgUserId("");
+			onSuccess();
+		} catch (err) {
 			setError(err.response?.data?.message || "Failed to add user");
 		} finally {
 			setIsLoading(false);
-        }
-    };
+		}
+	};
 
 	const showMemberIds = members.map((m) => m.users_id);
-	const availableOrgMembers = orgMembers.filter((m) => !showMemberIds.includes(m.users_id) && m.status === "active");
+	const availableOrgMembers = orgMembers.filter(
+		(m) => !showMemberIds.includes(m.users_id) && m.status === "active",
+	);
 
 	return (
 		<ModalWrapper>
-			<ShowRoleModal isOpen={isRoleModalOpen} onClose={() => setIsRoleModalOpen(false)} user={selectedUser} showId={showId} canEditRoles={canEditRoles} onSuccess={onSuccess} />
-            <InviteMemberModal isOpen={isInviteModalOpen} onClose={() => setIsInviteModalOpen(false)} orgId={orgId} showId={showId} onSuccess={onSuccess} />
+			<ShowRoleModal
+				isOpen={isRoleModalOpen}
+				onClose={() => setIsRoleModalOpen(false)}
+				user={selectedUser}
+				showId={showId}
+				canEditRoles={canEditRoles}
+				onSuccess={onSuccess}
+			/>
+			<InviteMemberModal
+				isOpen={isInviteModalOpen}
+				onClose={() => setIsInviteModalOpen(false)}
+				orgId={orgId}
+				showId={showId}
+				onSuccess={onSuccess}
+			/>
 
 			<ModalSubWrapper>
 				<ModalHeader onClick={onClose}>Manage Show Roster</ModalHeader>
@@ -87,9 +117,9 @@ export default function ManageShowMembersModal({ isOpen, onClose, members, orgId
 
 				<ModalBody>
 					{canEditRoles && (
-					<ModalSubsection>
+						<ModalSubsection>
 							<ModalSubHeader>Add New Members</ModalSubHeader>
-							<div className="flex items-center justify-between gap-4 rounded-lg border border-gray-200 bg-gray-50 p-4 sm:flex-row flex-col">
+							<div className="flex flex-col items-center justify-between gap-4 rounded-lg border border-gray-200 bg-gray-50 p-4 sm:flex-row">
 								<ModalDropdown
 									value={selectedOrgUserId}
 									onChange={(e) => setSelectedOrgUserId(e.target.value)}
@@ -111,12 +141,14 @@ export default function ManageShowMembersModal({ isOpen, onClose, members, orgId
 									{isLoading ? "Adding..." : "Add"}
 								</ModalSubmitButton>
 
-								<div className="hidden font-medium text-gray-400 sm:block">OR</div>
+								<div className="hidden font-medium text-gray-400 sm:block">
+									OR
+								</div>
 
 								<button
 									type="button"
 									onClick={() => setIsInviteModalOpen(true)}
-									className="cursor-pointer w-full whitespace-nowrap rounded bg-green-600 px-4 py-2 font-medium text-white transition-colors hover:bg-green-700 sm:w-auto"
+									className="w-full cursor-pointer whitespace-nowrap rounded bg-green-600 px-4 py-2 font-medium text-white transition-colors hover:bg-green-700 sm:w-auto"
 								>
 									+ Email Invite
 								</button>

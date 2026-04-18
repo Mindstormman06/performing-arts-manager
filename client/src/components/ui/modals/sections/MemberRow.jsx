@@ -1,5 +1,5 @@
-import ModalHyperButton from "../buttons/ModalHyperButton.jsx";
 import ModalDeleteButton from "../buttons/ModalDeleteButton.jsx";
+import ModalHyperButton from "../buttons/ModalHyperButton.jsx";
 
 export default function MemberRow({
 	member,
@@ -17,7 +17,7 @@ export default function MemberRow({
 						<p className="font-medium text-gray-900">
 							{member.User?.fname} {member.User?.lname}
 						</p>
-						<p className="text-sm text-gray-600">{member.User?.email}</p>
+						<p className="text-gray-600 text-sm">{member.User?.email}</p>
 					</div>
 					{showStatus && member.status === "pending" && (
 						<span className="ml-auto rounded-full bg-amber-100 px-2.5 py-0.5 font-medium text-amber-800 text-xs sm:ml-2">
@@ -41,15 +41,17 @@ export default function MemberRow({
 
 			{/* Actions */}
 			<div className="flex gap-2 sm:gap-3">
-				{canEditRoles && member.assignedRoles && member.assignedRoles.length >= 0 && (
-					<ModalHyperButton
-						type="button"
-						onClick={() => onEditRoles(member)}
-						className="font-medium text-blue-600 hover:text-blue-800"
-					>
-						Edit Roles
-					</ModalHyperButton>
-				)}
+				{canEditRoles &&
+					member.assignedRoles &&
+					member.assignedRoles.length >= 0 && (
+						<ModalHyperButton
+							type="button"
+							onClick={() => onEditRoles(member)}
+							className="font-medium text-blue-600 hover:text-blue-800"
+						>
+							Edit Roles
+						</ModalHyperButton>
+					)}
 				{canEditRoles && (
 					<ModalDeleteButton
 						type="button"
@@ -62,4 +64,3 @@ export default function MemberRow({
 		</div>
 	);
 }
-

@@ -12,7 +12,7 @@ export default function MembersList({
 	if (!members || members.length === 0) {
 		return (
 			<ModalSubsection>
-				<p className="text-center text-sm text-gray-500 italic">
+				<p className="text-center text-gray-500 text-sm italic">
 					{emptyMessage}
 				</p>
 			</ModalSubsection>
@@ -36,4 +36,3 @@ export default function MembersList({
 		</ModalSubsection>
 	);
 }
-

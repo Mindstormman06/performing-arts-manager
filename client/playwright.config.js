@@ -10,10 +10,13 @@ export default defineConfig({
 		baseURL: "http://localhost:5173",
 		trace: "on-first-retry",
 	},
-	webServer: {
-		command: "npm run dev",
-		url: "http://localhost:5173",
-		reuseExistingServer: true,
-	},
+	webServer: [
+		{
+			command: "npm run dev",
+			url: "http://localhost:5173",
+			reuseExistingServer: true,
+			cwd: "./",
+		},
+	],
 	projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
 });

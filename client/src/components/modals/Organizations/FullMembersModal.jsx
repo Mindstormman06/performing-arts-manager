@@ -1,9 +1,14 @@
 import { useState } from "react";
 import { removeUserFromOrganization } from "../../../services/api.js";
-import RoleModal from "./OrgRoleModal.jsx";
-import { ModalWrapper, ModalSubWrapper, ModalHeader, ModalBody } from "../../ui/modals/index.js";
+import {
+	ModalBody,
+	ModalHeader,
+	ModalSubWrapper,
+	ModalWrapper,
+} from "../../ui/modals/index.js";
 import MembersList from "../../ui/modals/sections/MembersList.jsx";
 import PendingInvitesList from "../../ui/modals/sections/PendingInvitesList.jsx";
+import RoleModal from "./OrgRoleModal.jsx";
 
 export default function FullMembersModal({
 	isOpen,

@@ -2,96 +2,96 @@
 
 /* 1. Global FullCalendar Variable Overrides */
 .pam-calendar-wrapper {
-    --fc-border-color: #e5e7eb; /* Darkened to Tailwind gray-200 for defined lines */
-    --fc-day-today-bg-color: #eff6ff;
-    --fc-page-bg-color: #ffffff;
-    --fc-neutral-bg-color: #f9fafb;
+	--fc-border-color: #e5e7eb; /* Darkened to Tailwind gray-200 for defined lines */
+	--fc-day-today-bg-color: #eff6ff;
+	--fc-page-bg-color: #ffffff;
+	--fc-neutral-bg-color: #f9fafb;
 }
 
 /* (Removed the rule that hid the .fc-scrollgrid border to ensure the outer lines render) */
 
 /* 2. Modernize the Header Title & Perfectly Center It */
 .pam-calendar-wrapper .fc-header-toolbar .fc-toolbar-chunk {
-    flex: 1; /* Forces all three header sections to be equal width */
+	flex: 1; /* Forces all three header sections to be equal width */
 }
 
 .pam-calendar-wrapper .fc-header-toolbar .fc-toolbar-chunk:nth-child(2) {
-    display: flex;
-    justify-content: center; /* Centers the text within the middle section */
+	display: flex;
+	justify-content: center; /* Centers the text within the middle section */
 }
 
 .pam-calendar-wrapper .fc .fc-toolbar-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #111827;
+	font-size: 1.25rem;
+	font-weight: 600;
+	color: #111827;
 }
 
 /* 3. Style the Buttons */
 .pam-calendar-wrapper .fc .fc-button-primary {
-    background-color: #ffffff;
-    color: #374151;
-    border: 1px solid #d1d5db;
-    text-transform: capitalize;
-    font-weight: 500;
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    transition: all 0.2s;
+	background-color: #ffffff;
+	color: #374151;
+	border: 1px solid #d1d5db;
+	text-transform: capitalize;
+	font-weight: 500;
+	box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+	transition: all 0.2s;
 }
 
 .pam-calendar-wrapper .fc .fc-button-primary:not(:disabled):hover {
-    background-color: #f9fafb;
-    color: #111827;
-    border-color: #d1d5db;
+	background-color: #f9fafb;
+	color: #111827;
+	border-color: #d1d5db;
 }
 
 .pam-calendar-wrapper .fc .fc-button-primary:not(:disabled):active,
 .pam-calendar-wrapper .fc .fc-button-primary:not(:disabled).fc-button-active {
-    background-color: #3b82f6;
-    color: #ffffff;
-    border-color: #3b82f6;
+	background-color: #3b82f6;
+	color: #ffffff;
+	border-color: #3b82f6;
 }
 
 .pam-calendar-wrapper .fc .fc-button-primary:focus {
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5) !important;
+	box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
 }
 
 /* 4. Clean up the Day Headers */
 .pam-calendar-wrapper .fc-col-header-cell-cushion {
-    padding: 0.75rem 0 !important;
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #6b7280;
-    text-transform: uppercase;
+	padding: 0.75rem 0;
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: #6b7280;
+	text-transform: uppercase;
 }
 
 /* 5. Improve Date Numbers */
 .pam-calendar-wrapper .fc-daygrid-day-number {
-    padding: 0.5rem 0.75rem !important;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #374151;
+	padding: 0.5rem 0.75rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	color: #374151;
 }
 
 /* 6. Modernize the Event Blocks */
 .pam-calendar-wrapper .fc-event {
-    border: none;
-    background-color: #dbeafe;
-    border-left: 4px solid #3b82f6;
-    border-radius: 4px;
-    padding: 2px 6px;
-    /* CHANGED: Removed horizontal margin to prevent bleeding into the next day's cell */
-    margin: 2px 0;
-    transition: opacity 0.2s;
+	border: none;
+	background-color: #dbeafe;
+	border-left: 4px solid #3b82f6;
+	border-radius: 4px;
+	padding: 2px 6px;
+	/* CHANGED: Removed horizontal margin to prevent bleeding into the next day's cell */
+	margin: 2px 0;
+	transition: opacity 0.2s;
 }
 
 .pam-calendar-wrapper .fc-event:hover {
-    opacity: 0.85;
+	opacity: 0.85;
 }
 
 .pam-calendar-wrapper .fc-event-main {
-    color: #1e40af;
-    font-weight: 500;
-    font-size: 0.75rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+	color: #1e40af;
+	font-weight: 500;
+	font-size: 0.75rem;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }

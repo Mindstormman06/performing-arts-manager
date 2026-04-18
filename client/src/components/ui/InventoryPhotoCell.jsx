@@ -6,8 +6,8 @@ export default function InventoryPhotoCell({ photoPath, itemName }) {
 
 	if (!photoPath) {
 		return (
-			<div className="flex h-16 w-16 items-center justify-center rounded-lg border border-dashed border-gray-300 bg-gray-50">
-				<span className="text-gray-400 text-2xl">📷</span>
+			<div className="flex h-16 w-16 items-center justify-center rounded-lg border border-gray-300 border-dashed bg-gray-50">
+				<span className="text-2xl text-gray-400">📷</span>
 			</div>
 		);
 	}
@@ -34,7 +34,7 @@ export default function InventoryPhotoCell({ photoPath, itemName }) {
 						<button
 							type="button"
 							onClick={() => setShowModal(false)}
-							className="absolute -right-4 -top-4 rounded-full bg-white p-2 text-gray-600 shadow-lg hover:text-gray-900"
+							className="absolute -top-4 -right-4 rounded-full bg-white p-2 text-gray-600 shadow-lg hover:text-gray-900"
 						>
 							✕
 						</button>
@@ -43,11 +43,10 @@ export default function InventoryPhotoCell({ photoPath, itemName }) {
 							alt={itemName}
 							className="max-h-screen rounded-lg object-contain"
 						/>
-						<p className="mt-4 text-center text-sm text-gray-600">{itemName}</p>
+						<p className="mt-4 text-center text-gray-600 text-sm">{itemName}</p>
 					</div>
 				</div>
 			)}
 		</>
 	);
 }
-

@@ -1,18 +1,18 @@
 import { useState } from "react";
 import { inviteByEmail, inviteUserToShow } from "../../../services/api.js";
 import {
-	ModalWrapper,
-	ModalLabel,
-	ModalInput,
-	ModalError,
-	ModalSubmitButton,
-	ModalCancelButton,
-	ModalSubWrapper,
-	ModalHeader,
 	ModalBody,
+	ModalCancelButton,
+	ModalError,
 	ModalFooter,
+	ModalHeader,
+	ModalInput,
 	ModalInputContainer,
 	ModalInputParent,
+	ModalLabel,
+	ModalSubmitButton,
+	ModalSubWrapper,
+	ModalWrapper,
 } from "../../ui/modals/index.js";
 
 export default function InviteMemberModal({
@@ -56,13 +56,15 @@ export default function InviteMemberModal({
 		<ModalWrapper>
 			<ModalSubWrapper>
 				<ModalHeader onClick={onClose}>Invite New Member</ModalHeader>
-				
+
 				{error && <ModalError>{error}</ModalError>}
-				
+
 				<ModalBody>
 					<ModalInputParent>
 						<ModalInputContainer>
-							<ModalLabel htmlFor="invite-member-email">Email Address</ModalLabel>
+							<ModalLabel htmlFor="invite-member-email">
+								Email Address
+							</ModalLabel>
 							<ModalInput
 								id="invite-member-email"
 								type="email"
@@ -77,7 +79,11 @@ export default function InviteMemberModal({
 
 				<ModalFooter>
 					<ModalCancelButton onClick={onClose}>Cancel</ModalCancelButton>
-					<ModalSubmitButton type="button" onClick={handleInvite} disabled={loading}>
+					<ModalSubmitButton
+						type="button"
+						onClick={handleInvite}
+						disabled={loading}
+					>
 						{loading ? "Sending..." : "Send Invite"}
 					</ModalSubmitButton>
 				</ModalFooter>
