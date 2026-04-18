@@ -19,7 +19,11 @@ const SHOW_ROLE_PRIORITY = [
 function normalizeRoleNames(roleNames) {
 	if (!Array.isArray(roleNames)) return [];
 	return roleNames
-		.map((name) => String(name || "").toLowerCase().trim())
+		.map((name) =>
+			String(name || "")
+				.toLowerCase()
+				.trim(),
+		)
 		.filter(Boolean);
 }
 
@@ -48,6 +52,3 @@ export {
 	normalizeRoleNames,
 	SHOW_ROLE_PRIORITY,
 };
-
-
-

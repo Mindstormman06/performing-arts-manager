@@ -6,10 +6,15 @@ import {
 	SHOW_ROLE_PRIORITY,
 } from "./rolePriority.service.js";
 
-async function appendRolesToAssignment(showId, userId, roleNames, actingUserId = null) {
+async function appendRolesToAssignment(
+	showId,
+	userId,
+	roleNames,
+	actingUserId = null,
+) {
 	const show = await models.Show.findOne({ where: { id: showId } });
 	if (!show) throw new Error("Show not found");
-	
+
 	const membership = await models.ShowMembership.findOne({
 		where: { show_id: showId, users_id: userId },
 		include: [{ model: models.ShowRole, as: "assignedRoles" }],
@@ -101,7 +106,7 @@ async function getUsersByRole(showId, roleName) {
 					{
 						model: models.ShowRole,
 						as: "assignedRoles",
-						where: { name: roleName }, 
+						where: { name: roleName },
 					},
 				],
 			},
@@ -120,7 +125,12 @@ async function removeUserFromShow(showId, userId) {
 	return { message: "User removed from show successfully" };
 }
 
-async function removeRolesFromUser(showId, userId, roleNames, actingUserId = null) {
+async function removeRolesFromUser(
+	showId,
+	userId,
+	roleNames,
+	actingUserId = null,
+) {
 	const namesArray = normalizeRoleNames(
 		Array.isArray(roleNames) ? roleNames : [roleNames],
 	);

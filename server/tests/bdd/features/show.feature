@@ -4,14 +4,14 @@ Feature: Organization Show Management
   So that we can start organizing cast, crew, and schedules for upcoming seasons
 
   Scenario: The President successfully creates a new show
-    Given the user "sarah@example.com" is logged in
+    Given the user "levitybill@gmail.com" is logged in
     And they have the "president" role
     When they attempt to create a new show titled "The Crucible" for the organization
     Then the API should return a "201 Created" status
     And the new show should be saved successfully
 
   Scenario: Security blocks unauthorized users from creating shows
-    Given the user "marcus@example.com" is logged in
+    Given the user "lilyparker25@outlook.com" is logged in
     And they have the "actor" role
     When they attempt to create a new show titled "Macbeth" for the organization
     Then the API should return a "403 Forbidden" status

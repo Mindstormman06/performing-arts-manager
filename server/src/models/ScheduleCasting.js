@@ -16,4 +16,3 @@ export default (sequelize, DataTypes) => {
 		{ tableName: "schedules_has_casting", timestamps: false },
 	);
 };
-

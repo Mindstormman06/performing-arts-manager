@@ -91,7 +91,9 @@ describe("Show Management API", () => {
 		it("GET /api/shows/:showId/dashboard - should return viewer dashboard data", async () => {
 			const department =
 				(await models.Department.findOne()) ||
-				(await models.Department.create({ name: `Dashboard Dept ${Date.now()}` }));
+				(await models.Department.create({
+					name: `Dashboard Dept ${Date.now()}`,
+				}));
 
 			const inventoryName = `Dashboard Prop ${Date.now()}`;
 			const eventTitle = `Dashboard Call ${Date.now()}`;
@@ -191,6 +193,7 @@ describe("Show Management API", () => {
 
 			const res = await request(app)
 				.post(`/api/shows/${testShowId}/join`)
+				.set("Authorization", `Bearer ${authToken}`)
 				.send({ userId: testUserId });
 
 			expect(res.statusCode).toEqual(409);
@@ -277,6 +280,7 @@ describe("Show Management API", () => {
 				.mockRejectedValue(new Error("Some error"));
 			const res = await request(app)
 				.post(`/api/shows/${testShowId}/join`)
+				.set("Authorization", `Bearer ${authToken}`)
 				.send({ userId: testUserId });
 			expect(res.statusCode).toEqual(500);
 			spy.mockRestore();
@@ -363,9 +367,9 @@ describe("Show Management API", () => {
 			const spy = vi
 				.spyOn(showRoleService, "removeUserFromShow")
 				.mockRejectedValue(new Error("not a member"));
-			const res = await request(app).delete(
-				`/api/shows/${testShowId}/users/${testUserId}`,
-			);
+			const res = await request(app)
+				.delete(`/api/shows/${testShowId}/users/${testUserId}`)
+				.set("Authorization", `Bearer ${authToken}`);
 			expect(res.statusCode).toEqual(404);
 			spy.mockRestore();
 		});
@@ -373,9 +377,9 @@ describe("Show Management API", () => {
 			const spy = vi
 				.spyOn(showRoleService, "removeUserFromShow")
 				.mockRejectedValue(new Error("Some error"));
-			const res = await request(app).delete(
-				`/api/shows/${testShowId}/users/${testUserId}`,
-			);
+			const res = await request(app)
+				.delete(`/api/shows/${testShowId}/users/${testUserId}`)
+				.set("Authorization", `Bearer ${authToken}`);
 			expect(res.statusCode).toEqual(500);
 			spy.mockRestore();
 		});
@@ -418,9 +422,9 @@ describe("Show Management API", () => {
 			expect(res.statusCode).toEqual(200);
 		});
 		it("DELETE /api/shows/:showId/users/:userId - should remove user from show", async () => {
-			const res = await request(app).delete(
-				`/api/shows/${testShowId}/users/${testUserId}`,
-			);
+			const res = await request(app)
+				.delete(`/api/shows/${testShowId}/users/${testUserId}`)
+				.set("Authorization", `Bearer ${authToken}`);
 			expect(res.statusCode).toEqual(200);
 		});
 		it("DELETE /api/shows/:showId/users/:userId/roles - should remove roles from user", async () => {
@@ -478,7 +482,7 @@ describe("Show Management API", () => {
 					organization_id: testOrgId,
 				});
 			expect(res.statusCode).toEqual(403);
-			expect(res.body.message).toBe("Not a member of this organizations.");
+			expect(res.body.message).toBe("Not a member of this organization.");
 		});
 
 		it("authorizeOrg - should return 403 for insufficient org permissions (Line 54)", async () => {
@@ -514,6 +518,7 @@ describe("Show Management API", () => {
 			// basicUser joins show, but is given 'actor' role (updating requires director/admin)
 			await request(app)
 				.post(`/api/shows/${testShowId}/join`)
+				.set("Authorization", `Bearer ${authToken}`)
 				.send({ userId: basicUserId });
 			await request(app)
 				.put(`/api/shows/${testShowId}/users/${basicUserId}/roles`)
@@ -658,10 +663,10 @@ describe("Show Management API", () => {
 		});
 
 		it("removeRolesFromUser - should throw 'User does not have any of these roles' (Line 120)", async () => {
-			// testUserId is in the show, but doesn't have the 'president' role assigned.
+			// testUserId is in the show, but doesn't have the 'stagehand' role assigned.
 			await expect(
 				showRoleService.removeRolesFromUser(testShowId, testUserId, [
-					"president",
+					"stagehand",
 				]),
 			).rejects.toThrow("User does not have any of these roles");
 		});

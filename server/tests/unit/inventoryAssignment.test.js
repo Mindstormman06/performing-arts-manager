@@ -1,8 +1,8 @@
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-import app from "../server.js";
-import models from "../src/models/index.js";
+import app from "../../server.js";
+import models from "../../src/models/index.js";
 import { closeDatabase, setupTestDatabase } from "./utils/test-setup.js";
 
 describe("Show Inventory Assignment", () => {
@@ -44,7 +44,9 @@ describe("Show Inventory Assignment", () => {
 			.send({ name: "Inventory Assignment Org" });
 		orgId = orgRes.body.id;
 
-		await request(app).post(`/api/orgs/${orgId}/join`).send({ userId: directorUserId });
+		await request(app)
+			.post(`/api/orgs/${orgId}/join`)
+			.send({ userId: directorUserId });
 		await request(app)
 			.put(`/api/orgs/${orgId}/users/${directorUserId}/roles`)
 			.set("Authorization", `Bearer ${directorToken}`)
@@ -61,7 +63,10 @@ describe("Show Inventory Assignment", () => {
 			});
 		showId = showRes.body.id;
 
-		await request(app).post(`/api/shows/${showId}/join`).send({ userId: directorUserId });
+		await request(app)
+			.post(`/api/shows/${showId}/join`)
+			.set("Authorization", `Bearer ${directorToken}`)
+			.send({ userId: directorUserId });
 		await request(app)
 			.put(`/api/shows/${showId}/users/${directorUserId}/roles`)
 			.set("Authorization", `Bearer ${directorToken}`)
@@ -76,8 +81,13 @@ describe("Show Inventory Assignment", () => {
 		});
 		actorUserId = actorRes.body.id;
 
-		await request(app).post(`/api/orgs/${orgId}/join`).send({ userId: actorUserId });
-		await request(app).post(`/api/shows/${showId}/join`).send({ userId: actorUserId });
+		await request(app)
+			.post(`/api/orgs/${orgId}/join`)
+			.send({ userId: actorUserId });
+		await request(app)
+			.post(`/api/shows/${showId}/join`)
+			.set("Authorization", `Bearer ${directorToken}`)
+			.send({ userId: actorUserId });
 		await request(app)
 			.put(`/api/shows/${showId}/users/${actorUserId}/roles`)
 			.set("Authorization", `Bearer ${directorToken}`)
@@ -105,7 +115,7 @@ describe("Show Inventory Assignment", () => {
 			.send({
 				name: "Headset",
 				description: "Comms headset",
-				dept_id: 2,
+				dept_id: 4,
 			});
 		techItemId = techRes.body.data.id;
 	}, 30000);
@@ -144,4 +154,3 @@ describe("Show Inventory Assignment", () => {
 		expect(res.body.success).toBe(true);
 	});
 });
-

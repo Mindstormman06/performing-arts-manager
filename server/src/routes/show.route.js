@@ -20,7 +20,7 @@ router.get(
 	"/:id/dashboard",
 	authenticate,
 	authorizeShow(),
-	showController.getDashboardSummary
+	showController.getDashboardSummary,
 );
 router.get("/:id", showController.getById);
 router.post(

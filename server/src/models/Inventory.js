@@ -34,7 +34,7 @@ export default (sequelize, DataTypes) => {
 			photo_path: {
 				type: DataTypes.STRING(500),
 				allowNull: true,
-			}
+			},
 		},
 		{
 			tableName: "inventory",

@@ -187,11 +187,13 @@ async function updateProfile(req, res, next) {
 	try {
 		const { showId, userId } = req.params;
 		const { bio } = req.body;
-		const photoPath = req.file ? `/uploads/profiles/${req.file.filename}` : undefined;
+		const photoPath = req.file
+			? `/uploads/profiles/${req.file.filename}`
+			: req.body.photo_path;
 
 		// Authorization check: Only the user themselves or an admin/director can update the profile
 		// (Simplified for now, but following standard patterns)
-		if (req.user.id !== Number.parseInt(userId)) {
+		if (req.user.id !== Number.parseInt(userId, 10)) {
 			// In a real app, you might check if req.user has higher privileges here
 		}
 

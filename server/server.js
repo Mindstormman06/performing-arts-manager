@@ -30,7 +30,7 @@ if (process.env.NODE_ENV !== "test") {
 		// })
 		.catch((err) => console.error("Error syncing database:", err));
 
-	const seedRoles = async () => {
+	const _seedRoles = async () => {
 		const { OrganizationRole, ShowRole } = models;
 		const orgRoles = [
 			"president", // Org
@@ -41,7 +41,7 @@ if (process.env.NODE_ENV !== "test") {
 			"tech", // Both
 		];
 		const showRoles = [
-		    "director", // Show
+			"director", // Show
 			"stage-manager", // Show
 			"actor", // Show
 			"stagehand", // Show
@@ -52,13 +52,17 @@ if (process.env.NODE_ENV !== "test") {
 		];
 
 		for (const roleName of orgRoles) {
-			const [created] = await OrganizationRole.findOrCreate({ where: { name: roleName } });
+			const [created] = await OrganizationRole.findOrCreate({
+				where: { name: roleName },
+			});
 			if (created) {
 				console.log(`Created organization role: ${roleName}`);
 			}
 		}
 		for (const roleName of showRoles) {
-			const [created] = await ShowRole.findOrCreate({ where: { name: roleName } });
+			const [created] = await ShowRole.findOrCreate({
+				where: { name: roleName },
+			});
 			if (created) {
 				console.log(`Created show role: ${roleName}`);
 			}
@@ -66,19 +70,20 @@ if (process.env.NODE_ENV !== "test") {
 		console.log("Roles seeding complete");
 	};
 
-	const seedDepartments = async () => {
+	const _seedDepartments = async () => {
 		const { Department } = models;
 		const departments = ["Costumes", "Props", "Sets", "Tech"];
 
 		for (const deptName of departments) {
-			const [created] = await Department.findOrCreate({ where: { name: deptName } });
+			const [created] = await Department.findOrCreate({
+				where: { name: deptName },
+			});
 			if (created) {
 				console.log(`Created department: ${deptName}`);
 			}
 		}
 		console.log("Departments seeding complete");
 	};
-
 }
 /* v8 ignore stop */
 
@@ -105,7 +110,7 @@ app.use("/api/auth", authRouter);
 // Usage: curl -X POST http://localhost:3000/api/admin/reset-db \ -H "Authorization: Bearer YOUR_JWT_TOKEN"
 app.use("/api/admin", adminRouter);
 app.use("/api/inventory", inventoryRouter);
-app.use("/api/schedule", scheduleRouter)
+app.use("/api/schedule", scheduleRouter);
 
 app.use((_req, _res, next) => {
 	next({

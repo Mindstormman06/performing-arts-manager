@@ -56,26 +56,32 @@ async function getViewerDashboard(showId, userId) {
 	]);
 
 	const viewerSchedule = schedules.filter((schedule) => {
-		const attendeeIds = (schedule.attendees ?? []).map((attendee) => attendee.id);
+		const attendeeIds = (schedule.attendees ?? []).map(
+			(attendee) => attendee.id,
+		);
 		const requiredCharacterOwnerIds = (schedule.requiredCharacters ?? [])
 			.map((character) => character.users_id)
 			.filter((id) => id !== null && id !== undefined);
 
-		return attendeeIds.includes(userId) || requiredCharacterOwnerIds.includes(userId);
+		return (
+			attendeeIds.includes(userId) || requiredCharacterOwnerIds.includes(userId)
+		);
 	});
 
 	const viewerInventory = inventoryItems.filter(
-		(item) => item.assigned_user_id === userId || item.assignedCharacter?.users_id === userId,
+		(item) =>
+			item.assigned_user_id === userId ||
+			item.assignedCharacter?.users_id === userId,
 	);
 
 	return {
 		user: membership?.User ?? null,
 		membership: membership
 			? {
-				assignment_id: membership.assignment_id,
-				status: membership.status,
-				roles: getRoleNames(membership),
-			}
+					assignment_id: membership.assignment_id,
+					status: membership.status,
+					roles: getRoleNames(membership),
+				}
 			: null,
 		casting: castings.map(toPlain),
 		schedule: viewerSchedule.map(toPlain),
@@ -84,36 +90,38 @@ async function getViewerDashboard(showId, userId) {
 }
 
 async function getAll(orgId) {
-    const whereClause = orgId ? { organization_id: orgId } : {}; 
-  return await models.Show.findAll({ where: whereClause });
+	const whereClause = orgId ? { organization_id: orgId } : {};
+	return await models.Show.findAll({ where: whereClause });
 }
 
 async function getUserShows(orgId, userId) {
-    const whereClause = orgId ? { organization_id: orgId } : {};
+	const whereClause = orgId ? { organization_id: orgId } : {};
 
-    if (orgId && userId) {
-        const orgMembership = await models.OrgMembership.findOne({
-            where: { org_id: orgId, users_id: userId },
-            include: [{ model: models.OrganizationRole, as: "assignedRoles" }]
-        });
+	if (orgId && userId) {
+		const orgMembership = await models.OrgMembership.findOne({
+			where: { org_id: orgId, users_id: userId },
+			include: [{ model: models.OrganizationRole, as: "assignedRoles" }],
+		});
 
-        const isSuperAdmin = orgMembership?.assignedRoles?.some(r => 
-            ["president", "board-member"].includes(r.name)
-        );
+		const isSuperAdmin = orgMembership?.assignedRoles?.some((r) =>
+			["president", "board-member"].includes(r.name),
+		);
 
-        if (!isSuperAdmin) {
-            return await models.Show.findAll({
-                where: whereClause,
-                include: [{
-                    model: models.ShowMembership,
-                    where: { users_id: userId },
-                    attributes: []
-                }]
-            });
-        }
-    }
+		if (!isSuperAdmin) {
+			return await models.Show.findAll({
+				where: whereClause,
+				include: [
+					{
+						model: models.ShowMembership,
+						where: { users_id: userId },
+						attributes: [],
+					},
+				],
+			});
+		}
+	}
 
-    return await models.Show.findAll({ where: whereClause });
+	return await models.Show.findAll({ where: whereClause });
 }
 
 async function getById(id) {
@@ -125,35 +133,35 @@ async function getById(id) {
 }
 
 async function create(data) {
-    const t = await sequelize.transaction();
-    try {
-        const newShow = await models.Show.create(data, { transaction: t });
+	const t = await sequelize.transaction();
+	try {
+		const newShow = await models.Show.create(data, { transaction: t });
 
-        if (data.creatorId) {
-            const directorRole = await models.ShowRole.findOne({
-                where: { name: "director" },
-                transaction: t,
-            });
-            
-            if (directorRole) {
-                const membership = await models.ShowMembership.create(
-                    {
-                        users_id: data.creatorId,
-                        show_id: newShow.id,
-                        status: "active",
-                    },
-                    { transaction: t }
-                );
-                await membership.addAssignedRole(directorRole, { transaction: t });
-            }
-        }
+		if (data.creatorId) {
+			const directorRole = await models.ShowRole.findOne({
+				where: { name: "director" },
+				transaction: t,
+			});
 
-        await t.commit();
-        return newShow.toJSON();
-    } catch (err) {
-        await t.rollback();
-        throw err;
-    }
+			if (directorRole) {
+				const membership = await models.ShowMembership.create(
+					{
+						users_id: data.creatorId,
+						show_id: newShow.id,
+						status: "active",
+					},
+					{ transaction: t },
+				);
+				await membership.addAssignedRole(directorRole, { transaction: t });
+			}
+		}
+
+		await t.commit();
+		return newShow.toJSON();
+	} catch (err) {
+		await t.rollback();
+		throw err;
+	}
 }
 
 async function update(id, data) {
@@ -180,19 +188,22 @@ async function getDashboardSummary(showId, viewerUserId) {
 			{
 				model: models.ShowMembership,
 				include: [
-					{ model: models.User, attributes: ["id", "fname", "lname", "email", "phone"] },
-					{ model: models.ShowRole, as: "assignedRoles" }
-				]
+					{
+						model: models.User,
+						attributes: ["id", "fname", "lname", "email", "phone"],
+					},
+					{ model: models.ShowRole, as: "assignedRoles" },
+				],
 			},
 			{
 				model: models.Budget,
-				required: false
+				required: false,
 			},
 			{
 				model: models.Expense,
-				required: false
-			}
-		]
+				required: false,
+			},
+		],
 	});
 
 	if (!show) {
@@ -208,12 +219,16 @@ async function getDashboardSummary(showId, viewerUserId) {
 			order: [["start_time", "ASC"]],
 			limit: 5,
 		}),
-		viewerUserId ? getViewerDashboard(showId, viewerUserId) : Promise.resolve(null),
+		viewerUserId
+			? getViewerDashboard(showId, viewerUserId)
+			: Promise.resolve(null),
 	]);
 
 	const showData = show.toJSON();
 	const totalBudget = showData.Budget ? showData.Budget.amount : 0;
-	const totalSpent = showData.Expenses ? showData.Expenses.reduce((sum, exp) => sum + exp.amount, 0) : 0;
+	const totalSpent = showData.Expenses
+		? showData.Expenses.reduce((sum, exp) => sum + exp.amount, 0)
+		: 0;
 
 	return {
 		id: showData.id,
@@ -224,7 +239,7 @@ async function getDashboardSummary(showId, viewerUserId) {
 		schedule: upNext.map(toPlain),
 		budget: {
 			total: totalBudget,
-			spent: totalSpent
+			spent: totalSpent,
 		},
 		viewer,
 	};
@@ -235,7 +250,7 @@ async function getAvailableRoles() {
 		attributes: ["id", "name"],
 		order: [["id", "ASC"]],
 	});
-	return roles.map(role => role.toJSON());
+	return roles.map((role) => role.toJSON());
 }
 
 export default {
@@ -246,5 +261,5 @@ export default {
 	update,
 	remove,
 	getDashboardSummary,
-	getAvailableRoles
+	getAvailableRoles,
 };

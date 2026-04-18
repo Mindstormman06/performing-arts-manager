@@ -47,13 +47,13 @@ async function updateCharacter(showId, characterId, data) {
 	if (data.name != null && !String(data.name).trim()) {
 		throw new Error("Character name is required");
 	}
-	if (Object.prototype.hasOwnProperty.call(data, "users_id")) {
+	if (Object.hasOwn(data, "users_id")) {
 		await ensureAssignedUserIsShowMember(showId, data.users_id);
 	}
 
 	await character.update({
 		name: data.name != null ? String(data.name).trim() : character.name,
-		users_id: Object.prototype.hasOwnProperty.call(data, "users_id")
+		users_id: Object.hasOwn(data, "users_id")
 			? data.users_id
 			: character.users_id,
 	});
@@ -86,4 +86,3 @@ export default {
 	assignCharacter,
 	deleteCharacter,
 };
-

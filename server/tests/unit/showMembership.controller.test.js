@@ -657,7 +657,7 @@ describe("ShowMembership Controller - Direct Tests", () => {
 
 			await showMembershipController.removeRole(mockReq, mockRes, mockNext);
 
-			expect(spy).toHaveBeenCalledWith(1, 5, ["director", "actor"]);
+			expect(spy).toHaveBeenCalledWith(1, 5, ["director", "actor"], undefined);
 			expect(mockRes.json).toHaveBeenCalledWith(mockResult);
 
 			spy.mockRestore();

@@ -1,7 +1,7 @@
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-import app from "../server.js";
+import app from "../../server.js";
 import { closeDatabase, setupTestDatabase } from "./utils/test-setup.js";
 
 describe("Casting API", () => {
@@ -38,7 +38,9 @@ describe("Casting API", () => {
 			.send({ name: "Casting Org" });
 		orgId = orgRes.body.id;
 
-		await request(app).post(`/api/orgs/${orgId}/join`).send({ userId: directorUserId });
+		await request(app)
+			.post(`/api/orgs/${orgId}/join`)
+			.send({ userId: directorUserId });
 		await request(app)
 			.put(`/api/orgs/${orgId}/users/${directorUserId}/roles`)
 			.set("Authorization", `Bearer ${directorToken}`)
@@ -55,7 +57,10 @@ describe("Casting API", () => {
 			});
 		showId = showRes.body.id;
 
-		await request(app).post(`/api/shows/${showId}/join`).send({ userId: directorUserId });
+		await request(app)
+			.post(`/api/shows/${showId}/join`)
+			.set("Authorization", `Bearer ${directorToken}`)
+			.send({ userId: directorUserId });
 		await request(app)
 			.put(`/api/shows/${showId}/users/${directorUserId}/roles`)
 			.set("Authorization", `Bearer ${directorToken}`)
@@ -76,8 +81,13 @@ describe("Casting API", () => {
 		});
 		memberToken = memberLogin.body.token;
 
-		await request(app).post(`/api/orgs/${orgId}/join`).send({ userId: memberUserId });
-		await request(app).post(`/api/shows/${showId}/join`).send({ userId: memberUserId });
+		await request(app)
+			.post(`/api/orgs/${orgId}/join`)
+			.send({ userId: memberUserId });
+		await request(app)
+			.post(`/api/shows/${showId}/join`)
+			.set("Authorization", `Bearer ${directorToken}`)
+			.send({ userId: memberUserId });
 
 		const outsiderEmail = `casting-outsider-${Date.now()}@viu.ca`;
 		const outsiderRes = await request(app).post("/api/users").send({
@@ -168,5 +178,3 @@ describe("Casting API", () => {
 		expect(res.body.success).toBe(true);
 	});
 });
-
-

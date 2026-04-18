@@ -70,7 +70,12 @@ describe("Inventory Controller - Direct Tests", () => {
 
 			await inventoryController.createShowItem(mockReq, mockRes, mockNext);
 
-			expect(spy).toHaveBeenCalledWith(1, { name: "New Prop", dept_id: 1 }, 5);
+			expect(spy).toHaveBeenCalledWith(
+				1,
+				{ name: "New Prop", dept_id: 1 },
+				5,
+				null,
+			);
 			expect(mockRes.status).toHaveBeenCalledWith(201);
 			expect(mockRes.json).toHaveBeenCalledWith({
 				success: true,

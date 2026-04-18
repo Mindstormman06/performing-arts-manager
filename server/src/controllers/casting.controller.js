@@ -26,10 +26,16 @@ async function getById(req, res, next) {
 
 async function create(req, res, next) {
 	try {
-		const data = await castingService.createCharacter(req.params.showId, req.body);
+		const data = await castingService.createCharacter(
+			req.params.showId,
+			req.body,
+		);
 		res.status(201).json({ success: true, data });
 	} catch (error) {
-		if (error.message.includes("required") || error.message.includes("member")) {
+		if (
+			error.message.includes("required") ||
+			error.message.includes("member")
+		) {
 			return res.status(400).json({ success: false, message: error.message });
 		}
 		next(error);
@@ -48,7 +54,10 @@ async function update(req, res, next) {
 		if (error.message.includes("not found")) {
 			return res.status(404).json({ success: false, message: error.message });
 		}
-		if (error.message.includes("required") || error.message.includes("member")) {
+		if (
+			error.message.includes("required") ||
+			error.message.includes("member")
+		) {
 			return res.status(400).json({ success: false, message: error.message });
 		}
 		next(error);
@@ -76,7 +85,10 @@ async function assign(req, res, next) {
 
 async function remove(req, res, next) {
 	try {
-		await castingService.deleteCharacter(req.params.showId, req.params.characterId);
+		await castingService.deleteCharacter(
+			req.params.showId,
+			req.params.characterId,
+		);
 		res.json({ success: true, message: "Character deleted" });
 	} catch (error) {
 		if (error.message.includes("not found")) {
@@ -94,4 +106,3 @@ export default {
 	assign,
 	remove,
 };
-

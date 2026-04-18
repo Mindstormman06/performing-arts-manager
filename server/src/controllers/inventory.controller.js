@@ -18,12 +18,14 @@ async function getGlobal(req, res, next) {
 
 async function createGlobal(req, res, next) {
 	try {
-		const photoPath = req.file ? `/uploads/inventory/${req.file.filename}` : null;
+		const photoPath = req.file
+			? `/uploads/inventory/${req.file.filename}`
+			: null;
 		const item = await inventoryService.createGlobalItem(
 			req.params.orgId,
 			req.body,
 			req.user.id,
-			photoPath
+			photoPath,
 		);
 		res.status(201).json({ success: true, data: item });
 	} catch (error) {
@@ -38,7 +40,7 @@ async function removeGlobal(req, res, next) {
 	try {
 		await inventoryService.removeGlobalItem(
 			req.params.orgId,
-			req.params.inventoryId
+			req.params.inventoryId,
 		);
 		res.status(200).json({ success: true, message: "Global item deleted" });
 	} catch (error) {
@@ -59,12 +61,14 @@ async function getShowInventory(req, res, next) {
 
 async function createShowItem(req, res, next) {
 	try {
-		const photoPath = req.file ? `/uploads/inventory/${req.file.filename}` : null;
+		const photoPath = req.file
+			? `/uploads/inventory/${req.file.filename}`
+			: null;
 		const item = await inventoryService.createShowItem(
 			req.params.showId,
 			req.body,
 			req.user.id,
-			photoPath
+			photoPath,
 		);
 		res.status(201).json({ success: true, data: item });
 	} catch (error) {
@@ -77,7 +81,7 @@ async function pullItem(req, res, next) {
 		await inventoryService.pullGlobalItemToShow(
 			req.params.showId,
 			req.params.inventoryId,
-			req.user.id
+			req.user.id,
 		);
 		res.status(200).json({ success: true, message: "Item pulled to show" });
 	} catch (error) {
@@ -92,7 +96,7 @@ async function removeItem(req, res, next) {
 	try {
 		await inventoryService.removeShowItem(
 			req.params.showId,
-			req.params.inventoryId
+			req.params.inventoryId,
 		);
 		res.status(200).json({ success: true, message: "Item removed" });
 	} catch (error) {
@@ -108,7 +112,7 @@ async function updateGlobal(req, res, next) {
 		const item = await inventoryService.updateGlobalItem(
 			req.params.orgId,
 			req.params.inventoryId,
-			req.body
+			req.body,
 		);
 		res.status(200).json({ success: true, data: item });
 	} catch (error) {
@@ -127,7 +131,7 @@ async function updateItem(req, res, next) {
 		const item = await inventoryService.updateShowItem(
 			req.params.showId,
 			req.params.inventoryId,
-			req.body
+			req.body,
 		);
 		res.status(200).json({ success: true, data: item });
 	} catch (error) {

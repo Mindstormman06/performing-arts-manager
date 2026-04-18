@@ -1,11 +1,11 @@
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
-import app from "../server.js";
-import models from "../src/models/index.js";
-import organizationService from "../src/services/organization.service.js";
-import orgMembershipService from "../src/services/orgMembership.service.js";
-import orgRoleService from "../src/services/orgRole.service.js";
+import app from "../../server.js";
+import models from "../../src/models/index.js";
+import organizationService from "../../src/services/organization.service.js";
+import orgMembershipService from "../../src/services/orgMembership.service.js";
+import orgRoleService from "../../src/services/orgRole.service.js";
 import { closeDatabase, setupTestDatabase } from "./utils/test-setup.js";
 
 describe("Organization API & Permissions", () => {
@@ -173,13 +173,13 @@ describe("Organization API & Permissions", () => {
 			await request(app)
 				.put(`/api/orgs/${testOrgId}/users/${testUserId}/roles`)
 				.set("Authorization", `Bearer ${authToken}`)
-				.send({ roles: ["admin", "actor"] });
+				.send({ roles: ["admin", "tech"] });
 
 			// 2. Now safely remove only the disposable actor role
 			const res = await request(app)
 				.delete(`/api/orgs/${testOrgId}/users/${testUserId}/roles`)
 				.set("Authorization", `Bearer ${authToken}`)
-				.send({ role: "actor" });
+				.send({ role: "tech" });
 			expect(res.statusCode).toEqual(200);
 		});
 	});
@@ -804,7 +804,9 @@ describe("Organization API & Permissions", () => {
 
 			it("create - should throw 'President role not found' (Line 30)", async () => {
 				// Intercept the Role lookup and pretend the 'president' role doesn't exist in the DB
-				const spy = vi.spyOn(models.OrganizationRole, "findOne").mockResolvedValue(null);
+				const spy = vi
+					.spyOn(models.OrganizationRole, "findOne")
+					.mockResolvedValue(null);
 
 				await expect(
 					organizationService.create({

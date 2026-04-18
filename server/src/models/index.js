@@ -106,8 +106,14 @@ models.Show.hasMany(models.Note, { foreignKey: "show_id" });
 models.Note.belongsTo(models.Show, { foreignKey: "show_id" });
 
 // A User (Director/Stage Manager) creates many Schedules
-models.User.hasMany(models.Schedule, { foreignKey: "creator_id", as: "createdSchedules" });
-models.Schedule.belongsTo(models.User, { foreignKey: "creator_id", as: "creator" });
+models.User.hasMany(models.Schedule, {
+	foreignKey: "creator_id",
+	as: "createdSchedules",
+});
+models.Schedule.belongsTo(models.User, {
+	foreignKey: "creator_id",
+	as: "creator",
+});
 
 // A User (Author) writes many Notes
 models.User.hasMany(models.Note, { foreignKey: "author_id" });

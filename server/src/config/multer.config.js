@@ -1,7 +1,8 @@
-import fs from "fs";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
 import multer from "multer";
-import path from "path";
-import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -14,11 +15,13 @@ if (!fs.existsSync(uploadsDir)) {
 
 // Set up storage
 const storage = multer.diskStorage({
-	destination: (req, file, cb) => {
+	destination: (req, _file, cb) => {
 		const subDir = req.uploadSubDir || "";
 		const targetDir = path.join(uploadsDir, subDir);
 
+		// eslint-disable-next-line security/detect-non-literal-fs-filename
 		if (!fs.existsSync(targetDir)) {
+			// eslint-disable-next-line security/detect-non-literal-fs-filename
 			fs.mkdirSync(targetDir, { recursive: true });
 		}
 		cb(null, targetDir);
@@ -33,7 +36,7 @@ const storage = multer.diskStorage({
 });
 
 // File filter - only accept images
-const fileFilter = (req, file, cb) => {
+const fileFilter = (_req, file, cb) => {
 	const allowedMimes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 	if (allowedMimes.includes(file.mimetype)) {
 		cb(null, true);
@@ -51,10 +54,9 @@ const upload = multer({
 	},
 });
 
-export const setUploadSubDir = (dir) => (req, res, next) => {
+export const setUploadSubDir = (dir) => (req, _res, next) => {
 	req.uploadSubDir = dir;
 	next();
 };
 
 export default upload;
-

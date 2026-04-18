@@ -43,7 +43,9 @@ describe("Schedule Service", () => {
 	it("throws when deleting a missing event", async () => {
 		vi.spyOn(models.Schedule, "findByPk").mockResolvedValue(null);
 
-		await expect(scheduleService.deleteEvent(404)).rejects.toThrow("Event not found");
+		await expect(scheduleService.deleteEvent(404)).rejects.toThrow(
+			"Event not found",
+		);
 	});
 
 	it("assigns all org members to an org event", async () => {
@@ -57,7 +59,9 @@ describe("Schedule Service", () => {
 			{ users_id: 11 },
 		]);
 
-		const result = await scheduleService.assignUsersToOrgEvent(1, 2, { all: true });
+		const result = await scheduleService.assignUsersToOrgEvent(1, 2, {
+			all: true,
+		});
 
 		expect(event.setAttendees).toHaveBeenCalledWith([10, 11]);
 		expect(result).toEqual([{ id: 10 }]);
@@ -82,7 +86,9 @@ describe("Schedule Service", () => {
 		});
 
 		expect(models.OrgMembership.findAll).toHaveBeenCalled();
-		expect(event.setAttendees).toHaveBeenCalledWith(expect.arrayContaining([10, 11, 12]));
+		expect(event.setAttendees).toHaveBeenCalledWith(
+			expect.arrayContaining([10, 11, 12]),
+		);
 	});
 
 	it("throws for missing org event before assignment", async () => {
@@ -121,7 +127,10 @@ describe("Schedule Service", () => {
 		const showMembershipSpy = vi
 			.spyOn(models.ShowMembership, "findAll")
 			.mockResolvedValue([{ users_id: 3 }, { users_id: 4 }]);
-		vi.spyOn(models.Casting, "findAll").mockResolvedValue([{ id: 91 }, { id: 92 }]);
+		vi.spyOn(models.Casting, "findAll").mockResolvedValue([
+			{ id: 91 },
+			{ id: 92 },
+		]);
 
 		await scheduleService.assignUsersToShowEvent(50, 9, {
 			all: false,
@@ -131,7 +140,9 @@ describe("Schedule Service", () => {
 		});
 
 		expect(showMembershipSpy).toHaveBeenCalled();
-		expect(event.setAttendees).toHaveBeenCalledWith(expect.arrayContaining([3, 4, 5]));
+		expect(event.setAttendees).toHaveBeenCalledWith(
+			expect.arrayContaining([3, 4, 5]),
+		);
 		expect(event.setRequiredCharacters).toHaveBeenCalledWith([91, 92]);
 	});
 
@@ -142,5 +153,24 @@ describe("Schedule Service", () => {
 			scheduleService.assignUsersToShowEvent(1, 2, { all: false }),
 		).rejects.toThrow("Event not found");
 	});
-});
 
+	it("supports show assignment with no role, user, or character filters", async () => {
+		const event = {
+			setAttendees: vi.fn().mockResolvedValue(undefined),
+			setRequiredCharacters: vi.fn().mockResolvedValue(undefined),
+			getAttendees: vi.fn().mockResolvedValue([]),
+		};
+		vi.spyOn(models.Schedule, "findByPk").mockResolvedValue(event);
+
+		const result = await scheduleService.assignUsersToShowEvent(7, 8, {
+			all: false,
+			roles: [],
+			userIds: [],
+			characterIds: [],
+		});
+
+		expect(event.setAttendees).toHaveBeenCalledWith([]);
+		expect(event.setRequiredCharacters).toHaveBeenCalledWith([]);
+		expect(result).toEqual([]);
+	});
+});

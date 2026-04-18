@@ -34,7 +34,7 @@ async function createGlobalItem(orgId, data, userId, photoPath) {
 		photo_path: photoPath || null,
 		is_global: 1,
 		added_by: userId,
-		org_id: orgId
+		org_id: orgId,
 	});
 }
 
@@ -84,7 +84,7 @@ async function getShowInventory(showId) {
 			{
 				model: models.Show,
 				where: { id: showId },
-				through: { attributes: ["user_id", "assigned_character_id"] }, 
+				through: { attributes: ["user_id", "assigned_character_id"] },
 			},
 			{
 				model: models.Department,
@@ -135,7 +135,7 @@ async function createShowItem(showId, data, userId, photoPath) {
 		photo_path: photoPath || null,
 		added_by: userId,
 		is_global: 0,
-		org_id: show.organization_id // Inherit the org_id from the show
+		org_id: show.organization_id, // Inherit the org_id from the show
 	});
 
 	await models.ShowInventory.create({
@@ -148,7 +148,7 @@ async function createShowItem(showId, data, userId, photoPath) {
 	return newItem;
 }
 
-async function pullGlobalItemToShow(showId, inventoryId, userId) {
+async function pullGlobalItemToShow(showId, inventoryId, _userId) {
 	const existing = await models.ShowInventory.findOne({
 		where: { inventory_id: inventoryId, shows_id: showId },
 	});
@@ -203,7 +203,9 @@ async function assignShowItem(showId, inventoryId, payload) {
 			String(r.name || "").toLowerCase(),
 		);
 		if (!canAssignUserToDepartment(userRoles, item.Department?.name)) {
-			throw new Error("User role is not eligible for this inventory department");
+			throw new Error(
+				"User role is not eligible for this inventory department",
+			);
 		}
 
 		await link.update({
@@ -237,7 +239,8 @@ async function removeShowItem(showId, inventoryId) {
 		where: { inventory_id: inventoryId, shows_id: showId },
 	});
 
-	if (deletedLinkCount === 0) throw new Error("Item not found in show inventory");
+	if (deletedLinkCount === 0)
+		throw new Error("Item not found in show inventory");
 
 	const item = await models.Inventory.findByPk(inventoryId);
 	if (item && item.is_global === 0) {
@@ -274,7 +277,7 @@ export default {
 	getDepartments,
 	getGlobalInventory,
 	createGlobalItem,
-    removeGlobalItem,
+	removeGlobalItem,
 	updateGlobalItem,
 	getShowInventory,
 	createShowItem,

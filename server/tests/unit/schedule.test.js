@@ -77,6 +77,7 @@ describe("Schedule Routes", () => {
 		// join the show and grant a director role (required for show schedule)
 		await request(app)
 			.post(`/api/shows/${testShowId}/join`)
+			.set("Authorization", `Bearer ${authToken}`)
 			.send({ userId: testUserId });
 		await request(app)
 			.put(`/api/shows/${testShowId}/users/${testUserId}/roles`)
@@ -100,6 +101,7 @@ describe("Schedule Routes", () => {
 			.send({ userId: otherUserId });
 		await request(app)
 			.post(`/api/shows/${testShowId}/join`)
+			.set("Authorization", `Bearer ${authToken}`)
 			.send({ userId: otherUserId });
 	}, 30000);
 
