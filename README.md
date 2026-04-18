@@ -14,6 +14,24 @@ The app is designed for desktop browsers and is built around a React frontend an
 - Upload and serve media files for profiles and inventory items
 - Admin utilities and reset workflows
 
+## Screenshots
+
+### Home Dashboard
+
+[<img src="documentation/screenshots/home.png" alt="Home dashboard" width="320" />](documentation/screenshots/home.png)
+
+### Organization View
+
+[<img src="documentation/screenshots/organization.png" alt="Organization view" width="320" />](documentation/screenshots/organization.png)
+
+### Show View
+
+[<img src="documentation/screenshots/show.png" alt="Show view" width="320" />](documentation/screenshots/show.png)
+
+### User Profile
+
+[<img src="documentation/screenshots/user.png" alt="User profile" width="320" />](documentation/screenshots/user.png)
+
 ## Tech Stack
 
 - **Frontend:** React, Vite, React Router, Axios, Tailwind CSS, FullCalendar
