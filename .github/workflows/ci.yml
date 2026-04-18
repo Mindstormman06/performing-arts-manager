@@ -422,7 +422,8 @@ jobs:
 
   build-server:
     runs-on: ubuntu-latest
-    needs: uat-tests
+#    needs: uat-tests
+    needs: [bdd-tests, test-client-ui]
     steps:
 
       # Checkout code from repository
