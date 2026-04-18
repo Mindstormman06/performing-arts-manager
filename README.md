@@ -8,6 +8,8 @@ Performing Arts Manager is a web app for managing your shows. It allows you to k
 - Mobile Frontend: React Native. A native mobile app will provide a better experience for team members to do basic tasks like schedules and assigned costumes. Allows for push notifications.
 
 
+## Compatability
+The web frontend will be compatible with all modern browsers, including Chrome, Firefox, Safari, and Edge. The web app will not be compatiable with mobile browsers. Please find the mobile version of the app [here](https://github.com/Mindstormman06/performing-arts-manager-mobile)
 
 
 ## License

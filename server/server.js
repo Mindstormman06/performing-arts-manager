@@ -16,15 +16,18 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Serve uploaded files statically
+app.use("/uploads", express.static("uploads"));
+
 /* v8 ignore start */
 if (process.env.NODE_ENV !== "test") {
 	sequelize
 		.sync({ alter: true })
 		.then(() => console.log("Database synchronized!"))
-		.then(() => {
-			seedRoles();
-			seedDepartments();
-		})
+		// .then(() => {
+		// 	seedRoles();
+		// 	seedDepartments();
+		// })
 		.catch((err) => console.error("Error syncing database:", err));
 
 	const seedRoles = async () => {

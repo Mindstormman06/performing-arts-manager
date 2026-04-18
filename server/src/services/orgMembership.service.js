@@ -24,7 +24,7 @@ async function addUserToOrg(orgId, userId) {
 	const existing = await models.OrgMembership.findOne({
 		where: { org_id: orgId, users_id: userId },
 	});
-	if (existing) throw new Error("User already in organization");
+	if (existing) throw new Error("User already in organizations");
 
 	return await models.OrgMembership.create({
 		org_id: orgId,
@@ -40,7 +40,7 @@ async function inviteByEmail(orgId, email) {
 		where: { org_id: orgId, users_id: user.id },
 	});
 	if (existing)
-		throw new Error("User is already in this organization or pending.");
+		throw new Error("User is already in this organizations or pending.");
 
 	return await models.OrgMembership.create({
 		org_id: orgId,

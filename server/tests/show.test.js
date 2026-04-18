@@ -88,6 +88,68 @@ describe("Show Management API", () => {
 			expect(roleNames).toContain("director");
 		});
 
+		it("GET /api/shows/:showId/dashboard - should return viewer dashboard data", async () => {
+			const department =
+				(await models.Department.findOne()) ||
+				(await models.Department.create({ name: `Dashboard Dept ${Date.now()}` }));
+
+			const inventoryName = `Dashboard Prop ${Date.now()}`;
+			const eventTitle = `Dashboard Call ${Date.now()}`;
+			const inventory = await models.Inventory.create({
+				name: inventoryName,
+				description: "Dashboard item",
+				dept_id: department.id,
+				is_global: 0,
+				added_by: testUserId,
+				org_id: testOrgId,
+			});
+
+			await models.ShowInventory.create({
+				inventory_id: inventory.id,
+				shows_id: testShowId,
+				user_id: testUserId,
+				assigned_character_id: null,
+			});
+
+			const character = await models.Casting.create({
+				name: `Dashboard Character ${Date.now()}`,
+				show_id: testShowId,
+				users_id: testUserId,
+			});
+
+			const event = await models.Schedule.create({
+				title: eventTitle,
+				start_time: new Date(Date.now() + 86400000),
+				end_time: new Date(Date.now() + 90000000),
+				location: "Main Stage",
+				description: "Personal dashboard test event",
+				show_id: testShowId,
+				creator_id: testUserId,
+			});
+
+			await event.setAttendees([testUserId]);
+			await event.setRequiredCharacters([character.id]);
+
+			const res = await request(app)
+				.get(`/api/shows/${testShowId}/dashboard`)
+				.set("Authorization", `Bearer ${authToken}`);
+
+			expect(res.statusCode).toEqual(200);
+			expect(res.body.success).toBe(true);
+			expect(res.body.data.viewer.membership.roles).toEqual(
+				expect.arrayContaining(["actor", "director"]),
+			);
+			expect(res.body.data.viewer.casting.map((item) => item.name)).toContain(
+				character.name,
+			);
+			expect(res.body.data.viewer.inventory.map((item) => item.name)).toContain(
+				inventoryName,
+			);
+			expect(res.body.data.viewer.schedule.map((item) => item.title)).toContain(
+				eventTitle,
+			);
+		});
+
 		it("PUT /api/shows/:id - should update a show's title", async () => {
 			const res = await request(app)
 				.put(`/api/shows/${testShowId}`)
@@ -416,7 +478,7 @@ describe("Show Management API", () => {
 					organization_id: testOrgId,
 				});
 			expect(res.statusCode).toEqual(403);
-			expect(res.body.message).toBe("Not a member of this organization.");
+			expect(res.body.message).toBe("Not a member of this organizations.");
 		});
 
 		it("authorizeOrg - should return 403 for insufficient org permissions (Line 54)", async () => {
@@ -617,6 +679,53 @@ describe("Show Management API", () => {
 				["actor"],
 			);
 			expect(res.message).toContain("role(s) removed successfully");
+		});
+
+		it("removeRolesFromUser - should block removing your own highest role", async () => {
+			await showRoleService.appendRolesToAssignment(testShowId, testUserId, [
+				"stage-manager",
+				"actor",
+			]);
+
+			await expect(
+				showRoleService.removeRolesFromUser(
+					testShowId,
+					testUserId,
+					["stage-manager"],
+					testUserId,
+				),
+			).rejects.toThrow("You cannot remove your highest role from yourself");
+		});
+
+		it("appendRolesToAssignment - should block self-demotion to a lower role", async () => {
+			await showRoleService.appendRolesToAssignment(testShowId, testUserId, [
+				"director",
+				"stage-manager",
+			]);
+
+			await expect(
+				showRoleService.appendRolesToAssignment(
+					testShowId,
+					testUserId,
+					["stage-manager"],
+					testUserId,
+				),
+			).rejects.toThrow("You cannot remove your highest role from yourself");
+		});
+
+		it("appendRolesToAssignment - should block self-promotion to a higher role", async () => {
+			await showRoleService.appendRolesToAssignment(testShowId, testUserId, [
+				"actor",
+			]);
+
+			await expect(
+				showRoleService.appendRolesToAssignment(
+					testShowId,
+					testUserId,
+					["stage-manager", "actor"],
+					testUserId,
+				),
+			).rejects.toThrow("You cannot assign yourself a higher role");
 		});
 	});
 

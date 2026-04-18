@@ -1,8 +1,8 @@
 import axios from "axios";
-import { data } from "react-router-dom";
+import { API_BASE_URL } from "./config.js";
 
 const API = axios.create({
-	baseURL: "http://localhost:8050/api",
+	baseURL: API_BASE_URL,
 });
 
 API.interceptors.request.use((config) => {
@@ -72,6 +72,20 @@ export const removeUserFromShow = (showId, userId) =>
 export const removeShowUserRole = (showId, userId, roles) =>
 	API.delete(`/shows/${showId}/users/${userId}/roles`, { roles });
 export const getShowDashboard = (id) => API.get(`/shows/${id}/dashboard`);
+export const getAvailableShowRoles = () => API.get("/shows/roles/available");
+
+// Casting
+export const getShowCasting = (showId) => API.get(`/shows/${showId}/casting`);
+export const getShowCharacter = (showId, characterId) =>
+	API.get(`/shows/${showId}/casting/${characterId}`);
+export const createShowCharacter = (showId, data) =>
+	API.post(`/shows/${showId}/casting`, data);
+export const updateShowCharacter = (showId, characterId, data) =>
+	API.put(`/shows/${showId}/casting/${characterId}`, data);
+export const assignShowCharacter = (showId, characterId, users_id) =>
+	API.put(`/shows/${showId}/casting/${characterId}/assign`, { users_id });
+export const deleteShowCharacter = (showId, characterId) =>
+	API.delete(`/shows/${showId}/casting/${characterId}`);
 
 // --- Inventory ---
 export const getDepartments = () => API.get("/inventory/departments");
@@ -79,13 +93,24 @@ export const getDepartments = () => API.get("/inventory/departments");
 // Global Org Inventory
 export const getGlobalInventory = (orgId) => API.get(`/inventory/orgs/${orgId}`);
 export const createGlobalInventoryItem = (orgId, data) => API.post(`/inventory/orgs/${orgId}`, data);
+export const updateGlobalInventoryItem = (orgId, itemId, data) => API.put(`/inventory/orgs/${orgId}/items/${itemId}`, data);
 export const deleteGlobalInventoryItem = (orgId, itemId) => API.delete(`/inventory/orgs/${orgId}/items/${itemId}`);
 
 // Show Inventory
 export const getShowInventory = (showId) => API.get(`/inventory/shows/${showId}`);
 export const createShowItem = (showId, data) => API.post(`/inventory/shows/${showId}`, data);
+export const updateShowInventoryItem = (showId, itemId, data) => API.put(`/inventory/shows/${showId}/items/${itemId}`, data);
+export const assignShowInventoryItem = (showId, itemId, data) => API.put(`/inventory/shows/${showId}/items/${itemId}/assign`, data);
+export const createShowItemWithPhoto = (showId, formData) => API.post(`/inventory/shows/${showId}`, formData, {
+	headers: { "Content-Type": "multipart/form-data" }
+});
 export const pullGlobalItemToShow = (showId, itemId) => API.post(`/inventory/shows/${showId}/pull/${itemId}`);
 export const removeShowItem = (showId, itemId) => API.delete(`/inventory/shows/${showId}/items/${itemId}`);
+
+// Global Org Inventory
+export const createGlobalInventoryItemWithPhoto = (orgId, formData) => API.post(`/inventory/orgs/${orgId}`, formData, {
+	headers: { "Content-Type": "multipart/form-data" }
+});
 
 // -- Schedules --
 

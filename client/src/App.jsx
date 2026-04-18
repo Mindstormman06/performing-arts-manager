@@ -2,17 +2,18 @@ import { Link, Route, Routes, useLocation } from "react-router-dom";
 import PrivateRoute from "./components/PrivateRoute.jsx";
 import { useAuth } from "./hooks/useAuth.js";
 import LoginPage from "./pages/Login.jsx";
-import OrgDashboard from "./pages/OrgDashboard.jsx";
+import OrgDashboard from "./pages/organizations/OrgDashboard.jsx";
 import SignupPage from "./pages/Signup.jsx";
 import "./assets/styles.css";
-import OrgOverview from "./pages/OrgOverview.jsx";
-import ShowOverview from "./pages/ShowOverview.jsx";
+import OrgOverview from "./pages/organizations/OrgOverview.jsx";
+import ShowOverview from "./pages/shows/ShowOverview.jsx";
 import { useEffect } from "react";
 import { verifyToken } from "./services/api.js";
-import OrgInventory from "./pages/OrgInventory.jsx";
-import OrgSchedule from "./pages/OrgSchedule.jsx";
-import ShowInventory from "./pages/ShowInventory.jsx";
-import ShowSchedule from "./pages/ShowSchedule.jsx";
+import OrgInventory from "./pages/organizations/OrgInventory.jsx";
+import OrgSchedule from "./pages/organizations/OrgSchedule.jsx";
+import ShowInventory from "./pages/shows/ShowInventory.jsx";
+import ShowSchedule from "./pages/shows/ShowSchedule.jsx";
+import ShowCasting from "./pages/shows/ShowCasting.jsx";
 import Logo from "./components/ui/Logo.jsx";
 import Landing from "./pages/Landing.jsx";
 
@@ -49,14 +50,12 @@ function App() {
 				<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 					<div className="flex h-16 justify-between">
 
-						<div className="flex items-center gap-3">
-							<Link to={token ? "/" : "/"}>
-								<Logo className="h-10 w-auto drop-shadow-md hover:opacity-90 transition-opacity" />
-							</Link>
-							<h1 className="font-bold text-xl hidden sm:block">
-								Performing Arts Manager
-							</h1>
-						</div>
+					<Link to="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
+						<Logo className="h-10 w-auto drop-shadow-md" />
+						<h1 className="font-bold text-xl hidden sm:block">
+							Performing Arts Manager
+						</h1>
+					</Link>
 						<div className="flex items-center space-x-4">
 							{!token ? (
 								<>
@@ -79,7 +78,7 @@ function App() {
 										to="/organizations"
 										className="cursor-pointer rounded-md px-3 py-2 hover:bg-blue-700"
 									>
-										Dashboard
+										Organizations
 									</Link>
 									<button
 										onClick={logout}
@@ -97,7 +96,7 @@ function App() {
 
 			{/* Main Content */}
 			<main
-				className={`flex-1 ${isLanding ? "bg-black" : "bg-gray-100"} ${shouldCenter ? "flex items-center justify-center" : ""}`}
+								className={`flex-1 ${isLanding ? "bg-black" : "bg-gray-100"} ${shouldCenter ? "flex items-center justify-center" : ""}`}
 			>
 				<Routes>
 					<Route path="/login" element={<LoginPage />} />
@@ -157,6 +156,14 @@ function App() {
 						element={
 							<PrivateRoute>
 								<ShowSchedule />
+							</PrivateRoute>
+						}
+					/>
+					<Route
+						path="/orgs/:orgId/shows/:showId/casting"
+						element={
+							<PrivateRoute>
+								<ShowCasting />
 							</PrivateRoute>
 						}
 					/>

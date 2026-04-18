@@ -1,5 +1,5 @@
 export default (sequelize, DataTypes) => {
-	const OrganizationRole = sequelize.define(
+	const ShowRole = sequelize.define(
 		"ShowRole",
 		{
 			id: {
@@ -13,9 +13,9 @@ export default (sequelize, DataTypes) => {
 			},
 		},
 		{
-			tableName: "roles",
+			tableName: "show_roles",
 		},
 	);
 
-	return OrganizationRole;
+	return ShowRole;
 };

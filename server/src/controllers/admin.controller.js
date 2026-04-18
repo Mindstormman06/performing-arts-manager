@@ -9,7 +9,7 @@ const resetDb = async (_req, res) => {
 		await sequelize.sync({ force: true, transaction: t });
 		console.log("Database reset complete!");
 
-// Seed organization/show roles instead of generic Role model
+// Seed organizations/show roles instead of generic Role model
 	const { OrganizationRole, ShowRole } = models;
 	const orgRoles = [
 		"admin",

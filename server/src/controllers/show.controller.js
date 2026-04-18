@@ -42,7 +42,7 @@ async function getById(req, res, next) {
 		res.json(await showService.getById(req.params.id));
 	} catch (error) {
 		if (error.message === "Show not found") {
-			res.status(404).json({ success: false, message: "Show not found" });
+			return res.status(404).json({ success: false, message: "Show not found" });
 		}
 		next(error);
 	}
@@ -63,7 +63,7 @@ async function update(req, res, next) {
 		res.json(await showService.update(req.params.id, req.body));
 	} catch (error) {
 		if (error.message === "Show not found") {
-			res.status(404).json({ success: false, message: "Show not found" });
+			return res.status(404).json({ success: false, message: "Show not found" });
 		}
 		next(error);
 	}
@@ -78,7 +78,7 @@ async function remove(req, res, next) {
 		/* v8 ignore stop */
 	} catch (error) {
 		if (error.message === "Show not found") {
-			res.status(404).json({ success: false, message: "Show not found" });
+			return res.status(404).json({ success: false, message: "Show not found" });
 		}
 		next(error);
 	}
@@ -86,12 +86,21 @@ async function remove(req, res, next) {
 
 async function getDashboardSummary(req, res, next) {
 	try {
-		const summary = await showService.getDashboardSummary(req.params.id);
+		const summary = await showService.getDashboardSummary(req.params.id, req.user.id);
 		res.json({ success: true, data: summary });
 	} catch (error) {
 		if (error.message === "Show not found") {
 			return res.status(404).json({ success: false, message: "Show not found" });
 		}
+		next(error);
+	}
+}
+
+async function getAvailableRoles(req, res, next) {
+	try {
+		const roles = await showService.getAvailableRoles();
+		res.json({ success: true, data: roles });
+	} catch (error) {
 		next(error);
 	}
 }
@@ -103,5 +112,6 @@ export default {
 	create,
 	update,
 	remove,
-	getDashboardSummary
+	getDashboardSummary,
+	getAvailableRoles
 };

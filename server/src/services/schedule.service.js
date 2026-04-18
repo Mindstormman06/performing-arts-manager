@@ -35,6 +35,12 @@ async function getShowCalendar(showId) {
                 as: 'attendees',
                 attributes: ['id', 'fname', 'lname'],
                 through: { attributes: [] }
+            },
+            {
+                model: models.Casting,
+                as: 'requiredCharacters',
+                attributes: ['id', 'name', 'users_id'],
+                through: { attributes: [] }
             }
         ],
         order: [['start_time', 'ASC']]
@@ -117,6 +123,7 @@ async function assignUsersToShowEvent(showId, eventId, config) {
     }
 
     let userIdsToAssign = new Set();
+    let characterIdsToAssign = [];
 
     if (config.all) {
         const memberships = await models.ShowMembership.findAll({ where: { show_id: showId } });
@@ -137,9 +144,21 @@ async function assignUsersToShowEvent(showId, eventId, config) {
         if (config.userIds && config.userIds.length > 0) {
             config.userIds.forEach(id => userIdsToAssign.add(id));
         }
+
+        if (config.characterIds && config.characterIds.length > 0) {
+            const validCharacters = await models.Casting.findAll({
+                where: {
+                    id: { [Op.in]: config.characterIds },
+                    show_id: showId,
+                },
+                attributes: ['id'],
+            });
+            characterIdsToAssign = validCharacters.map((c) => c.id);
+        }
     }
 
     await event.setAttendees(Array.from(userIdsToAssign));
+    await event.setRequiredCharacters(characterIdsToAssign);
     return await event.getAttendees({ attributes: ['id', 'fname', 'lname'] });
 }
 

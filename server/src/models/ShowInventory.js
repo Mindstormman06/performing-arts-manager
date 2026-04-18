@@ -17,6 +17,11 @@ export default (sequelize, DataTypes) => {
 				allowNull: true,
 				references: { model: "users", key: "id" },
 			},
+			assigned_character_id: {
+				type: DataTypes.INTEGER,
+				allowNull: true,
+				references: { model: "casting", key: "id" },
+			},
 		},
 		{ tableName: "inventory_has_shows", timestamps: false },
 	);

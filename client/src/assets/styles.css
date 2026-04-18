@@ -1,1 +1,5 @@
 @import "tailwindcss";
+
+@theme {
+    --color-theatre-red: #810100;
+}

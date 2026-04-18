@@ -1,5 +1,7 @@
 import Router from "express";
 
+import upload, { setUploadSubDir } from "../config/multer.config.js";
+import castingController from "../controllers/casting.controller.js";
 import showController from "../controllers/show.controller.js";
 import showMembershipController from "../controllers/showMembership.controller.js";
 import {
@@ -12,10 +14,12 @@ const router = Router();
 
 // Show CRUD routes
 router.get("/", showController.get);
+router.get("/roles/available", showController.getAvailableRoles);
 router.get("/user", authenticate, showController.getUserShows);
 router.get(
 	"/:id/dashboard",
 	authenticate,
+	authorizeShow(),
 	showController.getDashboardSummary
 );
 router.get("/:id", showController.getById);
@@ -39,7 +43,12 @@ router.delete(
 );
 
 // POST /api/shows/1/join -> Links User 1 to Show 1 (assignment_id created)
-router.post("/:showId/join", showMembershipController.join);
+router.post(
+	"/:showId/join",
+	authenticate,
+	authorizeShow(["director", "stage-manager"]),
+	showMembershipController.join,
+);
 
 router.post(
 	"/:showId/invite",
@@ -49,7 +58,12 @@ router.post(
 );
 
 // PUT /api/shows/1/users/1/roles -> Appends roles to that assignment_id
-router.put("/:showId/users/:userId/roles", showMembershipController.addRoles);
+router.put(
+	"/:showId/users/:userId/roles",
+	authenticate,
+	authorizeShow(["director", "stage-manager"]),
+	showMembershipController.addRoles,
+);
 
 // GET all users in an show
 router.get("/:showId/users", showMembershipController.getAllUsers);
@@ -61,12 +75,71 @@ router.get("/:showId/users/search", showMembershipController.getByRole);
 router.get("/:showId/users/:userId", showMembershipController.getUser);
 
 // DELETE user from show (Leave)
-router.delete("/:showId/users/:userId", showMembershipController.leave);
+router.delete(
+	"/:showId/users/:userId",
+	authenticate,
+	authorizeShow(["director", "stage-manager"]),
+	showMembershipController.leave,
+);
 
 // DELETE a specific role from a user
 router.delete(
 	"/:showId/users/:userId/roles",
+	authenticate,
+	authorizeShow(["director", "stage-manager"]),
 	showMembershipController.removeRole,
+);
+
+// UPDATE user profile (bio and/or photo) for a specific show
+router.put(
+	"/:showId/users/:userId/profile",
+	authenticate,
+	setUploadSubDir("profiles"),
+	upload.single("photo"),
+	showMembershipController.updateProfile,
+);
+
+// Casting (characters)
+router.get(
+	"/:showId/casting",
+	authenticate,
+	authorizeShow(),
+	castingController.getAll,
+);
+
+router.get(
+	"/:showId/casting/:characterId",
+	authenticate,
+	authorizeShow(),
+	castingController.getById,
+);
+
+router.post(
+	"/:showId/casting",
+	authenticate,
+	authorizeShow(["director", "stage-manager"]),
+	castingController.create,
+);
+
+router.put(
+	"/:showId/casting/:characterId",
+	authenticate,
+	authorizeShow(["director", "stage-manager"]),
+	castingController.update,
+);
+
+router.put(
+	"/:showId/casting/:characterId/assign",
+	authenticate,
+	authorizeShow(["director", "stage-manager"]),
+	castingController.assign,
+);
+
+router.delete(
+	"/:showId/casting/:characterId",
+	authenticate,
+	authorizeShow(["director", "stage-manager"]),
+	castingController.remove,
 );
 
 export default router;

@@ -13,7 +13,7 @@ export default (sequelize, DataTypes) => {
 			},
 		},
 		{
-			tableName: "roles",
+			tableName: "org_roles",
 		},
 	);
 

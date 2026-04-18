@@ -18,10 +18,12 @@ async function getGlobal(req, res, next) {
 
 async function createGlobal(req, res, next) {
 	try {
+		const photoPath = req.file ? `/uploads/inventory/${req.file.filename}` : null;
 		const item = await inventoryService.createGlobalItem(
 			req.params.orgId,
 			req.body,
-			req.user.id
+			req.user.id,
+			photoPath
 		);
 		res.status(201).json({ success: true, data: item });
 	} catch (error) {
@@ -57,10 +59,12 @@ async function getShowInventory(req, res, next) {
 
 async function createShowItem(req, res, next) {
 	try {
+		const photoPath = req.file ? `/uploads/inventory/${req.file.filename}` : null;
 		const item = await inventoryService.createShowItem(
 			req.params.showId,
 			req.body,
-			req.user.id
+			req.user.id,
+			photoPath
 		);
 		res.status(201).json({ success: true, data: item });
 	} catch (error) {
@@ -99,13 +103,78 @@ async function removeItem(req, res, next) {
 	}
 }
 
+async function updateGlobal(req, res, next) {
+	try {
+		const item = await inventoryService.updateGlobalItem(
+			req.params.orgId,
+			req.params.inventoryId,
+			req.body
+		);
+		res.status(200).json({ success: true, data: item });
+	} catch (error) {
+		if (error.message.includes("not found")) {
+			return res.status(404).json({ success: false, message: error.message });
+		}
+		if (error.message.includes("Invalid department")) {
+			return res.status(400).json({ success: false, message: error.message });
+		}
+		next(error);
+	}
+}
+
+async function updateItem(req, res, next) {
+	try {
+		const item = await inventoryService.updateShowItem(
+			req.params.showId,
+			req.params.inventoryId,
+			req.body
+		);
+		res.status(200).json({ success: true, data: item });
+	} catch (error) {
+		if (error.message.includes("not found")) {
+			return res.status(404).json({ success: false, message: error.message });
+		}
+		if (error.message.includes("Invalid department")) {
+			return res.status(400).json({ success: false, message: error.message });
+		}
+		next(error);
+	}
+}
+
+async function assignItem(req, res, next) {
+	try {
+		const assignment = await inventoryService.assignShowItem(
+			req.params.showId,
+			req.params.inventoryId,
+			req.body,
+		);
+		res.status(200).json({ success: true, data: assignment });
+	} catch (error) {
+		if (error.message.includes("not found")) {
+			return res.status(404).json({ success: false, message: error.message });
+		}
+		if (
+			error.message.includes("eligible") ||
+			error.message.includes("Choose either") ||
+			error.message.includes("only be assigned") ||
+			error.message.includes("member")
+		) {
+			return res.status(400).json({ success: false, message: error.message });
+		}
+		next(error);
+	}
+}
+
 export default {
 	getDepartments,
 	getGlobal,
 	createGlobal,
-    removeGlobal,
+	removeGlobal,
+	updateGlobal,
 	getShowInventory,
 	createShowItem,
 	pullItem,
 	removeItem,
+	updateItem,
+	assignItem,
 };
