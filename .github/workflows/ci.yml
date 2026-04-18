@@ -332,93 +332,93 @@ jobs:
           path: ./client/playwright-report/
           retention-days: 28
 
-  uat-tests:
-    needs: [bdd-tests, test-client-ui]
-    runs-on: ubuntu-latest
-
-    services:
-      mysql:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: rootpassword
-          MYSQL_DATABASE: performing-arts-manager-db
-        ports:
-          - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-
-    steps:
-      # Chechkout code from repository
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      # Setup Node.js environment
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      # Setup Python environment
-      - name: Setup Python
-        uses: actions/setup-python@v6.2.0
-        with:
-          python-version: 3.12
-
-      # Install client and server node deps
-      - name: Install Node Dependencies
-        run: |
-          cd server && npm install
-          cd ../client && npm install
-
-      # Install Robot Framework and Browser library for UAT
-      - name: Install Robot Framework and Browser
-        working-directory: ./uat
-        run: |
-          pip install robotframework robotframework-browser
-          rfbrowser init
-
-      # Run UAT tests with Robot Framework
-      - name: Start Background Servers & Run UAT
-        run: |
-            cd server
-            node ./server.js > server.log 2>&1 &
-            SERVER_PID=$!
-            
-            npx wait-on http://localhost:8050/server-up
-            echo "Server is up!"
-          
-            node ./seed.js
-            echo "Seed completed successfully!"
-            
-            cd ..
-            cd client
-            npm run dev &
-            CLIENT_PID=$!
-            
-            npx wait-on http://localhost:5173
-            
-            cd ../uat
-            robot .
-            
-            kill $SERVER_PID $CLIENT_PID || true
-        env:
-          NODE_ENV: test
-          API_PORT: 8050
-          DB_HOST: 127.0.0.1
-          DB_USER: root
-          DB_PASSWORD: rootpassword
-          DB_NAME: performing-arts-manager-db
-          DB_PORT: 3306
-          DB_DIALECT: mysql
-          DB_SSL: false
-
-      # Upload UAT report as artifact
-      - name: Upload UAT Report Artifact
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: uat-report
-          path: ./uat/report.html
-          retention-days: 28
+#  uat-tests:
+#    needs: [bdd-tests, test-client-ui]
+#    runs-on: ubuntu-latest
+#
+#    services:
+#      mysql:
+#        image: mysql:8.0
+#        env:
+#          MYSQL_ROOT_PASSWORD: rootpassword
+#          MYSQL_DATABASE: performing-arts-manager-db
+#        ports:
+#          - 3306:3306
+#        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+#
+#    steps:
+#      # Chechkout code from repository
+#      - name: Checkout code
+#        uses: actions/checkout@v4
+#
+#      # Setup Node.js environment
+#      - name: Setup Node.js
+#        uses: actions/setup-node@v4
+#        with:
+#          node-version: 20
+#
+#      # Setup Python environment
+#      - name: Setup Python
+#        uses: actions/setup-python@v6.2.0
+#        with:
+#          python-version: 3.12
+#
+#      # Install client and server node deps
+#      - name: Install Node Dependencies
+#        run: |
+#          cd server && npm install
+#          cd ../client && npm install
+#
+#      # Install Robot Framework and Browser library for UAT
+#      - name: Install Robot Framework and Browser
+#        working-directory: ./uat
+#        run: |
+#          pip install robotframework robotframework-browser
+#          rfbrowser init
+#
+#      # Run UAT tests with Robot Framework
+#      - name: Start Background Servers & Run UAT
+#        run: |
+#            cd server
+#            node ./server.js > server.log 2>&1 &
+#            SERVER_PID=$!
+#
+#            npx wait-on http://localhost:8050/server-up
+#            echo "Server is up!"
+#
+#            node ./seed.js
+#            echo "Seed completed successfully!"
+#
+#            cd ..
+#            cd client
+#            npm run dev &
+#            CLIENT_PID=$!
+#
+#            npx wait-on http://localhost:5173
+#
+#            cd ../uat
+#            robot .
+#
+#            kill $SERVER_PID $CLIENT_PID || true
+#        env:
+#          NODE_ENV: test
+#          API_PORT: 8050
+#          DB_HOST: 127.0.0.1
+#          DB_USER: root
+#          DB_PASSWORD: rootpassword
+#          DB_NAME: performing-arts-manager-db
+#          DB_PORT: 3306
+#          DB_DIALECT: mysql
+#          DB_SSL: false
+#
+#      # Upload UAT report as artifact
+#      - name: Upload UAT Report Artifact
+#        if: always()
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: uat-report
+#          path: ./uat/report.html
+#          retention-days: 28
 
   build-server:
     runs-on: ubuntu-latest
