@@ -490,23 +490,78 @@ jobs:
           path: ./server/
           retention-days: 28
 
-  deploy-docker:
-    needs: build-server
+  build-client:
+    needs: uat-tests
     runs-on: ubuntu-latest
     steps:
-      # Download the build artifact from the previous job
-      - name: Download Build Artifact
+      # Checkout code from repository
+      - name: Checkout code
+        uses: actions/checkout@v6.0.2
+
+      # Set up Node.js environment
+      - name: Setup Node.js
+        uses: actions/setup-node@v6.3.0
+        with:
+          node-version: '25'
+          cache: 'npm'
+          cache-dependency-path: './client/package-lock.json'
+
+      # Install dependencies needed for the Vite production build
+      - name: Install Client Dependencies
+        working-directory: ./client
+        run: npm ci
+
+      # Build the client
+      - name: Build client
+        working-directory: ./client
+        run: npm run build
+
+      # Package static assets with a runtime Dockerfile for deploy stage
+      - name: Prepare client deploy package
+        working-directory: ./client
+        run: |
+          mkdir -p ./deploy
+          cp -r ./dist ./deploy/dist
+          cp ./nginx.conf ./deploy/nginx.conf
+          cat > ./deploy/Dockerfile <<'EOF'
+          FROM nginx:alpine
+          COPY dist /usr/share/nginx/html
+          COPY nginx.conf /etc/nginx/conf.d/default.conf
+          EXPOSE 80
+          CMD ["nginx", "-g", "daemon off;"]
+          EOF
+
+      # Upload build artifact
+      - name: Upload client build artifact
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: client-build
+          path: ./client/deploy/
+          retention-days: 28
+
+  deploy-docker:
+    needs: [build-server, build-client]
+    runs-on: ubuntu-latest
+    steps:
+      # Download the build artifacts from the previous jobs
+      - name: Download Server Artifact
         uses: actions/download-artifact@v8.0.1
         with:
           name: server-build
           path: ./server-deploy
 
+      - name: Download Client Artifact
+        uses: actions/download-artifact@v8.0.1
+        with:
+          name: client-build
+          path: ./client-deploy
+
       # Set up Docker Buildx
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v4.0.0
 
-      # Build Docker image
-      - name: Build Docker Image
+      # Build server Docker image
+      - name: Build Server Docker Image
         uses: docker/build-push-action@v7.1.0
         with:
           context: ./server-deploy
@@ -514,6 +569,17 @@ jobs:
           push: false
           load: true
 
-      # Verify that the Docker image was built successfully
-      - name: Verify Image
-        run: docker images | grep performing-arts-manager-server
+      # Build client Docker image
+      - name: Build Client Docker Image
+        uses: docker/build-push-action@v7.1.0
+        with:
+          context: ./client-deploy
+          tags: performing-arts-manager-client:latest
+          push: false
+          load: true
+
+      # Verify that both Docker images were built successfully
+      - name: Verify Images
+        run: |
+          docker images | grep performing-arts-manager-server
+          docker images | grep performing-arts-manager-client
