@@ -399,7 +399,11 @@ describe("Inventory Controller - Direct Tests", () => {
 		});
 
 		it("should create global item with photo path", async () => {
-			const mockItem = { id: 5, name: "New Global Item", photo_path: "/uploads/test.jpg" };
+			const mockItem = {
+				id: 5,
+				name: "New Global Item",
+				photo_path: "/uploads/test.jpg",
+			};
 			const spy = vi
 				.spyOn(inventoryService, "createGlobalItem")
 				.mockResolvedValue(mockItem);
@@ -576,7 +580,10 @@ describe("Inventory Controller - Direct Tests", () => {
 
 			await inventoryController.updateGlobal(mockReq, mockRes, mockNext);
 
-			expect(spy).toHaveBeenCalledWith(1, 10, { name: "Updated Item", dept_id: 1 });
+			expect(spy).toHaveBeenCalledWith(1, 10, {
+				name: "Updated Item",
+				dept_id: 1,
+			});
 			expect(mockRes.status).toHaveBeenCalledWith(200);
 			expect(mockRes.json).toHaveBeenCalledWith({
 				success: true,
@@ -683,7 +690,10 @@ describe("Inventory Controller - Direct Tests", () => {
 
 			await inventoryController.updateItem(mockReq, mockRes, mockNext);
 
-			expect(spy).toHaveBeenCalledWith(1, 10, { name: "Updated Show Item", dept_id: 1 });
+			expect(spy).toHaveBeenCalledWith(1, 10, {
+				name: "Updated Show Item",
+				dept_id: 1,
+			});
 			expect(mockRes.status).toHaveBeenCalledWith(200);
 			expect(mockRes.json).toHaveBeenCalledWith({
 				success: true,
