@@ -7,6 +7,10 @@ RUN npm ci --only=production
 
 COPY . .
 
+RUN mkdir -p /app/uploads && chown -R node:node /app
+
+USER node
+
 EXPOSE 8050
 
 CMD ["node", "server.js"]
