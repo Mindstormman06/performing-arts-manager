@@ -4,16 +4,16 @@ Library    OperatingSystem
 
 *** Variables ***
 ${URL}     http://localhost:5173/login
-${EMAIL}   laura@example.com
+${EMAIL}   aiden.hughes@example.com
 ${PASS}    password123
 
 *** Test Cases ***
 Stage Manager Schedules a Rehearsal
     [Documentation]    Ensure production staff can schedule events and assign locations for the cast.
     Given The Stage Manager is logged in
-    When They navigate to the scheduling dashboard for "Rock of Ages"
-    And They create a new rehearsal called "Full Cast Read-Through"
-    Then The event "Full Cast Read-Through" must be visible on the calendar
+    When They navigate to the scheduling dashboard for "Santa in Space"
+    And They create a new rehearsal called "UAT Blocking Session"
+    Then The event "UAT Blocking Session" must be visible on the calendar
 
 *** Keywords ***
 The Stage Manager is logged in
@@ -22,11 +22,11 @@ The Stage Manager is logged in
     Fill Text      input[placeholder="Password"]    ${PASS}
     Click          button:has-text("Login")
 
-They navigate to the scheduling dashboard for "Rock of Ages"
-    Wait For Elements State    text=Cowichan Valley Players    visible
-    Click                      text=Cowichan Valley Players
-    Wait For Elements State    text=Rock of Ages    visible
-    Click                      text=Rock of Ages
+They navigate to the scheduling dashboard for "Santa in Space"
+    Wait For Elements State    text=Shawnigan Players    visible
+    Click                      text=Shawnigan Players
+    Wait For Elements State    text=Santa in Space    visible
+    Click                      text=Santa in Space
     Click                      text=Scheduling
 
 They create a new rehearsal called "${EVENT_TITLE}"

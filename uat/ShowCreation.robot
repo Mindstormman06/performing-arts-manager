@@ -4,7 +4,7 @@ Library    OperatingSystem
 
 *** Variables ***
 ${URL}     http://localhost:5173/login
-${EMAIL}   sarah@example.com
+${EMAIL}   levitybill@gmail.com
 ${PASS}    password123
 
 *** Test Cases ***
@@ -23,8 +23,8 @@ The President is logged into the application
     Click       button:has-text("Login")
 
 They navigate to the organization dashboard
-    Wait For Elements State    text=Cowichan Valley Players    visible
-    Click                      text=Cowichan Valley Players
+    Wait For Elements State    text=Shawnigan Players    visible
+    Click                      text=Shawnigan Players
 
 They submit the new show form for "${SHOW_TITLE}"
     Click   button[title="Add New Show"]
