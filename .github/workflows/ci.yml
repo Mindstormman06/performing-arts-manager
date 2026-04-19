@@ -489,7 +489,7 @@ jobs:
           retention-days: 28
 
   build-client:
-    needs: uat-tests
+    needs: [ uat-tests, bdd-tests ]
     runs-on: ubuntu-latest
     steps:
       # Checkout code from repository
