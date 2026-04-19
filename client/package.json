@@ -14,7 +14,8 @@
 		"test": "npx playwright test",
 		"test:debug": "npx playwright test --debug",
 		"test:headed": "npx playwright test --headed",
-		"test:report": "npx playwright show-report"
+		"test:report": "npx playwright show-report",
+		"retire": "npx retire"
 	},
 	"dependencies": {
 		"@fullcalendar/core": "^6.1.20",

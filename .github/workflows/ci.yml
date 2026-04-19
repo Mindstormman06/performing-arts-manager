@@ -290,7 +290,7 @@ jobs:
           retention-days: 28
 
   test-client-ui:
-    needs: lint-and-format-client
+    needs: client-security
     runs-on: ubuntu-latest
     services:
       mysql:
