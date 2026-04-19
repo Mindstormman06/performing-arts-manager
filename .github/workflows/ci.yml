@@ -80,7 +80,7 @@ jobs:
       # Run Retire to check for vulnerable dependencies
       - name: Run Retire (SCA)
         working-directory: ./server
-        run: npm run retire > retire-seucity-output.txt
+        run: npm run retire > retire-security-output.txt
 
       # Run npm audit for high-severity vulnerabilities
       - name: Run NPM Audit (SCA)
@@ -273,11 +273,11 @@ jobs:
       # Run Retire to check for vulnerable dependencies
       - name: Run Retire (SCA)
         working-directory: ./client
-        run: npm run retire > retire-seucity-output.txt
+        run: npm run retire > retire-security-output.txt
 
       # Run npm audit for high-severity vulnerabilities
       - name: Run NPM Audit (SCA)
-        working-directory: ./server
+        working-directory: ./client
         run: npm audit --audit-level=high > npm-audit-security-output.txt
 
       # Upload security report as artifact
