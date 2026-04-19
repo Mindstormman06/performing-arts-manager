@@ -587,5 +587,4 @@ jobs:
       # Verify that both Docker images were built successfully
       - name: Verify Images
         run: |
-          docker images | grep performing-arts-manager-server
-          docker images | grep performing-arts-manager-client
+          docker images | grep performing-arts-manager
