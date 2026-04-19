@@ -40,6 +40,8 @@ They create a new rehearsal called "${EVENT_TITLE}"
     Fill Text      \#create-event-location      The Green Room
 
     Click          div.bg-white >> button:has-text("Create Event")
+    Wait For Elements State    text=Event List    visible
+    Click                      text=Event List
 
 The event "${EVENT_TITLE}" must be visible on the calendar
     Wait For Elements State    h3:has-text("${EVENT_TITLE}")    visible
