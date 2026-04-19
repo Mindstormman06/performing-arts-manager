@@ -10,7 +10,7 @@ on:
 
 jobs:
   # =====================
-  # SERVER JOBS
+  # STAGE 1: QUALITY + SECURITY
   # =====================
   lint-and-format-server:
     runs-on: ubuntu-latest
@@ -95,115 +95,6 @@ jobs:
           path: ./server/*security-output.*
           retention-days: 28
 
-  test-server:
-    # Run after server stage 1 passes
-    needs: [ lint-and-format-server, server-security ]
-    runs-on: ubuntu-latest
-    services:
-      mysql:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: rootpassword
-          MYSQL_DATABASE: performing-arts-manager-db
-        ports:
-          - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-    steps:
-      # Checkout code from repository
-      - name: Checkout code
-        uses: actions/checkout@v6.0.2
-
-      # Set up Node.js environment
-      - name: Setup Node.js
-        uses: actions/setup-node@v6.3.0
-        with:
-          node-version: '25'
-          cache: 'npm'
-          cache-dependency-path: './server/package-lock.json'
-
-      # Install dependencies
-      - name: Install dependencies
-        working-directory: ./server
-        run: npm install
-
-      # Run tests with coverage using Vitest
-      - name: Run Tests
-        working-directory: ./server
-        run: npm run coverage
-        env:
-          NODE_ENV: test
-          DB_HOST: 127.0.0.1
-          DB_USER: root
-          DB_PASSWORD: rootpassword
-          DB_NAME: performing-arts-manager-db
-          DB_PORT: 3306
-          DB_DIALECT: mysql
-          DB_SSL: false
-
-      # Upload coverage report as artifact
-      - name: Upload Coverage Report
-        uses: actions/upload-artifact@v7.0.1
-        with:
-          name: server-coverage-report
-          path: ./server/coverage/
-          retention-days: 28
-
-  bdd-tests:
-    needs: [test-server, test-client-ui]
-    runs-on: ubuntu-latest
-    services:
-      mysql:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: rootpassword
-          MYSQL_DATABASE: performing-arts-manager-db
-        ports:
-          - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-    steps:
-      # Checkout code from repository
-      - name: Checkout code
-        uses: actions/checkout@v6.0.2
-
-      # Set up Node.js environment
-      - name: Setup Node.js
-        uses: actions/setup-node@v6.3.0
-        with:
-          node-version: '25'
-          cache: 'npm'
-          cache-dependency-path: './server/package-lock.json'
-
-      # Install dependencies
-      - name: Install dependencies
-        working-directory: ./server
-        run: npm install
-
-      # Run BDD tests with Cucumber
-      - name: Run Cucumber BDD Tests
-        working-directory: ./server
-        run: npm run test:bdd
-        env:
-          NODE_ENV: test
-          DB_HOST: 127.0.0.1
-          DB_USER: root
-          DB_PASSWORD: rootpassword
-          DB_NAME: performing-arts-manager-db
-          DB_PORT: 3306
-          DB_DIALECT: mysql
-          DB_SSL: false
-
-      # Upload Cucumber report
-      - name: Upload Cucumber Report
-        if: always()
-        uses: actions/upload-artifact@v7.0.1
-        with:
-          name: bdd-report
-          path: ./server/reports/
-          retention-days: 28
-
-  # =====================
-  # CLIENT JOBS
-  # =====================
   lint-and-format-client:
     runs-on: ubuntu-latest
     steps:
@@ -287,8 +178,89 @@ jobs:
           path: ./client/*security-output.*
           retention-days: 28
 
+  semgrep-sast:
+    name: Semgrep SAST Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6.0.2
+
+      - name: Setup Python
+        uses: actions/setup-python@v6.2.0
+
+      - name: Install Semgrep
+        run: pip install semgrep
+
+      - name: Run Semgrep
+        run: semgrep scan --config auto --json -o semgrep-report.json
+
+      - name: Upload Semgrep Report
+        if: always()
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: semgrep-security-report
+          path: semgrep-report.json
+          retention-days: 28
+
+
+  # =====================
+  # STAGE 2: UNIT TESTING
+  # =====================
+  test-server:
+    # Run after server stage 1 passes
+    needs: [ lint-and-format-server, server-security, semgrep-sast ]
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: rootpassword
+          MYSQL_DATABASE: performing-arts-manager-db
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+    steps:
+      # Checkout code from repository
+      - name: Checkout code
+        uses: actions/checkout@v6.0.2
+
+      # Set up Node.js environment
+      - name: Setup Node.js
+        uses: actions/setup-node@v6.3.0
+        with:
+          node-version: '25'
+          cache: 'npm'
+          cache-dependency-path: './server/package-lock.json'
+
+      # Install dependencies
+      - name: Install dependencies
+        working-directory: ./server
+        run: npm install
+
+      # Run tests with coverage using Vitest
+      - name: Run Tests
+        working-directory: ./server
+        run: npm run coverage
+        env:
+          NODE_ENV: test
+          DB_HOST: 127.0.0.1
+          DB_USER: root
+          DB_PASSWORD: rootpassword
+          DB_NAME: performing-arts-manager-db
+          DB_PORT: 3306
+          DB_DIALECT: mysql
+          DB_SSL: false
+
+      # Upload coverage report as artifact
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: server-coverage-report
+          path: ./server/coverage/
+          retention-days: 28
+
   test-client-ui:
-    needs: [ client-security, lint-and-format-client]
+    needs: [ client-security, lint-and-format-client, semgrep-sast ]
     runs-on: ubuntu-latest
     services:
       mysql:
@@ -365,8 +337,62 @@ jobs:
           retention-days: 28
 
   # =====================
-  # INTEGRATION + DEPLOY
+  # STAGE 3: Continued Testing
   # =====================
+
+  bdd-tests:
+    needs: [ test-server, test-client-ui ]
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: rootpassword
+          MYSQL_DATABASE: performing-arts-manager-db
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+    steps:
+      # Checkout code from repository
+      - name: Checkout code
+        uses: actions/checkout@v6.0.2
+
+      # Set up Node.js environment
+      - name: Setup Node.js
+        uses: actions/setup-node@v6.3.0
+        with:
+          node-version: '25'
+          cache: 'npm'
+          cache-dependency-path: './server/package-lock.json'
+
+      # Install dependencies
+      - name: Install dependencies
+        working-directory: ./server
+        run: npm install
+
+      # Run BDD tests with Cucumber
+      - name: Run Cucumber BDD Tests
+        working-directory: ./server
+        run: npm run test:bdd
+        env:
+          NODE_ENV: test
+          DB_HOST: 127.0.0.1
+          DB_USER: root
+          DB_PASSWORD: rootpassword
+          DB_NAME: performing-arts-manager-db
+          DB_PORT: 3306
+          DB_DIALECT: mysql
+          DB_SSL: false
+
+      # Upload Cucumber report
+      - name: Upload Cucumber Report
+        if: always()
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: bdd-report
+          path: ./server/reports/
+          retention-days: 28
+
   uat-tests:
     needs: [ test-server, test-client-ui ]
     runs-on: ubuntu-latest
@@ -451,6 +477,10 @@ jobs:
           name: uat-report
           path: ./uat/report.html
           retention-days: 28
+
+  # =====================
+  # STAGE 4: BUILD
+  # =====================
 
   build-server:
     needs: [ uat-tests, bdd-tests ]
@@ -537,6 +567,9 @@ jobs:
           path: ./client/deploy/
           retention-days: 28
 
+  # =====================
+  # STAGE 5: DEPLOY
+  # =====================
   deploy-docker:
     needs: [build-server, build-client]
     runs-on: ubuntu-latest
