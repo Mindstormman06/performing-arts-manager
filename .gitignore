@@ -143,3 +143,4 @@ server/docker-compose.yml
 documentation/DB/data.csv
 server/uploads/profiles/
 /docker-compose.yml
+reports/
