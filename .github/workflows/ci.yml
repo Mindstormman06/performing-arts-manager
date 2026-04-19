@@ -556,6 +556,12 @@ jobs:
           name: client-build
           path: ./client-deploy
 
+      - name: Login to Docker Hub
+        uses: docker/login-action@v4.1.0
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
       # Set up Docker Buildx
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v4.0.0
@@ -565,8 +571,8 @@ jobs:
         uses: docker/build-push-action@v7.1.0
         with:
           context: ./server-deploy
-          tags: performing-arts-manager-server:latest
-          push: false
+          tags: ${{ secrets.DOCKER_USERNAME }}/performing-arts-manager:server-latest
+          push: true
           load: true
 
       # Build client Docker image
@@ -574,8 +580,8 @@ jobs:
         uses: docker/build-push-action@v7.1.0
         with:
           context: ./client-deploy
-          tags: performing-arts-manager-client:latest
-          push: false
+          tags: ${{ secrets.DOCKER_USERNAME }}/performing-arts-manager:client-latest
+          push: true
           load: true
 
       # Verify that both Docker images were built successfully
