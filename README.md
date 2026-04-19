@@ -32,9 +32,6 @@ The app is designed for desktop browsers and is built around a React frontend an
 
 [<img src="documentation/screenshots/user.png" alt="User profile" width="320" />](documentation/screenshots/user.png)
 
-## Branch
-This branch is a frozen copy of sprint2 being used for ITAS276 Assignment 02
-
 ## Tech Stack
 
 - **Frontend:** React, Vite, React Router, Axios, Tailwind CSS, FullCalendar
