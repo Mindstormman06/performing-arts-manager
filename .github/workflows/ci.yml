@@ -554,6 +554,7 @@ jobs:
         with:
           target: 'http://localhost:5173'
           fail_action: false
+          allow_issue_writing: false
           cmd_options: >-
             -z "-config replacer.full_list(0).description=auth
             -config replacer.full_list(0).enabled=true
@@ -567,7 +568,7 @@ jobs:
         uses: actions/upload-artifact@v7.0.1
         with:
           name: zap-dast-report
-          path: zap_report.html
+          path: report_html.html
           retention-days: 28
 
   # =====================
