@@ -580,7 +580,7 @@ jobs:
 
   build-server:
     name: Server Build
-    needs: [ uat-tests, bdd-tests ]
+    needs: [ uat-tests, bdd-tests, dast-zap-full ]
     runs-on: ubuntu-latest
     steps:
       # Checkout code from repository
@@ -617,7 +617,7 @@ jobs:
 
   build-client:
     name: Client Build
-    needs: [ uat-tests, bdd-tests ]
+    needs: [ uat-tests, bdd-tests, dast-zap-full ]
     runs-on: ubuntu-latest
     steps:
       # Checkout code from repository
