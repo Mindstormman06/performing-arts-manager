@@ -487,9 +487,13 @@ jobs:
           path: ./uat/report.html
           retention-days: 28
 
+  # =====================
+  # STAGE 4: OWASP ZAP
+  # =====================
+
   dast-zap-full:
     name: OWASP ZAP Full Scan
-    needs: [ test-server, test-client-ui ]
+    needs: [ bdd-tests, uat-tests ]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     services:
@@ -575,12 +579,12 @@ jobs:
           retention-days: 28
 
   # =====================
-  # STAGE 4: BUILD
+  # STAGE 5: BUILD
   # =====================
 
   build-server:
     name: Server Build
-    needs: [ uat-tests, bdd-tests, dast-zap-full ]
+    needs: [ dast-zap-full ]
     runs-on: ubuntu-latest
     steps:
       # Checkout code from repository
@@ -617,7 +621,7 @@ jobs:
 
   build-client:
     name: Client Build
-    needs: [ uat-tests, bdd-tests, dast-zap-full ]
+    needs: [ dast-zap-full ]
     runs-on: ubuntu-latest
     steps:
       # Checkout code from repository
@@ -666,7 +670,7 @@ jobs:
           retention-days: 28
 
   # =====================
-  # STAGE 5: DEPLOY
+  # STAGE 6: DEPLOY
   # =====================
   deploy-docker:
     name: Docker Deploy
