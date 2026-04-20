@@ -2,7 +2,7 @@ name: Node.js CI
 
 on:
   push:
-    branches: [main]
+    branches: [*]
   pull_request:
     branches: [main]
   schedule:
@@ -423,7 +423,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6.3.0
         with:
-          node-version: '20'
+          node-version: '25'
 
       # Set up Python environment
       - name: Setup Python
@@ -485,6 +485,89 @@ jobs:
         with:
           name: uat-report
           path: ./uat/report.html
+          retention-days: 28
+
+  dast-zap-full:
+    name: OWASP ZAP Full Scan
+    needs: [ test-server, test-client-ui ]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: rootpassword
+          MYSQL_DATABASE: performing-arts-manager-db
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6.0.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6.3.0
+        with:
+          node-version: '25'
+
+      - name: Install Node Dependencies
+        run: |
+          cd server && npm install
+          cd ../client && npm install
+
+      - name: Start Application for DAST
+        run: |
+          trap 'npx --yes kill-port 8050 5173 || true' EXIT
+          
+          cd server
+          node ./server.js > server.log 2>&1 &
+          npx wait-on tcp:8050
+          node ./seed.js
+          
+          cd ../client
+          npm run dev &
+          npx wait-on tcp:5173
+        env:
+          NODE_ENV: test
+          API_PORT: 8050
+          DB_HOST: 127.0.0.1
+          DB_USER: root
+          DB_PASSWORD: rootpassword
+          DB_NAME: performing-arts-manager-db
+          DB_PORT: 3306
+          DB_DIALECT: mysql
+          DB_SSL: false
+
+      - name: Fetch JWT
+        run: |
+          RESPONSE=$(curl -s -X POST http://localhost:8050/api/auth/login \
+          -H "Content-Type: application/json" \
+          -d '{"email":"levitybill@gmail.com","password":"password123"}')
+      
+          TOKEN=$(echo "$RESPONSE" | jq -r '.token')
+          echo "::add-mask::$TOKEN"
+          echo "JWT_TOKEN=$TOKEN" >> "$GITHUB_ENV"
+
+      - name: OWASP ZAP Full Scan
+        uses: zaproxy/action-full-scan@v0.12.0
+        with:
+          target: 'http://localhost:5173'
+          fail_action: false
+          cmd_options: >-
+            -config replacer.full_list(0).description=auth
+            -config replacer.full_list(0).enabled=true
+            -config replacer.full_list(0).matchtype=req_header
+            -config replacer.full_list(0).matchstr=Authorization
+            -config replacer.full_list(0).regex=false
+            -config replacer.full_list(0).replacement="Bearer ${{ env.JWT_TOKEN }}"
+
+      - name: Upload ZAP Report
+        if: always()
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: zap-dast-report
+          path: zap_report.html
           retention-days: 28
 
   # =====================
