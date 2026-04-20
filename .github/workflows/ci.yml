@@ -549,6 +549,9 @@ jobs:
           echo "::add-mask::$TOKEN"
           echo "JWT_TOKEN=$TOKEN" >> "$GITHUB_ENV"
 
+      - name: Clear Port 8080 for ZAP
+        run: npx --yes kill-port 8080 || true
+
       - name: OWASP ZAP Full Scan
         uses: zaproxy/action-full-scan@v0.12.0
         with:
