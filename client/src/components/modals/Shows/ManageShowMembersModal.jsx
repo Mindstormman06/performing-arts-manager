@@ -29,6 +29,8 @@ export default function ManageShowMembersModal({
 	showId,
 	onSuccess,
 	canEditRoles = false,
+	currentUserId = null,
+	currentUserRoles = [],
 }) {
 	const [orgMembers, setOrgMembers] = useState([]);
 	const [selectedOrgUserId, setSelectedOrgUserId] = useState("");
@@ -100,6 +102,8 @@ export default function ManageShowMembersModal({
 				user={selectedUser}
 				showId={showId}
 				canEditRoles={canEditRoles}
+				currentUserId={currentUserId}
+				currentUserRoles={currentUserRoles}
 				onSuccess={onSuccess}
 			/>
 			<InviteMemberModal

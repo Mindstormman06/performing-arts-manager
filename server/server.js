@@ -2,91 +2,60 @@ import cors from "cors";
 import express from "express";
 
 import { expressConfig } from "./src/config/index.js";
-import models from "./src/models/index.js";
 import adminRouter from "./src/routes/admin.route.js";
 import authRouter from "./src/routes/auth.route.js";
 import inventoryRouter from "./src/routes/inventory.route.js";
-import organzationRouter from "./src/routes/organization.route.js";
+import organizationRouter from "./src/routes/organization.route.js";
 import scheduleRouter from "./src/routes/schedule.route.js";
 import showRouter from "./src/routes/show.route.js";
 import userRouter from "./src/routes/user.route.js";
 import sequelize from "./src/services/db.service.js";
 
 const app = express();
-app.use(cors());
+
+const isTestEnv =
+	process.env.NODE_ENV === "test" || typeof process.env.VITEST !== "undefined";
+
+// CORS: restrict to CORS_ORIGIN (comma-separated) when set; otherwise allow
+// any origin, which is only appropriate for local development.
+const corsOrigins = (process.env.CORS_ORIGIN || "")
+	.split(",")
+	.map((o) => o.trim())
+	.filter(Boolean);
+app.use(cors(corsOrigins.length > 0 ? { origin: corsOrigins } : undefined));
+
+app.disable("x-powered-by");
+app.use((_req, res, next) => {
+	res.setHeader("X-Content-Type-Options", "nosniff");
+	res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+	next();
+});
 app.use(express.json());
 
-// Serve uploaded files statically
-app.use("/uploads", express.static("uploads"));
+// Serve uploaded files statically. Uploads are images only, so forbid any
+// active content and cross-origin framing even if something slips through.
+app.use(
+	"/uploads",
+	(_req, res, next) => {
+		res.setHeader(
+			"Content-Security-Policy",
+			"default-src 'none'; img-src 'self'; sandbox",
+		);
+		res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+		next();
+	},
+	express.static("uploads", { dotfiles: "deny", index: false }),
+);
 
 /* v8 ignore start */
-if (
-	typeof process.env.VITEST === "undefined" &&
-	process.env.NODE_ENV !== "test"
-) {
+if (!isTestEnv) {
+	// sync() only creates missing tables. Altering existing tables on every
+	// boot can drop or rewrite production data, so it is opt-in.
+	const alter = process.env.DB_SYNC_ALTER === "true";
 	sequelize
-		.sync({ alter: true })
+		.sync({ alter })
 		.then(() => console.log("Database synchronized!"))
-		// .then(() => {
-		// 	seedRoles();
-		// 	seedDepartments();
-		// })
 		.catch((err) => console.error("Error syncing database:", err));
-
-	const _seedRoles = async () => {
-		const { OrganizationRole, ShowRole } = models;
-		const orgRoles = [
-			"president", // Org
-			"board-member", // Org
-			"costumes", // Both
-			"props", // Both
-			"sets", // Both
-			"tech", // Both
-		];
-		const showRoles = [
-			"director", // Show
-			"stage-manager", // Show
-			"actor", // Show
-			"stagehand", // Show
-			"costumes", // Both
-			"props", // Both
-			"sets", // Both
-			"tech", // Both
-		];
-
-		for (const roleName of orgRoles) {
-			const [created] = await OrganizationRole.findOrCreate({
-				where: { name: roleName },
-			});
-			if (created) {
-				console.log(`Created organization role: ${roleName}`);
-			}
-		}
-		for (const roleName of showRoles) {
-			const [created] = await ShowRole.findOrCreate({
-				where: { name: roleName },
-			});
-			if (created) {
-				console.log(`Created show role: ${roleName}`);
-			}
-		}
-		console.log("Roles seeding complete");
-	};
-
-	const _seedDepartments = async () => {
-		const { Department } = models;
-		const departments = ["Costumes", "Props", "Sets", "Tech"];
-
-		for (const deptName of departments) {
-			const [created] = await Department.findOrCreate({
-				where: { name: deptName },
-			});
-			if (created) {
-				console.log(`Created department: ${deptName}`);
-			}
-		}
-		console.log("Departments seeding complete");
-	};
 }
 /* v8 ignore stop */
 
@@ -94,23 +63,26 @@ app.get("/server-up", (_req, res) => {
 	res.json({ message: "ok" });
 });
 
-app.get("/crash-test", (_req, _res, next) => {
-	next(new Error("Intentional crash for testing error handling"));
-});
+// Error-handling test routes exist only when running tests
+if (isTestEnv) {
+	app.get("/crash-test", (_req, _res, next) => {
+		next(new Error("Intentional crash for testing error handling"));
+	});
 
-app.get("/crash-test-minimal", (_req, _res, next) => {
-	next({});
-});
+	app.get("/crash-test-minimal", (_req, _res, next) => {
+		next({});
+	});
 
-app.get("/test", (_req, res) => {
-	res.json({ message: "This is a test route." });
-});
+	app.get("/test", (_req, res) => {
+		res.json({ message: "This is a test route." });
+	});
+}
 
 app.use("/api/users", userRouter);
-app.use("/api/orgs", organzationRouter);
+app.use("/api/orgs", organizationRouter);
 app.use("/api/shows", showRouter);
 app.use("/api/auth", authRouter);
-// Usage: curl -X POST http://localhost:3000/api/admin/reset-db \ -H "Authorization: Bearer YOUR_JWT_TOKEN"
+// POST /api/admin/reset-db is disabled unless ALLOW_DB_RESET=true
 app.use("/api/admin", adminRouter);
 app.use("/api/inventory", inventoryRouter);
 app.use("/api/schedule", scheduleRouter);
@@ -125,12 +97,17 @@ app.use((_req, _res, next) => {
 app.use((err, _req, res, _next) => {
 	const statusCode = err.statusCode || err.status || 500;
 	console.error(err);
+	if (res.headersSent) return;
+
+	// Don't leak internal error details (SQL, stack messages) to clients
+	const exposeMessage =
+		statusCode < 500 || process.env.NODE_ENV !== "production";
 	res.status(statusCode).json({
 		success: false,
-		message: err.message || "Internal server error",
+		message:
+			(exposeMessage && err.message) ||
+			(statusCode >= 500 ? "Internal server error" : "Request failed"),
 	});
-
-	return;
 });
 
 /* v8 ignore start */

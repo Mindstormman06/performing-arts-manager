@@ -40,8 +40,6 @@ export default function OrgOverview() {
 
 	const fetchData = useCallback(async () => {
 		try {
-			setIsLoading(true);
-
 			// 1. Get current user
 			const authRes = await verifyToken();
 			const currentUserId = authRes.data.user.id;
@@ -91,7 +89,7 @@ export default function OrgOverview() {
 			if (secondConfirm) {
 				try {
 					await deleteOrganization(orgId);
-					navigate("/dashboard");
+					navigate("/organizations");
 				} catch (err) {
 					alert(
 						err.response?.data?.message || "Failed to delete organizations",

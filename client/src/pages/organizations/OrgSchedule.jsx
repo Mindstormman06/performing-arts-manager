@@ -22,7 +22,6 @@ export default function OrgSchedule() {
 
 	const fetchScheduleData = useCallback(async () => {
 		try {
-			setIsLoading(true);
 			const authRes = await verifyToken();
 			const currentUserId = authRes.data.user.id;
 
@@ -88,6 +87,9 @@ export default function OrgSchedule() {
 				month: "short",
 				day: "numeric",
 			}),
+			weekday: date.toLocaleDateString(undefined, { weekday: "short" }),
+			month: date.toLocaleDateString(undefined, { month: "short" }),
+			day: date.getDate(),
 			time: date.toLocaleTimeString(undefined, {
 				hour: "2-digit",
 				minute: "2-digit",
@@ -195,10 +197,13 @@ export default function OrgSchedule() {
 										<div className="flex items-start gap-4">
 											<div className="flex min-w-16 flex-col items-center justify-center rounded-lg border border-blue-100 bg-blue-50 p-2 text-blue-700">
 												<span className="font-bold text-xs uppercase tracking-wider">
-													{start.date.split(",")[0]}
+													{start.weekday}
 												</span>
 												<span className="font-extrabold text-lg">
-													{start.date.split(" ")[2]}
+													{start.day}
+												</span>
+												<span className="font-semibold text-xs uppercase">
+													{start.month}
 												</span>
 											</div>
 

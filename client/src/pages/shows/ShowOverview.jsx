@@ -18,6 +18,7 @@ export default function ShowOverview() {
 	const [showData, setShowData] = useState(null);
 	const [events, setEvents] = useState([]);
 	const [isLoading, setIsLoading] = useState(true);
+	const [error, setError] = useState("");
 
 	const [isManageMembersModalOpen, setIsManageMembersModalOpen] =
 		useState(false);
@@ -29,7 +30,7 @@ export default function ShowOverview() {
 
 	const fetchData = useCallback(async () => {
 		try {
-			setIsLoading(true);
+			setError("");
 			const [dashboardRes, calendarRes, authRes] = await Promise.all([
 				getShowDashboard(showId),
 				getShowCalendar(showId),
@@ -51,6 +52,7 @@ export default function ShowOverview() {
 			setEvents(calendarRes.data.data || []);
 		} catch (err) {
 			console.error("Failed to fetch show data:", err);
+			setError(err.response?.data?.message || "Failed to load show dashboard.");
 		} finally {
 			setIsLoading(false);
 		}
@@ -74,6 +76,16 @@ export default function ShowOverview() {
 		{ name: "Design Hub", path: "tech", icon: "💡" },
 		{ name: "Files & Scripts", path: "files", icon: "📁" },
 	];
+
+	if (!showData && !isLoading) {
+		return (
+			<div className="flex min-h-[calc(100vh-9rem)] items-center justify-center">
+				<div className="font-semibold text-red-600 text-xl">
+					{error || "Show not found."}
+				</div>
+			</div>
+		);
+	}
 
 	if (isLoading || !showData) {
 		return (
@@ -146,6 +158,8 @@ export default function ShowOverview() {
 				showId={showId}
 				members={showData?.members || []}
 				canEditRoles={canEditRoles}
+				currentUserId={currentUserId}
+				currentUserRoles={currentUserRoles}
 				onSuccess={fetchData}
 			/>
 			<RoleModal

@@ -62,3 +62,19 @@ export const setupTestDatabase = async () => {
 export const closeDatabase = async () => {
 	await sequelize.close();
 };
+
+/**
+ * Makes a user an active member of an organization, as if they had been
+ * invited and accepted. Joining through the API now requires an org admin
+ * and leaves the membership pending, so test setup uses this instead.
+ */
+export const addActiveOrgMember = async (orgId, userId) => {
+	const [membership] = await models.OrgMembership.findOrCreate({
+		where: { org_id: orgId, users_id: userId },
+		defaults: { status: "active" },
+	});
+	if (membership.status !== "active") {
+		await membership.update({ status: "active" });
+	}
+	return membership;
+};

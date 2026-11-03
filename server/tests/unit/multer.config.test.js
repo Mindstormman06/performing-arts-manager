@@ -34,7 +34,7 @@ describe("Multer Config", () => {
 		const cb = vi.fn();
 		upload.storage.getFilename(
 			{ user: { id: 42 } },
-			{ originalname: "headshot.jpg" },
+			{ originalname: "headshot.jpg", mimetype: "image/jpeg" },
 			cb,
 		);
 
@@ -45,9 +45,26 @@ describe("Multer Config", () => {
 
 	it("uses unknown user id when request user is missing", () => {
 		const cb = vi.fn();
-		upload.storage.getFilename({}, { originalname: "profile.webp" }, cb);
+		upload.storage.getFilename(
+			{},
+			{ originalname: "profile.webp", mimetype: "image/webp" },
+			cb,
+		);
 
 		expect(cb.mock.calls[0][1]).toMatch(/^profile-\d+-unknown\.webp$/);
+	});
+
+	it("takes the extension from the MIME type, never the client filename", () => {
+		const cb = vi.fn();
+		upload.storage.getFilename(
+			{ user: { id: 7 } },
+			{ originalname: "../../evil<script>.html", mimetype: "image/png" },
+			cb,
+		);
+
+		const createdName = cb.mock.calls[0][1];
+		expect(createdName).toMatch(/\.png$/);
+		expect(createdName).not.toMatch(/html|\/|<|>/);
 	});
 
 	it("creates destination directory for request subfolder", () => {

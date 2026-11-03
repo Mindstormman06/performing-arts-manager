@@ -2,6 +2,53 @@ import { Op } from "sequelize";
 
 import models from "../models/index.js";
 
+const EDITABLE_EVENT_FIELDS = [
+	"title",
+	"start_time",
+	"end_time",
+	"location",
+	"description",
+];
+
+function pickEventFields(data = {}) {
+	return Object.fromEntries(
+		Object.entries(data).filter(
+			([field, value]) =>
+				EDITABLE_EVENT_FIELDS.includes(field) && value !== undefined,
+		),
+	);
+}
+
+/**
+ * Finds an event that belongs to the given scope.
+ * scope: { orgId } matches org events and events of shows in that org;
+ *        { showId } matches events of that show only.
+ */
+async function findScopedEvent(eventId, scope = {}) {
+	const event = await models.Schedule.findByPk(eventId);
+	if (!event) throw new Error("Event not found");
+
+	if (scope.showId !== undefined) {
+		if (String(event.show_id) !== String(scope.showId)) {
+			throw new Error("Event not found");
+		}
+		return event;
+	}
+
+	if (scope.orgId !== undefined) {
+		if (String(event.org_id) === String(scope.orgId)) return event;
+		if (event.show_id) {
+			const show = await models.Show.findByPk(event.show_id);
+			if (show && String(show.organization_id) === String(scope.orgId)) {
+				return event;
+			}
+		}
+		throw new Error("Event not found");
+	}
+
+	throw new Error("Event scope is required");
+}
+
 async function getOrgCalendar(orgId) {
 	const shows = await models.Show.findAll({
 		where: { organization_id: orgId },
@@ -49,7 +96,7 @@ async function getShowCalendar(showId) {
 
 async function createOrgEvent(orgId, creatorId, data) {
 	return await models.Schedule.create({
-		...data,
+		...pickEventFields(data),
 		org_id: orgId,
 		creator_id: creatorId,
 	});
@@ -57,35 +104,26 @@ async function createOrgEvent(orgId, creatorId, data) {
 
 async function createShowEvent(showId, creatorId, data) {
 	return await models.Schedule.create({
-		...data,
+		...pickEventFields(data),
 		show_id: showId,
 		creator_id: creatorId,
 	});
 }
 
-async function updateEvent(id, data) {
-	const event = await models.Schedule.findByPk(id);
-	if (!event) {
-		throw new Error("Event not found");
-	}
-	await event.update(data);
+async function updateEvent(id, data, scope) {
+	const event = await findScopedEvent(id, scope);
+	await event.update(pickEventFields(data));
 	return event.toJSON();
 }
 
-async function deleteEvent(id) {
-	const event = await models.Schedule.findByPk(id);
-	if (!event) {
-		throw new Error("Event not found");
-	}
+async function deleteEvent(id, scope) {
+	const event = await findScopedEvent(id, scope);
 	await event.destroy();
 	return { message: "Event deleted successfully" };
 }
 
 async function assignUsersToOrgEvent(orgId, eventId, config) {
-	const event = await models.Schedule.findByPk(eventId);
-	if (!event) {
-		throw new Error("Event not found");
-	}
+	const event = await findScopedEvent(eventId, { orgId });
 
 	const userIdsToAssign = new Set();
 
@@ -113,9 +151,14 @@ async function assignUsersToOrgEvent(orgId, eventId, config) {
 			});
 		}
 
-		if (config.users && config.users.length > 0) {
-			config.userIds.forEach((id) => {
-				userIdsToAssign.add(id);
+		if (config.userIds && config.userIds.length > 0) {
+			// Only allow assigning users who are members of this organization
+			const memberships = await models.OrgMembership.findAll({
+				where: { org_id: orgId, users_id: { [Op.in]: config.userIds } },
+				attributes: ["users_id"],
+			});
+			memberships.forEach((m) => {
+				userIdsToAssign.add(m.users_id);
 			});
 		}
 	}
@@ -126,10 +169,7 @@ async function assignUsersToOrgEvent(orgId, eventId, config) {
 }
 
 async function assignUsersToShowEvent(showId, eventId, config) {
-	const event = await models.Schedule.findByPk(eventId);
-	if (!event) {
-		throw new Error("Event not found");
-	}
+	const event = await findScopedEvent(eventId, { showId });
 
 	const userIdsToAssign = new Set();
 	let characterIdsToAssign = [];
@@ -159,8 +199,13 @@ async function assignUsersToShowEvent(showId, eventId, config) {
 		}
 
 		if (config.userIds && config.userIds.length > 0) {
-			config.userIds.forEach((id) => {
-				userIdsToAssign.add(id);
+			// Only allow assigning users who are members of this show
+			const memberships = await models.ShowMembership.findAll({
+				where: { show_id: showId, users_id: { [Op.in]: config.userIds } },
+				attributes: ["users_id"],
+			});
+			memberships.forEach((m) => {
+				userIdsToAssign.add(m.users_id);
 			});
 		}
 

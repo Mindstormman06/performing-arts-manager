@@ -20,6 +20,12 @@ async function join(req, res, next) {
 		if (error.message === "User already in show") {
 			return res.status(409).json({ success: false, message: error.message });
 		}
+		if (error.message.includes("not a member")) {
+			return res.status(400).json({ success: false, message: error.message });
+		}
+		if (error.message.includes("not found")) {
+			return res.status(404).json({ success: false, message: error.message });
+		}
 		next(error);
 	}
 }
@@ -27,7 +33,9 @@ async function join(req, res, next) {
 async function invite(req, res, next) {
 	try {
 		const { showId } = req.params;
-		const { orgId, email } = req.body;
+		const { email } = req.body;
+		// Always invite into the show's own organization, never one from the body
+		const orgId = req.show?.organization_id;
 
 		const invitation = await showMembershipService.inviteByEmail(
 			orgId,
@@ -183,18 +191,29 @@ async function removeRole(req, res, next) {
 	}
 }
 
+// Only paths to files this server stored are accepted from the request body
+const PROFILE_PHOTO_PATH = /^\/?uploads\/profiles\/[\w.-]+$/;
+
 async function updateProfile(req, res, next) {
 	try {
 		const { showId, userId } = req.params;
 		const { bio } = req.body;
-		const photoPath = req.file
-			? `/uploads/profiles/${req.file.filename}`
-			: req.body.photo_path;
 
-		// Authorization check: Only the user themselves or an admin/director can update the profile
-		// (Simplified for now, but following standard patterns)
-		if (req.user.id !== Number.parseInt(userId, 10)) {
-			// In a real app, you might check if req.user has higher privileges here
+		let photoPath;
+		if (req.file) {
+			photoPath = `/uploads/profiles/${req.file.filename}`;
+		} else if (req.body.photo_path === null || req.body.photo_path === "") {
+			photoPath = null;
+		} else if (req.body.photo_path !== undefined) {
+			if (
+				typeof req.body.photo_path !== "string" ||
+				!PROFILE_PHOTO_PATH.test(req.body.photo_path)
+			) {
+				return res
+					.status(400)
+					.json({ success: false, message: "Invalid photo_path." });
+			}
+			photoPath = req.body.photo_path;
 		}
 
 		const updatedMembership = await showMembershipService.updateProfile(

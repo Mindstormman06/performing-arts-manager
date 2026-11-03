@@ -2,6 +2,15 @@ import models from "../models/index.js";
 
 // --- Departments ---
 
+// Only descriptive fields come from the client; ownership is set server-side
+function pickItemFields(data = {}) {
+	return {
+		name: data.name,
+		description: data.description,
+		dept_id: data.dept_id,
+	};
+}
+
 async function getDepartments() {
 	// Departments are static and global now, just return all of them
 	return await models.Department.findAll();
@@ -30,7 +39,7 @@ async function createGlobalItem(orgId, data, userId, photoPath) {
 	if (!dept) throw new Error("Invalid department");
 
 	return await models.Inventory.create({
-		...data,
+		...pickItemFields(data),
 		photo_path: photoPath || null,
 		is_global: 1,
 		added_by: userId,
@@ -131,7 +140,7 @@ async function createShowItem(showId, data, userId, photoPath) {
 	if (!show) throw new Error("Show not found");
 
 	const newItem = await models.Inventory.create({
-		...data,
+		...pickItemFields(data),
 		photo_path: photoPath || null,
 		added_by: userId,
 		is_global: 0,
@@ -149,6 +158,15 @@ async function createShowItem(showId, data, userId, photoPath) {
 }
 
 async function pullGlobalItemToShow(showId, inventoryId, _userId) {
+	const show = await models.Show.findByPk(showId);
+	if (!show) throw new Error("Show not found");
+
+	// Only global items from the show's own organization can be pulled
+	const item = await models.Inventory.findOne({
+		where: { id: inventoryId, is_global: 1, org_id: show.organization_id },
+	});
+	if (!item) throw new Error("Global item not found in this organization");
+
 	const existing = await models.ShowInventory.findOne({
 		where: { inventory_id: inventoryId, shows_id: showId },
 	});

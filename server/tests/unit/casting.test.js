@@ -2,7 +2,11 @@ import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import app from "../../server.js";
-import { closeDatabase, setupTestDatabase } from "./utils/test-setup.js";
+import {
+	addActiveOrgMember,
+	closeDatabase,
+	setupTestDatabase,
+} from "./utils/test-setup.js";
 
 describe("Casting API", () => {
 	let directorToken;
@@ -38,9 +42,7 @@ describe("Casting API", () => {
 			.send({ name: "Casting Org" });
 		orgId = orgRes.body.id;
 
-		await request(app)
-			.post(`/api/orgs/${orgId}/join`)
-			.send({ userId: directorUserId });
+		await addActiveOrgMember(orgId, directorUserId);
 		await request(app)
 			.put(`/api/orgs/${orgId}/users/${directorUserId}/roles`)
 			.set("Authorization", `Bearer ${directorToken}`)
@@ -81,9 +83,7 @@ describe("Casting API", () => {
 		});
 		memberToken = memberLogin.body.token;
 
-		await request(app)
-			.post(`/api/orgs/${orgId}/join`)
-			.send({ userId: memberUserId });
+		await addActiveOrgMember(orgId, memberUserId);
 		await request(app)
 			.post(`/api/shows/${showId}/join`)
 			.set("Authorization", `Bearer ${directorToken}`)

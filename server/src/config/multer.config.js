@@ -13,6 +13,13 @@ if (!fs.existsSync(uploadsDir)) {
 	fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
+export const MIME_EXTENSIONS = {
+	"image/jpeg": ".jpg",
+	"image/png": ".png",
+	"image/webp": ".webp",
+	"image/gif": ".gif",
+};
+
 // Set up storage
 const storage = multer.diskStorage({
 	destination: (req, _file, cb) => {
@@ -27,18 +34,23 @@ const storage = multer.diskStorage({
 		cb(null, targetDir);
 	},
 	filename: (req, file, cb) => {
-		// Create unique filename: timestamp-userid-originalname
+		// Create unique filename: originalname-timestamp-userid.ext
+		// The extension always comes from the (allow-listed) MIME type, never the
+		// client's filename, so an upload can't be served back as HTML/JS.
 		const uniqueSuffix = `${Date.now()}-${req.user?.id || "unknown"}`;
-		const ext = path.extname(file.originalname);
-		const name = path.basename(file.originalname, ext);
+		const ext = MIME_EXTENSIONS[file.mimetype];
+		const name =
+			path
+				.basename(file.originalname, path.extname(file.originalname))
+				.replace(/[^a-zA-Z0-9_-]/g, "_")
+				.slice(0, 60) || "upload";
 		cb(null, `${name}-${uniqueSuffix}${ext}`);
 	},
 });
 
 // File filter - only accept images
 const fileFilter = (_req, file, cb) => {
-	const allowedMimes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
-	if (allowedMimes.includes(file.mimetype)) {
+	if (Object.hasOwn(MIME_EXTENSIONS, file.mimetype)) {
 		cb(null, true);
 	} else {
 		cb(new Error("Only image files are allowed (JPEG, PNG, WebP, GIF)"), false);

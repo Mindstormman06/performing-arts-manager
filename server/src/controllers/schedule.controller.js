@@ -1,5 +1,12 @@
 import scheduleService from "../services/schedule.service.js";
 
+// Events are always resolved within the org or show named in the route
+function eventScope(params) {
+	return params.showId !== undefined
+		? { showId: params.showId }
+		: { orgId: params.orgId };
+}
+
 async function getOrgCalendar(req, res, next) {
 	try {
 		const orgId = req.params.orgId;
@@ -57,7 +64,11 @@ async function createShowEvent(req, res, next) {
 async function updateEvent(req, res, next) {
 	try {
 		const eventId = req.params.eventId;
-		const event = await scheduleService.updateEvent(eventId, req.body);
+		const event = await scheduleService.updateEvent(
+			eventId,
+			req.body,
+			eventScope(req.params),
+		);
 		res.json({ success: true, data: event });
 	} catch (error) {
 		if (error.message === "Event not found") {
@@ -71,7 +82,10 @@ async function updateEvent(req, res, next) {
 async function deleteEvent(req, res, next) {
 	try {
 		const eventId = req.params.eventId;
-		const result = await scheduleService.deleteEvent(eventId);
+		const result = await scheduleService.deleteEvent(
+			eventId,
+			eventScope(req.params),
+		);
 		res.json({ success: true, message: result.message });
 	} catch (error) {
 		if (error.message === "Event not found") {

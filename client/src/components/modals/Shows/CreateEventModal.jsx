@@ -52,6 +52,9 @@ export default function CreateEventModal({
 	const [selectedCharacterIds, setSelectedCharacterIds] = useState([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState("");
+	// Set once the event itself has been created, so a retry after an
+	// attendee-assignment failure only re-runs the assignment.
+	const [createdEventId, setCreatedEventId] = useState(null);
 
 	const getMemberDisplayName = (member) => {
 		const baseName =
@@ -77,6 +80,7 @@ export default function CreateEventModal({
 			setSelectedUserIds([]);
 			setSelectedCharacterIds([]);
 			setError("");
+			setCreatedEventId(null);
 
 			Promise.all([getShowUsers(showId), getShowCasting(showId)])
 				.then(([usersRes, castingRes]) => {
@@ -143,30 +147,37 @@ export default function CreateEventModal({
 		setIsLoading(true);
 		setError("");
 
-		try {
-			const startUtc = localDateAndTimeToUtcIso(
-				formData.date,
-				formData.start_time,
-			);
-			const endUtc = localDateAndTimeToUtcIso(formData.date, formData.end_time);
-			const payload = {
-				...formData,
-				start_time: startUtc,
-				end_time: endUtc,
-			};
-			const res = await createShowEvent(showId, payload);
+		let eventId = createdEventId;
+		if (!eventId) {
+			try {
+				const startUtc = localDateAndTimeToUtcIso(
+					formData.date,
+					formData.start_time,
+				);
+				const endUtc = localDateAndTimeToUtcIso(
+					formData.date,
+					formData.end_time,
+				);
+				const payload = {
+					...formData,
+					start_time: startUtc,
+					end_time: endUtc,
+				};
+				const res = await createShowEvent(showId, payload);
+				eventId = res.data.data.id;
+				setCreatedEventId(eventId);
+			} catch (err) {
+				setError(err.response?.data?.message || "Failed to create event");
+				setIsLoading(false);
+				return;
+			}
+		}
 
-			if (selectedUserIds.length > 0) {
-				const validUserIds = getValidUserIds(selectedUserIds);
-				await assignShowEventUsers(showId, res.data.data.id, {
+		try {
+			if (selectedUserIds.length > 0 || selectedCharacterIds.length > 0) {
+				await assignShowEventUsers(showId, eventId, {
 					type: "specific",
-					userIds: validUserIds,
-					characterIds: selectedCharacterIds,
-				});
-			} else if (selectedCharacterIds.length > 0) {
-				await assignShowEventUsers(showId, res.data.data.id, {
-					type: "specific",
-					userIds: [],
+					userIds: getValidUserIds(selectedUserIds),
 					characterIds: selectedCharacterIds,
 				});
 			}
@@ -174,10 +185,18 @@ export default function CreateEventModal({
 			onSuccess();
 			onClose();
 		} catch {
-			setError("Failed to create event");
+			setError(
+				"Event created but attendees could not be assigned. Retry the assignment or close this window.",
+			);
 		} finally {
 			setIsLoading(false);
 		}
+	};
+
+	const handleClose = () => {
+		// If the event was created but assignment failed, still refresh the parent.
+		if (createdEventId) onSuccess();
+		onClose();
 	};
 
 	const isRoleFullySelected = (role) => {
@@ -233,7 +252,7 @@ export default function CreateEventModal({
 	return (
 		<ModalWrapper>
 			<ModalSubWrapper>
-				<ModalHeader onClick={onClose}>Create Event</ModalHeader>
+				<ModalHeader onClick={handleClose}>Create Event</ModalHeader>
 
 				<ModalNav>
 					<ModalNavItem
@@ -432,13 +451,19 @@ export default function CreateEventModal({
 				</ModalBody>
 
 				<ModalFooter>
-					<ModalCancelButton onClick={onClose}>Cancel</ModalCancelButton>
+					<ModalCancelButton onClick={handleClose}>
+						{createdEventId ? "Close" : "Cancel"}
+					</ModalCancelButton>
 					<ModalSubmitButton
 						type="button"
 						onClick={handleCreateEvent}
 						disabled={isLoading}
 					>
-						{isLoading ? "Creating..." : "Create Event"}
+						{isLoading
+							? "Saving..."
+							: createdEventId
+								? "Retry Assignment"
+								: "Create Event"}
 					</ModalSubmitButton>
 				</ModalFooter>
 			</ModalSubWrapper>

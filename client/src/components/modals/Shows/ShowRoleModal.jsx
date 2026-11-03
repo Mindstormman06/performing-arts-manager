@@ -49,13 +49,17 @@ export default function ShowRoleModal({
 	canEditRoles = false,
 	currentUserId = null,
 	currentUserRoles = [],
+	onSuccess,
 }) {
-	const loading = false;
 	const [error, setError] = useState("");
 	const [availableRoles, setAvailableRoles] = useState([]);
 	const [selectedRoles, setSelectedRoles] = useState([]);
 	const [isEditingRoles, setIsEditingRoles] = useState(false);
 	const [resolvedMember, setResolvedMember] = useState(null);
+	// Role editing is only enabled once the member's current roles have been
+	// freshly fetched, so a PUT of the full role list never uses stale data.
+	const [rolesLoaded, setRolesLoaded] = useState(false);
+	const hasChangesRef = useRef(false);
 
 	const popoverRef = useRef(null);
 
@@ -66,16 +70,24 @@ export default function ShowRoleModal({
 				setIsEditingRoles(false);
 				setResolvedMember(user);
 				setSelectedRoles(user.assignedRoles?.map((r) => r.name) || []);
+				setRolesLoaded(false);
+				hasChangesRef.current = false;
 			}, 0);
 
+			let cancelled = false;
 			getShowUser(showId, user.users_id)
 				.then((response) => {
+					if (cancelled) return;
 					const payload = response.data?.data || response.data;
 					if (payload) {
 						setResolvedMember(payload);
+						setSelectedRoles(payload.assignedRoles?.map((r) => r.name) || []);
+						setRolesLoaded(true);
 					}
 				})
-				.catch(() => {});
+				.catch(() => {
+					if (!cancelled) setError("Failed to load member details");
+				});
 
 			getAvailableShowRoles()
 				.then((response) => {
@@ -87,7 +99,10 @@ export default function ShowRoleModal({
 					setError("Failed to load available roles");
 				});
 
-			return () => window.clearTimeout(timer);
+			return () => {
+				cancelled = true;
+				window.clearTimeout(timer);
+			};
 		}
 	}, [isOpen, user, showId]);
 
@@ -146,6 +161,11 @@ export default function ShowRoleModal({
 	const handleToggle = async (role) => {
 		setError("");
 
+		if (!rolesLoaded) {
+			setError("Member roles are still loading");
+			return;
+		}
+
 		if (selectedRoles.includes(role) && lockedHighestRoles.has(role)) {
 			setError("Highest role cannot be removed");
 			return;
@@ -177,12 +197,13 @@ export default function ShowRoleModal({
 
 		try {
 			const hiddenRoles =
-				user?.assignedRoles
+				resolvedMember?.assignedRoles
 					?.map((r) => r.name)
 					.filter((name) => !availableRoles.includes(name)) || [];
 			const finalRoles = [...new Set([...updatedRoles, ...hiddenRoles])];
 
-			await updateShowUserRoles(showId, user.users_id, finalRoles);
+			await updateShowUserRoles(showId, memberId, finalRoles);
+			hasChangesRef.current = true;
 		} catch (err) {
 			setSelectedRoles(selectedRoles);
 			setError(err.response?.data?.message || "Failed to update role");
@@ -190,7 +211,10 @@ export default function ShowRoleModal({
 	};
 
 	const handleClose = () => {
-		// onSuccess(); // Uncomment this if the parent needs to refetch data after editing
+		if (hasChangesRef.current) {
+			hasChangesRef.current = false;
+			onSuccess?.();
+		}
 		onClose();
 	};
 
@@ -253,6 +277,7 @@ export default function ShowRoleModal({
 															!selectedRoles.includes(role) &&
 															getRoleWeight(role) > maxAssignableRoleWeight;
 														const isDisabledRole =
+															!rolesLoaded ||
 															isLockedHighestRole ||
 															isHigherSelfPromotionRole ||
 															isHigherThanEditorRole;
@@ -351,9 +376,7 @@ export default function ShowRoleModal({
 				</ModalBody>
 
 				<ModalFooter>
-					<ModalCancelButton onClick={handleClose} disabled={loading}>
-						Close
-					</ModalCancelButton>
+					<ModalCancelButton onClick={handleClose}>Close</ModalCancelButton>
 				</ModalFooter>
 			</ModalSubWrapper>
 		</ModalWrapper>

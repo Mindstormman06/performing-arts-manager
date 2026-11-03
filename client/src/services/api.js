@@ -1,6 +1,8 @@
 import axios from "axios";
 import { API_BASE_URL } from "./config.js";
 
+export const AUTH_LOGOUT_EVENT = "auth:logout";
+
 const API = axios.create({
 	baseURL: API_BASE_URL,
 });
@@ -19,9 +21,10 @@ API.interceptors.response.use(
 		if (error.response && error.response.status === 401) {
 			// Safely check if the URL contains the login path
 			if (!error.config?.url?.includes("/auth/login")) {
-				console.warn("Unauthorized! Clearing session and redirecting...");
+				// Single place that handles 401s: clear the stored token and let
+				// AuthProvider reset state and navigate to /login.
 				localStorage.removeItem("token");
-				window.location.href = "/login";
+				window.dispatchEvent(new Event(AUTH_LOGOUT_EVENT));
 			}
 		}
 		return Promise.reject(error);
@@ -70,7 +73,7 @@ export const getShowUser = (showId, userId) =>
 export const removeUserFromShow = (showId, userId) =>
 	API.delete(`/shows/${showId}/users/${userId}`);
 export const removeShowUserRole = (showId, userId, roles) =>
-	API.delete(`/shows/${showId}/users/${userId}/roles`, { roles });
+	API.delete(`/shows/${showId}/users/${userId}/roles`, { data: { roles } });
 export const getShowDashboard = (id) => API.get(`/shows/${id}/dashboard`);
 export const getAvailableShowRoles = () => API.get("/shows/roles/available");
 
@@ -136,7 +139,6 @@ export const createShowEvent = (showId, eventData) =>
 	API.post(`/schedule/shows/${showId}`, eventData);
 export const updateShowEvent = (showId, eventId, eventData) =>
 	API.put(`/schedule/shows/${showId}/${eventId}`, eventData);
-1;
 export const deleteShowEvent = (showId, eventId) =>
 	API.delete(`/schedule/shows/${showId}/${eventId}`);
 export const assignShowEventUsers = (showId, eventId, assignData) =>

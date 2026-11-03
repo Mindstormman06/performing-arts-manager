@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import { describe, expect, it, vi } from "vitest";
 
+import { JWT_SECRET } from "../../src/config/jwt.config.js";
 import {
 	authenticate,
 	authorizeInventoryDept,
@@ -8,8 +9,6 @@ import {
 	authorizeShow,
 } from "../../src/middleware/auth.middleware.js";
 import models from "../../src/models/index.js";
-
-const JWT_SECRET = process.env.JWT_SECRET || "your_theatre_secret";
 
 describe("Auth Middleware - Direct Tests", () => {
 	describe("authenticate", () => {

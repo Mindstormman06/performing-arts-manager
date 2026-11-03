@@ -49,6 +49,9 @@ export default function CreateOrgEventModal({
 	const [selectedUserIds, setSelectedUserIds] = useState([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState("");
+	// Set once the event itself has been created, so a retry after an
+	// attendee-assignment failure only re-runs the assignment.
+	const [createdEventId, setCreatedEventId] = useState(null);
 
 	useEffect(() => {
 		if (isOpen) {
@@ -63,6 +66,7 @@ export default function CreateOrgEventModal({
 			});
 			setSelectedUserIds([]);
 			setError("");
+			setCreatedEventId(null);
 
 			getOrganizationUsers(orgId)
 				.then((res) => {
@@ -147,21 +151,35 @@ export default function CreateOrgEventModal({
 		setIsLoading(true);
 		setError("");
 
-		try {
-			const startUtc = localDateAndTimeToUtcIso(
-				formData.date,
-				formData.start_time,
-			);
-			const endUtc = localDateAndTimeToUtcIso(formData.date, formData.end_time);
-			const payload = {
-				...formData,
-				start_time: startUtc,
-				end_time: endUtc,
-			};
-			const res = await createOrgEvent(orgId, payload);
+		let eventId = createdEventId;
+		if (!eventId) {
+			try {
+				const startUtc = localDateAndTimeToUtcIso(
+					formData.date,
+					formData.start_time,
+				);
+				const endUtc = localDateAndTimeToUtcIso(
+					formData.date,
+					formData.end_time,
+				);
+				const payload = {
+					...formData,
+					start_time: startUtc,
+					end_time: endUtc,
+				};
+				const res = await createOrgEvent(orgId, payload);
+				eventId = res.data.data.id;
+				setCreatedEventId(eventId);
+			} catch (err) {
+				setError(err.response?.data?.message || "Failed to create event");
+				setIsLoading(false);
+				return;
+			}
+		}
 
+		try {
 			if (selectedUserIds.length > 0) {
-				await assignOrgEventUsers(orgId, res.data.data.id, {
+				await assignOrgEventUsers(orgId, eventId, {
 					type: "specific",
 					userIds: selectedUserIds,
 				});
@@ -170,10 +188,18 @@ export default function CreateOrgEventModal({
 			onSuccess();
 			onClose();
 		} catch {
-			setError("Failed to create event");
+			setError(
+				"Event created but attendees could not be assigned. Retry the assignment or close this window.",
+			);
 		} finally {
 			setIsLoading(false);
 		}
+	};
+
+	const handleClose = () => {
+		// If the event was created but assignment failed, still refresh the parent.
+		if (createdEventId) onSuccess();
+		onClose();
 	};
 
 	if (!isOpen) return null;
@@ -181,7 +207,7 @@ export default function CreateOrgEventModal({
 	return (
 		<ModalWrapper>
 			<ModalSubWrapper>
-				<ModalHeader onClick={onClose}>Create Event</ModalHeader>
+				<ModalHeader onClick={handleClose}>Create Event</ModalHeader>
 
 				<ModalNav>
 					<ModalNavItem
@@ -349,13 +375,19 @@ export default function CreateOrgEventModal({
 				</ModalBody>
 
 				<ModalFooter>
-					<ModalCancelButton onClick={onClose}>Cancel</ModalCancelButton>
+					<ModalCancelButton onClick={handleClose}>
+						{createdEventId ? "Close" : "Cancel"}
+					</ModalCancelButton>
 					<ModalSubmitButton
 						type="button"
 						onClick={handleCreateEvent}
 						disabled={isLoading}
 					>
-						{isLoading ? "Creating..." : "Create Event"}
+						{isLoading
+							? "Saving..."
+							: createdEventId
+								? "Retry Assignment"
+								: "Create Event"}
 					</ModalSubmitButton>
 				</ModalFooter>
 			</ModalSubWrapper>

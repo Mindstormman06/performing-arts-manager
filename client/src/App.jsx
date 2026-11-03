@@ -1,11 +1,10 @@
-import { Link, Route, Routes, useLocation } from "react-router-dom";
+import { Link, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import PrivateRoute from "./components/PrivateRoute.jsx";
 import { useAuth } from "./hooks/useAuth.js";
 import LoginPage from "./pages/Login.jsx";
 import OrgDashboard from "./pages/organizations/OrgDashboard.jsx";
 import SignupPage from "./pages/Signup.jsx";
 import "./assets/styles.css";
-import { useEffect } from "react";
 import Logo from "./components/ui/Logo.jsx";
 import Landing from "./pages/Landing.jsx";
 import OrgInventory from "./pages/organizations/OrgInventory.jsx";
@@ -15,7 +14,6 @@ import ShowCasting from "./pages/shows/ShowCasting.jsx";
 import ShowInventory from "./pages/shows/ShowInventory.jsx";
 import ShowOverview from "./pages/shows/ShowOverview.jsx";
 import ShowSchedule from "./pages/shows/ShowSchedule.jsx";
-import { verifyToken } from "./services/api.js";
 
 function App() {
 	const { token, logout } = useAuth();
@@ -24,26 +22,6 @@ function App() {
 	const shouldCenter =
 		location.pathname === "/login" || location.pathname === "/signup";
 	const isLanding = location.pathname === "/";
-
-	useEffect(() => {
-		const validateSession = async () => {
-			if (token) {
-				try {
-					await verifyToken();
-				} catch (error) {
-					// ONLY log out if the token is explicitly rejected (401)
-					if (error.response && error.response.status === 401) {
-						console.warn(
-							"Session invalid or user no longer exists. Logging out.",
-						);
-						logout();
-					}
-				}
-			}
-		};
-
-		validateSession();
-	}, [token, logout]);
 
 	return (
 		<div className="flex min-h-screen flex-col">
@@ -122,7 +100,6 @@ function App() {
 							</PrivateRoute>
 						}
 					/>
-					{/* 2. Added the new route right here */}
 					<Route
 						path="/orgs/:orgId/shows/:showId"
 						element={
@@ -171,6 +148,7 @@ function App() {
 							</PrivateRoute>
 						}
 					/>
+					<Route path="*" element={<Navigate to="/" replace />} />
 				</Routes>
 			</main>
 

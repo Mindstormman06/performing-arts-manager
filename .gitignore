@@ -144,3 +144,11 @@ documentation/DB/data.csv
 server/uploads/profiles/
 /docker-compose.yml
 reports/
+
+# Test artifacts
+client/playwright-report/
+client/test-results/
+uat/log.html
+uat/output.xml
+uat/report.html
+uat/playwright-log.txt

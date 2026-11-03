@@ -98,7 +98,9 @@ describe("ShowMembership Controller - Direct Tests", () => {
 			const mockNext = vi.fn();
 			const mockReq = {
 				params: { showId: 1 },
-				body: { orgId: 2, email: "test@example.com" },
+				// orgId in the body is ignored; the show's own org is used
+				body: { orgId: 999, email: "test@example.com" },
+				show: { id: 1, organization_id: 2 },
 			};
 
 			await showMembershipController.invite(mockReq, mockRes, mockNext);

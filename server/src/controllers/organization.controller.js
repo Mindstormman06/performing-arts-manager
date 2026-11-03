@@ -14,7 +14,7 @@ async function getById(req, res, next) {
 		res.json(await organizationService.getById(req.params.id));
 	} catch (error) {
 		if (error.message === "Organization not found") {
-			res
+			return res
 				.status(404)
 				.json({ success: false, message: "Organization not found" });
 		}
@@ -38,7 +38,7 @@ async function update(req, res, next) {
 		res.json(await organizationService.update(req.params.id, req.body));
 	} catch (error) {
 		if (error.message === "Organization not found") {
-			res
+			return res
 				.status(404)
 				.json({ success: false, message: "Organization not found" });
 		}
@@ -54,7 +54,7 @@ async function remove(req, res, next) {
 			.json({ success: true, message: "Organization deleted successfully" });
 	} catch (error) {
 		if (error.message === "Organization not found") {
-			res
+			return res
 				.status(404)
 				.json({ success: false, message: "Organization not found" });
 		}

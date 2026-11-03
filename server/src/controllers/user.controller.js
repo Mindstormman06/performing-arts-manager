@@ -1,11 +1,42 @@
 import userService from "../services/user.service.js";
 
+const CLIENT_ERRORS = {
+	"User not found": 404,
+	"Email already in use": 409,
+	"Password must be at least 8 characters": 400,
+};
+
+function handleError(error, res, next) {
+	const status = CLIENT_ERRORS[error.message];
+	if (status) {
+		return res.status(status).json({ success: false, message: error.message });
+	}
+	if (error.name === "SequelizeValidationError") {
+		return res.status(400).json({
+			success: false,
+			message: error.errors?.map((e) => e.message).join(", ") || "Invalid data",
+		});
+	}
+	return next(error);
+}
+
+// Users may only modify or delete their own account
+function forbidUnlessSelf(req, res) {
+	if (String(req.params.id) !== String(req.user.id)) {
+		res.status(403).json({
+			success: false,
+			message: "You can only modify your own account.",
+		});
+		return true;
+	}
+	return false;
+}
+
 async function get(_req, res, next) {
 	try {
 		res.json(await userService.getAll());
 	} catch (error) {
-		console.error(error);
-		next(error);
+		handleError(error, res, next);
 	}
 }
 
@@ -13,10 +44,7 @@ async function getById(req, res, next) {
 	try {
 		res.json(await userService.getById(req.params.id));
 	} catch (error) {
-		if (error.message === "User not found") {
-			res.status(404).json({ success: false, message: "User not found" });
-		}
-		next(error);
+		handleError(error, res, next);
 	}
 }
 
@@ -24,33 +52,28 @@ async function create(req, res, next) {
 	try {
 		res.status(201).json(await userService.create(req.body));
 	} catch (error) {
-		console.error(error);
-		next(error);
+		handleError(error, res, next);
 	}
 }
 
 async function update(req, res, next) {
 	try {
+		if (forbidUnlessSelf(req, res)) return;
 		res.json(await userService.update(req.params.id, req.body));
 	} catch (error) {
-		if (error.message === "User not found") {
-			res.status(404).json({ success: false, message: "User not found" });
-		}
-		next(error);
+		handleError(error, res, next);
 	}
 }
 
 async function remove(req, res, next) {
 	try {
+		if (forbidUnlessSelf(req, res)) return;
 		await userService.remove(req.params.id);
 		res
 			.status(200)
 			.json({ success: true, message: "User deleted successfully" });
 	} catch (error) {
-		if (error.message === "User not found") {
-			res.status(404).json({ success: false, message: "User not found" });
-		}
-		next(error);
+		handleError(error, res, next);
 	}
 }
 

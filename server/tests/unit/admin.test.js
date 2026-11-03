@@ -45,7 +45,9 @@ describe("Admin & Database Operations", () => {
 				.set("Authorization", `Bearer ${authToken}`);
 
 			expect(res.statusCode).toEqual(500);
-			expect(res.body.error).toBe("Database connection lost");
+			expect(res.body.message).toBe("Failed to reset database.");
+			// Internal error details must not be sent to the client
+			expect(res.body.error).toBeUndefined();
 
 			spy.mockRestore();
 		});

@@ -65,7 +65,6 @@ const resetDb = async (_req, res) => {
 		res.status(500).json({
 			success: false,
 			message: "Failed to reset database.",
-			error: error.message,
 		});
 	}
 };

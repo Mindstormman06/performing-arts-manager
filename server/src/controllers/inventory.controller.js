@@ -88,6 +88,9 @@ async function pullItem(req, res, next) {
 		if (error.message.includes("already in this show")) {
 			return res.status(409).json({ success: false, message: error.message });
 		}
+		if (error.message.includes("not found")) {
+			return res.status(404).json({ success: false, message: error.message });
+		}
 		next(error);
 	}
 }

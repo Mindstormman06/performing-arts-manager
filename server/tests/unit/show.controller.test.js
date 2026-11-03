@@ -1,10 +1,9 @@
 import jwt from "jsonwebtoken";
 import { describe, expect, it, vi } from "vitest";
 
+import { JWT_SECRET } from "../../src/config/jwt.config.js";
 import showController from "../../src/controllers/show.controller.js";
 import showService from "../../src/services/show.service.js";
-
-const JWT_SECRET = process.env.JWT_SECRET || "your_theatre_secret";
 
 describe("Show Controller - Direct Tests", () => {
 	describe("getUserShows", () => {

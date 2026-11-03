@@ -3,7 +3,11 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
 import app from "../../server.js";
 import scheduleService from "../../src/services/schedule.service.js";
-import { closeDatabase, setupTestDatabase } from "./utils/test-setup.js";
+import {
+	addActiveOrgMember,
+	closeDatabase,
+	setupTestDatabase,
+} from "./utils/test-setup.js";
 
 /**
  * End-to-end coverage for the schedule endpoints mounted at /api/schedule.
@@ -54,9 +58,7 @@ describe("Schedule Routes", () => {
 		testOrgId = orgRes.body.id;
 
 		// join and elevate to president (required for org schedule endpoints)
-		await request(app)
-			.post(`/api/orgs/${testOrgId}/join`)
-			.send({ userId: testUserId });
+		await addActiveOrgMember(testOrgId, testUserId);
 		await request(app)
 			.put(`/api/orgs/${testOrgId}/users/${testUserId}/roles`)
 			.set("Authorization", `Bearer ${authToken}`)
@@ -96,9 +98,7 @@ describe("Schedule Routes", () => {
 		otherUserId = otherRes.body.id;
 
 		// ensure the other user is a member of both org and show
-		await request(app)
-			.post(`/api/orgs/${testOrgId}/join`)
-			.send({ userId: otherUserId });
+		await addActiveOrgMember(testOrgId, otherUserId);
 		await request(app)
 			.post(`/api/shows/${testShowId}/join`)
 			.set("Authorization", `Bearer ${authToken}`)

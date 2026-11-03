@@ -94,6 +94,7 @@ describe("Organization API & Permissions", () => {
 
 			const res = await request(app)
 				.post(`/api/orgs/${testOrgId}/join`)
+				.set("Authorization", `Bearer ${authToken}`)
 				.send({ userId: newUserId });
 
 			expect(res.statusCode).toBeLessThan(300);
@@ -102,6 +103,7 @@ describe("Organization API & Permissions", () => {
 		it("Should fail when joining an org the user is already in", async () => {
 			const res = await request(app)
 				.post(`/api/orgs/${testOrgId}/join`)
+				.set("Authorization", `Bearer ${authToken}`)
 				.send({ userId: testUserId });
 
 			expect(res.statusCode).toEqual(409);
@@ -160,6 +162,7 @@ describe("Organization API & Permissions", () => {
 			const leaveUserId = leaveUserRes.body.id;
 			await request(app)
 				.post(`/api/orgs/${testOrgId}/join`)
+				.set("Authorization", `Bearer ${authToken}`)
 				.send({ userId: leaveUserId });
 
 			const res = await request(app)
@@ -241,9 +244,16 @@ describe("Organization API & Permissions", () => {
 	});
 
 	describe("Organization Error Handling Mocks", () => {
-		it("GET /api/orgs/:orgId/users - should return 404 for non-existent org", async () => {
-			const res = await request(app).get(`/api/orgs/9999/users`);
-			expect(res.statusCode).toEqual(404);
+		it("GET /api/orgs/:orgId/users - should require authentication", async () => {
+			const res = await request(app).get(`/api/orgs/${testOrgId}/users`);
+			expect(res.statusCode).toEqual(401);
+		});
+
+		it("GET /api/orgs/:orgId/users - should return 403 for an org the user is not in", async () => {
+			const res = await request(app)
+				.get(`/api/orgs/9999/users`)
+				.set("Authorization", `Bearer ${authToken}`);
+			expect(res.statusCode).toEqual(403);
 		});
 
 		it("Should handle service crash during org creation", async () => {
@@ -263,15 +273,17 @@ describe("Organization API & Permissions", () => {
 		it("should throw 'Organization not found' natively (Line 19)", async () => {
 			const res = await request(app)
 				.post(`/api/orgs/99999/join`)
+				.set("Authorization", `Bearer ${authToken}`)
 				.send({ userId: testUserId });
 
-			// The join controller passes unknown errors to next(), resulting in 500
-			expect(res.statusCode).toEqual(500);
+			// The caller is not an admin of a non-existent org, so access is denied
+			expect(res.statusCode).toEqual(403);
 		});
 
 		it("should throw 'User not found' natively (Line 22)", async () => {
 			const res = await request(app)
 				.post(`/api/orgs/${testOrgId}/join`)
+				.set("Authorization", `Bearer ${authToken}`)
 				.send({ userId: 99999 });
 
 			expect(res.statusCode).toEqual(500);
@@ -290,8 +302,10 @@ describe("Organization API & Permissions", () => {
 
 	describe("orgMembershipController - Error Handling", () => {
 		it("Should return an error for non-existent org", async () => {
-			const res = await request(app).get(`/api/orgs/9999/users`);
-			expect(res.statusCode).toEqual(404);
+			const res = await request(app)
+				.get(`/api/orgs/9999/users`)
+				.set("Authorization", `Bearer ${authToken}`);
+			expect(res.statusCode).toEqual(403);
 		});
 		it("Should return an error for non-existent user in org", async () => {
 			const res = await request(app)
@@ -348,7 +362,7 @@ describe("Organization API & Permissions", () => {
 				.spyOn(orgRoleService, "getOrgUsers")
 				.mockRejectedValue(new Error("Organization not found"));
 			const res = await request(app)
-				.get(`/api/orgs/9999/users`)
+				.get(`/api/orgs/${testOrgId}/users`)
 				.set("Authorization", `Bearer ${authToken}`);
 			expect(res.statusCode).toEqual(404);
 			spy.mockRestore();
@@ -487,6 +501,7 @@ describe("Organization API & Permissions", () => {
 				.mockRejectedValue(new Error("User already in organizations"));
 			const res = await request(app)
 				.post(`/api/orgs/${testOrgId}/join`)
+				.set("Authorization", `Bearer ${authToken}`)
 				.send({ userId: testUserId });
 			expect(res.statusCode).toEqual(409);
 			spy.mockRestore();
@@ -496,9 +511,9 @@ describe("Organization API & Permissions", () => {
 			const spy = vi
 				.spyOn(orgRoleService, "getUsersByRole")
 				.mockRejectedValue(new Error("Role not found"));
-			const res = await request(app).get(
-				`/api/orgs/${testOrgId}/users/role?role=fake`,
-			);
+			const res = await request(app)
+				.get(`/api/orgs/${testOrgId}/users/role?role=fake`)
+				.set("Authorization", `Bearer ${authToken}`);
 			expect(res.statusCode).toEqual(404);
 			spy.mockRestore();
 		});

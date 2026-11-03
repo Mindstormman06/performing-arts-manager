@@ -8,7 +8,26 @@ import {
 	authenticate,
 	authorizeOrg,
 	authorizeShow,
+	isSelf,
+	ORG_ADMIN_ROLES,
 } from "../middleware/auth.middleware.js";
+
+const SHOW_MANAGER_ROLES = ["director", "stage-manager"];
+
+// Profile edits: the member themselves, a show manager, or org oversight
+const requireSelfOrShowManager = (req, res, next) => {
+	if (
+		isSelf(req) ||
+		req.showOversight ||
+		SHOW_MANAGER_ROLES.some((r) => req.showRoles?.includes(r))
+	) {
+		return next();
+	}
+	return res.status(403).json({
+		success: false,
+		message: "You can only edit your own show profile.",
+	});
+};
 
 const router = Router();
 
@@ -26,7 +45,7 @@ router.get("/:id", showController.getById);
 router.post(
 	"/",
 	authenticate,
-	authorizeOrg(["admin", "president"]),
+	authorizeOrg(ORG_ADMIN_ROLES),
 	showController.create,
 );
 router.put(
@@ -66,13 +85,28 @@ router.put(
 );
 
 // GET all users in an show
-router.get("/:showId/users", showMembershipController.getAllUsers);
+router.get(
+	"/:showId/users",
+	authenticate,
+	authorizeShow(),
+	showMembershipController.getAllUsers,
+);
 
 // GET all users with a specific role (usage: /api/shows/1/users/search?role=admin)
-router.get("/:showId/users/search", showMembershipController.getByRole);
+router.get(
+	"/:showId/users/search",
+	authenticate,
+	authorizeShow(),
+	showMembershipController.getByRole,
+);
 
 // GET a specific user by ID in an show
-router.get("/:showId/users/:userId", showMembershipController.getUser);
+router.get(
+	"/:showId/users/:userId",
+	authenticate,
+	authorizeShow(),
+	showMembershipController.getUser,
+);
 
 // DELETE user from show (Leave)
 router.delete(
@@ -94,6 +128,8 @@ router.delete(
 router.put(
 	"/:showId/users/:userId/profile",
 	authenticate,
+	authorizeShow(),
+	requireSelfOrShowManager,
 	setUploadSubDir("profiles"),
 	upload.single("photo"),
 	showMembershipController.updateProfile,

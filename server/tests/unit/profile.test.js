@@ -4,6 +4,7 @@ import request from "supertest";
 import { beforeAll, describe, expect, it } from "vitest";
 
 import app from "../../server.js";
+import { JWT_SECRET } from "../../src/config/jwt.config.js";
 import models from "../../src/models/index.js";
 
 dotenv.config();
@@ -35,10 +36,7 @@ describe("ShowMembership Profile API", () => {
 		});
 
 		// Create token
-		authToken = jwt.sign(
-			{ id: userId, email: user.email },
-			process.env.JWT_SECRET || "your_theatre_secret",
-		);
+		authToken = jwt.sign({ id: userId, email: user.email }, JWT_SECRET);
 	});
 
 	it("should update show-specific bio", async () => {

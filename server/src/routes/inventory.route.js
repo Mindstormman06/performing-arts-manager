@@ -30,9 +30,11 @@ router.get(
 router.post(
 	"/orgs/:orgId",
 	authenticate,
-	authorizeInventoryDept("org"), // <-- Updated
+	// Upload first so multipart fields (dept_id) are parsed; a rejected
+	// request has its uploaded file removed by authorizeInventoryDept.
 	setUploadSubDir("inventory"),
 	upload.single("photo"),
+	authorizeInventoryDept("org"),
 	inventoryController.createGlobal,
 );
 
@@ -48,7 +50,7 @@ router.put(
 router.delete(
 	"/orgs/:orgId/items/:inventoryId",
 	authenticate,
-	authorizeInventoryDept("org"), // <-- Updated
+	authorizeInventoryDept("org"),
 	inventoryController.removeGlobal,
 );
 
@@ -66,9 +68,11 @@ router.get(
 router.post(
 	"/shows/:showId",
 	authenticate,
-	authorizeInventoryDept("show"), // <-- Updated
+	// Upload first so multipart fields (dept_id) are parsed; a rejected
+	// request has its uploaded file removed by authorizeInventoryDept.
 	setUploadSubDir("inventory"),
 	upload.single("photo"),
+	authorizeInventoryDept("show"),
 	inventoryController.createShowItem,
 );
 
@@ -76,7 +80,7 @@ router.post(
 router.post(
 	"/shows/:showId/pull/:inventoryId",
 	authenticate,
-	authorizeInventoryDept("show"), // <-- Updated
+	authorizeInventoryDept("show"),
 	inventoryController.pullItem,
 );
 
@@ -100,7 +104,7 @@ router.put(
 router.delete(
 	"/shows/:showId/items/:inventoryId",
 	authenticate,
-	authorizeInventoryDept("show"), // <-- Updated
+	authorizeInventoryDept("show"),
 	inventoryController.removeItem,
 );
 

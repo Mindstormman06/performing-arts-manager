@@ -7,6 +7,17 @@ async function addUserToShow(showId, userId) {
 	const user = await models.User.findOne({ where: { id: userId } });
 	if (!user) throw new Error("User not found");
 
+	const orgMembership = await models.OrgMembership.findOne({
+		where: {
+			org_id: show.organization_id,
+			users_id: userId,
+			status: "active",
+		},
+	});
+	if (!orgMembership) {
+		throw new Error("User is not a member of this show's organization");
+	}
+
 	// Check if membership already exists
 	const existing = await models.ShowMembership.findOne({
 		where: { show_id: showId, users_id: userId },

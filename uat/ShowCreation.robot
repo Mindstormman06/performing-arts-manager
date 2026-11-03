@@ -4,7 +4,7 @@ Library    OperatingSystem
 
 *** Variables ***
 ${URL}     http://localhost:5173/login
-${EMAIL}   levitybill@gmail.com
+${EMAIL}   bill.levity@example.com
 ${PASS}    password123
 
 *** Test Cases ***

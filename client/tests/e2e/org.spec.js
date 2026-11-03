@@ -1,21 +1,17 @@
 import { expect, test } from "@playwright/test";
+import { loginAs, USERS } from "./setup.js";
 
 test.setTimeout(60000);
 
 test("should open the Create Organization modal", async ({ page }) => {
-	await page.goto("/login");
-	await page.waitForLoadState("networkidle");
+	await loginAs(page, USERS.bill);
 
-	await page.fill('input[placeholder="Email"]', "levitybill@gmail.com");
-	await page.fill('input[placeholder="Password"]', "password123");
-	await page.click('button:has-text("Login")');
-
-	await page.waitForLoadState("networkidle");
-	await page.waitForSelector('button:has-text("+ New Organization")', {
-		timeout: 10000,
+	const newOrgButton = page.getByRole("button", {
+		name: "+ New Organization",
 	});
-	await page.click('button:has-text("+ New Organization")');
+	await expect(newOrgButton).toBeVisible({ timeout: 10000 });
+	await newOrgButton.click();
 
-	const modalHeading = page.locator("text=Create New Organization");
+	const modalHeading = page.getByText("Create New Organization");
 	await expect(modalHeading).toBeVisible();
 });

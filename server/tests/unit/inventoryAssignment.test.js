@@ -3,7 +3,11 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import app from "../../server.js";
 import models from "../../src/models/index.js";
-import { closeDatabase, setupTestDatabase } from "./utils/test-setup.js";
+import {
+	addActiveOrgMember,
+	closeDatabase,
+	setupTestDatabase,
+} from "./utils/test-setup.js";
 
 describe("Show Inventory Assignment", () => {
 	let directorToken;
@@ -44,9 +48,7 @@ describe("Show Inventory Assignment", () => {
 			.send({ name: "Inventory Assignment Org" });
 		orgId = orgRes.body.id;
 
-		await request(app)
-			.post(`/api/orgs/${orgId}/join`)
-			.send({ userId: directorUserId });
+		await addActiveOrgMember(orgId, directorUserId);
 		await request(app)
 			.put(`/api/orgs/${orgId}/users/${directorUserId}/roles`)
 			.set("Authorization", `Bearer ${directorToken}`)
@@ -81,9 +83,7 @@ describe("Show Inventory Assignment", () => {
 		});
 		actorUserId = actorRes.body.id;
 
-		await request(app)
-			.post(`/api/orgs/${orgId}/join`)
-			.send({ userId: actorUserId });
+		await addActiveOrgMember(orgId, actorUserId);
 		await request(app)
 			.post(`/api/shows/${showId}/join`)
 			.set("Authorization", `Bearer ${directorToken}`)

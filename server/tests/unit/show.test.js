@@ -163,7 +163,9 @@ describe("Show Management API", () => {
 		});
 
 		it("GET /api/shows/:showId/users - should get all users in a show", async () => {
-			const res = await request(app).get(`/api/shows/${testShowId}/users`);
+			const res = await request(app)
+				.get(`/api/shows/${testShowId}/users`)
+				.set("Authorization", `Bearer ${authToken}`);
 			expect(res.statusCode).toEqual(200);
 			expect(Array.isArray(res.body)).toBe(true);
 		});
@@ -311,7 +313,9 @@ describe("Show Management API", () => {
 			const spy = vi
 				.spyOn(showRoleService, "getShowUsers")
 				.mockRejectedValue(new Error("Show not found"));
-			const res = await request(app).get(`/api/shows/${testShowId}/users`);
+			const res = await request(app)
+				.get(`/api/shows/${testShowId}/users`)
+				.set("Authorization", `Bearer ${authToken}`);
 			expect(res.statusCode).toEqual(404);
 			spy.mockRestore();
 		});
@@ -319,7 +323,9 @@ describe("Show Management API", () => {
 			const spy = vi
 				.spyOn(showRoleService, "getShowUsers")
 				.mockRejectedValue(new Error("Some error"));
-			const res = await request(app).get(`/api/shows/${testShowId}/users`);
+			const res = await request(app)
+				.get(`/api/shows/${testShowId}/users`)
+				.set("Authorization", `Bearer ${authToken}`);
 			expect(res.statusCode).toEqual(500);
 			spy.mockRestore();
 		});
@@ -327,9 +333,9 @@ describe("Show Management API", () => {
 			const spy = vi
 				.spyOn(showRoleService, "getShowUserById")
 				.mockRejectedValue(new Error("not found"));
-			const res = await request(app).get(
-				`/api/shows/${testShowId}/users/${testUserId}`,
-			);
+			const res = await request(app)
+				.get(`/api/shows/${testShowId}/users/${testUserId}`)
+				.set("Authorization", `Bearer ${authToken}`);
 			expect(res.statusCode).toEqual(404);
 			spy.mockRestore();
 		});
@@ -337,9 +343,9 @@ describe("Show Management API", () => {
 			const spy = vi
 				.spyOn(showRoleService, "getShowUserById")
 				.mockRejectedValue(new Error("Some error"));
-			const res = await request(app).get(
-				`/api/shows/${testShowId}/users/${testUserId}`,
-			);
+			const res = await request(app)
+				.get(`/api/shows/${testShowId}/users/${testUserId}`)
+				.set("Authorization", `Bearer ${authToken}`);
 			expect(res.statusCode).toEqual(500);
 			spy.mockRestore();
 		});
@@ -347,9 +353,9 @@ describe("Show Management API", () => {
 			const spy = vi
 				.spyOn(showRoleService, "getUsersByRole")
 				.mockRejectedValue(new Error("not found"));
-			const res = await request(app).get(
-				`/api/shows/${testShowId}/users/search?role=actor`,
-			);
+			const res = await request(app)
+				.get(`/api/shows/${testShowId}/users/search?role=actor`)
+				.set("Authorization", `Bearer ${authToken}`);
 			expect(res.statusCode).toEqual(404);
 			spy.mockRestore();
 		});
@@ -357,9 +363,9 @@ describe("Show Management API", () => {
 			const spy = vi
 				.spyOn(showRoleService, "getUsersByRole")
 				.mockRejectedValue(new Error("Some error"));
-			const res = await request(app).get(
-				`/api/shows/${testShowId}/users/search?role=actor`,
-			);
+			const res = await request(app)
+				.get(`/api/shows/${testShowId}/users/search?role=actor`)
+				.set("Authorization", `Bearer ${authToken}`);
 			expect(res.statusCode).toEqual(500);
 			spy.mockRestore();
 		});
@@ -409,16 +415,16 @@ describe("Show Management API", () => {
 
 	describe("showMembershipController", () => {
 		it("GET /api/shows/:showId/users/search?role=actor - should get users by role", async () => {
-			const res = await request(app).get(
-				`/api/shows/${testShowId}/users/search?role=actor`,
-			);
+			const res = await request(app)
+				.get(`/api/shows/${testShowId}/users/search?role=actor`)
+				.set("Authorization", `Bearer ${authToken}`);
 			expect(res.statusCode).toEqual(200);
 			expect(Array.isArray(res.body)).toBe(true);
 		});
 		it("GET /api/shows/:showId/users/:userId - should get a specific user", async () => {
-			const res = await request(app).get(
-				`/api/shows/${testShowId}/users/${testUserId}`,
-			);
+			const res = await request(app)
+				.get(`/api/shows/${testShowId}/users/${testUserId}`)
+				.set("Authorization", `Bearer ${authToken}`);
 			expect(res.statusCode).toEqual(200);
 		});
 		it("DELETE /api/shows/:showId/users/:userId - should remove user from show", async () => {
@@ -486,10 +492,15 @@ describe("Show Management API", () => {
 		});
 
 		it("authorizeOrg - should return 403 for insufficient org permissions (Line 54)", async () => {
-			// Join org, but don't get 'admin' role
+			// Join org (admin adds them, they accept), but don't get 'admin' role
 			await request(app)
 				.post(`/api/orgs/${testOrgId}/join`)
+				.set("Authorization", `Bearer ${authToken}`)
 				.send({ userId: basicUserId });
+			await request(app)
+				.put(`/api/orgs/${testOrgId}/respond`)
+				.set("Authorization", `Bearer ${basicAuthToken}`)
+				.send({ action: "accept" });
 
 			const res = await request(app)
 				.post("/api/shows")

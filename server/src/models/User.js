@@ -18,7 +18,7 @@ export default (sequelize, DataTypes) => {
 			email: {
 				type: DataTypes.STRING(255),
 				allowNull: false,
-				unique: false,
+				unique: true,
 				validate: { isEmail: true },
 			},
 			phone: {
@@ -40,6 +40,15 @@ export default (sequelize, DataTypes) => {
 		},
 		{
 			tableName: "users",
+			// Never return credentials or session data unless explicitly asked for
+			defaultScope: {
+				attributes: {
+					exclude: ["passwordHash", "sessionToken", "sessionExpiry"],
+				},
+			},
+			scopes: {
+				withPassword: { attributes: { include: ["passwordHash"] } },
+			},
 		},
 	);
 

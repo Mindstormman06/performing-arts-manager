@@ -325,6 +325,7 @@ jobs:
           cd ../client
           npm run test
         env:
+          JWT_SECRET: ci-playwright-only-secret
           API_PORT: 8050
           DB_HOST: 127.0.0.1
           DB_USER: root
@@ -547,7 +548,7 @@ jobs:
         run: |
           RESPONSE=$(curl -s -X POST http://localhost:8050/api/auth/login \
           -H "Content-Type: application/json" \
-          -d '{"email":"levitybill@gmail.com","password":"password123"}')
+          -d '{"email":"bill.levity@example.com","password":"password123"}')
       
           TOKEN=$(echo "$RESPONSE" | jq -r '.token')
           echo "::add-mask::$TOKEN"

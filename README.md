@@ -80,6 +80,11 @@ The server reads environment variables through `dotenv`.
 | `DB_PORT` | `3306` | MySQL port |
 | `DB_DIALECT` | `mysql` | Sequelize dialect |
 | `DB_SSL` | `false` | Enable SSL for the database connection |
+| `JWT_SECRET` | _(required)_ | Secret used to sign login tokens. The server refuses to start without it (outside tests). Use a long random value |
+| `JWT_EXPIRES_IN` | `8h` | Login token lifetime |
+| `CORS_ORIGIN` | _(any origin)_ | Comma-separated list of allowed browser origins. Set this in production |
+| `DB_SYNC_ALTER` | `false` | When `true`, `sequelize.sync({ alter: true })` runs at startup to alter existing tables |
+| `ALLOW_DB_RESET` | `false` | When `true`, enables `POST /api/admin/reset-db`, which drops all data. Never enable in production |
 
 ### Frontend
 

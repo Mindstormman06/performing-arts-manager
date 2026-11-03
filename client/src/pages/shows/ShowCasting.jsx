@@ -11,6 +11,9 @@ import {
 	verifyToken,
 } from "../../services/api.js";
 
+const getErrorMessage = (err, fallback) =>
+	err?.response?.data?.message || fallback;
+
 export default function ShowCasting() {
 	const { orgId, showId } = useParams();
 	const [characters, setCharacters] = useState([]);
@@ -23,7 +26,6 @@ export default function ShowCasting() {
 
 	const fetchData = useCallback(async () => {
 		try {
-			setIsLoading(true);
 			setError("");
 			const authRes = await verifyToken();
 			const me = authRes.data.user.id;
@@ -92,13 +94,17 @@ export default function ShowCasting() {
 			return;
 		}
 		setError("");
-		await createShowCharacter(showId, {
-			name: newName.trim(),
-			users_id: newAssignedUserId ? Number(newAssignedUserId) : null,
-		});
-		setNewName("");
-		setNewAssignedUserId("");
-		await fetchData();
+		try {
+			await createShowCharacter(showId, {
+				name: newName.trim(),
+				users_id: newAssignedUserId ? Number(newAssignedUserId) : null,
+			});
+			setNewName("");
+			setNewAssignedUserId("");
+			await fetchData();
+		} catch (err) {
+			setError(getErrorMessage(err, "Failed to create character"));
+		}
 	};
 
 	const handleRename = async (character) => {
@@ -109,25 +115,39 @@ export default function ShowCasting() {
 			return;
 		}
 		setError("");
-		await updateShowCharacter(showId, character.id, { name: nextName.trim() });
-		await fetchData();
+		try {
+			await updateShowCharacter(showId, character.id, {
+				name: nextName.trim(),
+			});
+			await fetchData();
+		} catch (err) {
+			setError(getErrorMessage(err, "Failed to rename character"));
+		}
 	};
 
 	const handleAssign = async (characterId, value) => {
 		setError("");
-		await assignShowCharacter(
-			showId,
-			characterId,
-			value ? Number(value) : null,
-		);
-		await fetchData();
+		try {
+			await assignShowCharacter(
+				showId,
+				characterId,
+				value ? Number(value) : null,
+			);
+			await fetchData();
+		} catch (err) {
+			setError(getErrorMessage(err, "Failed to assign character"));
+		}
 	};
 
 	const handleDelete = async (character) => {
 		if (!window.confirm(`Delete character "${character.name}"?`)) return;
 		setError("");
-		await deleteShowCharacter(showId, character.id);
-		await fetchData();
+		try {
+			await deleteShowCharacter(showId, character.id);
+			await fetchData();
+		} catch (err) {
+			setError(getErrorMessage(err, "Failed to delete character"));
+		}
 	};
 
 	if (isLoading) {

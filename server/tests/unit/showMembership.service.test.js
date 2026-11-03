@@ -26,9 +26,26 @@ describe("Show Membership Service", () => {
 			);
 		});
 
-		it("throws when the membership already exists", async () => {
-			vi.spyOn(models.Show, "findOne").mockResolvedValue({ id: 1 });
+		it("throws when the user is not an active member of the show's org", async () => {
+			vi.spyOn(models.Show, "findOne").mockResolvedValue({
+				id: 1,
+				organization_id: 3,
+			});
 			vi.spyOn(models.User, "findOne").mockResolvedValue({ id: 2 });
+			vi.spyOn(models.OrgMembership, "findOne").mockResolvedValue(null);
+
+			await expect(showMembershipService.addUserToShow(1, 2)).rejects.toThrow(
+				"not a member of this show's organization",
+			);
+		});
+
+		it("throws when the membership already exists", async () => {
+			vi.spyOn(models.Show, "findOne").mockResolvedValue({
+				id: 1,
+				organization_id: 3,
+			});
+			vi.spyOn(models.User, "findOne").mockResolvedValue({ id: 2 });
+			vi.spyOn(models.OrgMembership, "findOne").mockResolvedValue({ id: 5 });
 			vi.spyOn(models.ShowMembership, "findOne").mockResolvedValue({ id: 10 });
 
 			await expect(showMembershipService.addUserToShow(1, 2)).rejects.toThrow(
@@ -37,8 +54,12 @@ describe("Show Membership Service", () => {
 		});
 
 		it("creates membership when validation passes", async () => {
-			vi.spyOn(models.Show, "findOne").mockResolvedValue({ id: 1 });
+			vi.spyOn(models.Show, "findOne").mockResolvedValue({
+				id: 1,
+				organization_id: 3,
+			});
 			vi.spyOn(models.User, "findOne").mockResolvedValue({ id: 2 });
+			vi.spyOn(models.OrgMembership, "findOne").mockResolvedValue({ id: 5 });
 			vi.spyOn(models.ShowMembership, "findOne").mockResolvedValue(null);
 			const createSpy = vi
 				.spyOn(models.ShowMembership, "create")

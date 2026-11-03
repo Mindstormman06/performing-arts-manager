@@ -33,7 +33,6 @@ export default function ShowInventory() {
 
 	const fetchData = useCallback(async () => {
 		try {
-			setIsLoading(true);
 			const authRes = await verifyToken();
 			const currentUserId = authRes.data.user.id;
 

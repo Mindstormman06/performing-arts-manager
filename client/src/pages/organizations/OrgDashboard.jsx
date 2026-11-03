@@ -10,8 +10,6 @@ export default function OrgDashboard() {
 
 	const fetchOrganizations = useCallback(async () => {
 		try {
-			setLoading(true);
-
 			const membershipsResponse = await getMyOrganizations();
 			const memberships = membershipsResponse.data || [];
 

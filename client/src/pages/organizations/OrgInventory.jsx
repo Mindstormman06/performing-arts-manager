@@ -29,8 +29,6 @@ export default function OrgInventory() {
 
 	const fetchData = useCallback(async () => {
 		try {
-			setIsLoading(true);
-
 			// 1. Get the current user's ID
 			const authRes = await verifyToken();
 			const currentUserId = authRes.data.user.id;
