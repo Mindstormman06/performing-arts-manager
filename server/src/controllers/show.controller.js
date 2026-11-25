@@ -1,8 +1,7 @@
 import jwt from "jsonwebtoken";
 
+import { JWT_SECRET } from "../config/jwt.config.js";
 import showService from "../services/show.service.js";
-
-const JWT_SECRET = process.env.JWT_SECRET || "your_theatre_secret";
 
 async function get(req, res, next) {
 	try {

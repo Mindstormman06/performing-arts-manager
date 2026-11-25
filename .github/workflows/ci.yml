@@ -14,7 +14,7 @@ jobs:
   # =====================
   lint-and-format-server:
     name: Lint and Format Server Code
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       # Checkout code from repository
       - name: Checkout code
@@ -24,14 +24,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6.3.0
         with:
-          node-version: '25'
+          node-version: '24'
           cache: 'npm'
           cache-dependency-path: './server/package-lock.json'
 
       # Install dependencies
       - name: Install dependencies
         working-directory: ./server
-        run: npm install
+        run: npm ci
 
       # Create directory for linting reports
       - name: Create Report Directory
@@ -59,7 +59,7 @@ jobs:
 
   server-security:
     name: Server SCA Scan
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       # Checkout code from repository
       - name: Checkout code
@@ -69,14 +69,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6.3.0
         with:
-          node-version: '25'
+          node-version: '24'
           cache: 'npm'
           cache-dependency-path: './server/package-lock.json'
 
       # Install dependencies
       - name: Install Dependencies
         working-directory: ./server
-        run: npm install
+        run: npm ci
 
       # Run Retire to check for vulnerable dependencies
       - name: Run Retire (SCA)
@@ -99,7 +99,7 @@ jobs:
 
   lint-and-format-client:
     name: Lint and Format Client Code
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       # Checkout code from repository
       - name: Checkout code
@@ -109,14 +109,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6.3.0
         with:
-          node-version: '25'
+          node-version: '24'
           cache: 'npm'
           cache-dependency-path: './client/package-lock.json'
 
       # Install dependencies
       - name: Install dependencies
         working-directory: ./client
-        run: npm install
+        run: npm ci
 
       # Create directory for linting reports
       - name: Create Report Directory
@@ -144,7 +144,7 @@ jobs:
 
   client-security:
     name: Client SCA Scan
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       # Checkout code from repository
       - name: Checkout code
@@ -154,14 +154,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6.3.0
         with:
-          node-version: '25'
+          node-version: '24'
           cache: 'npm'
-          cache-dependency-path: './server/package-lock.json'
+          cache-dependency-path: './client/package-lock.json'
 
       # Install dependencies
       - name: Install Dependencies
         working-directory: ./client
-        run: npm install
+        run: npm ci
 
       # Run Retire to check for vulnerable dependencies
       - name: Run Retire (SCA)
@@ -184,7 +184,7 @@ jobs:
 
   semgrep-sast:
     name: Semgrep SAST Scan
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout Code
         uses: actions/checkout@v6.0.2
@@ -215,7 +215,7 @@ jobs:
   test-server:
     name: Server Unit Tests
     needs: [ lint-and-format-server, server-security, semgrep-sast ]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     services:
       mysql:
         image: mysql:8.0
@@ -234,14 +234,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6.3.0
         with:
-          node-version: '25'
+          node-version: '24'
           cache: 'npm'
           cache-dependency-path: './server/package-lock.json'
 
       # Install dependencies
       - name: Install dependencies
         working-directory: ./server
-        run: npm install
+        run: npm ci
 
       # Run tests with coverage using Vitest
       - name: Run Tests
@@ -268,7 +268,7 @@ jobs:
   test-client-ui:
     name: Client Unit Tests
     needs: [ client-security, lint-and-format-client, semgrep-sast ]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     services:
       mysql:
         image: mysql:8.0
@@ -287,15 +287,15 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6.3.0
         with:
-          node-version: '25'
+          node-version: '24'
           cache: 'npm'
           cache-dependency-path: './client/package-lock.json'
 
       # Install client and server dependencies
       - name: Install Node Dependencies
         run: |
-          cd server && npm install
-          cd ../client && npm install
+          cd server && npm ci
+          cd ../client && npm ci
 
       # Check for cached browsers
       - name: Cache Playwright Browsers
@@ -351,7 +351,7 @@ jobs:
   bdd-tests:
     name: Cucumber BDD Tests
     needs: [ test-server, test-client-ui ]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     services:
       mysql:
         image: mysql:8.0
@@ -370,14 +370,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6.3.0
         with:
-          node-version: '25'
+          node-version: '24'
           cache: 'npm'
           cache-dependency-path: './server/package-lock.json'
 
       # Install dependencies
       - name: Install dependencies
         working-directory: ./server
-        run: npm install
+        run: npm ci
 
       # Run BDD tests with Cucumber
       - name: Run Cucumber BDD Tests
@@ -405,7 +405,7 @@ jobs:
   uat-tests:
     name: Robot UAT Tests
     needs: [ test-server, test-client-ui ]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     services:
       mysql:
         image: mysql:8.0
@@ -424,7 +424,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6.3.0
         with:
-          node-version: '25'
+          node-version: '24'
 
       # Set up Python environment
       - name: Setup Python
@@ -435,8 +435,8 @@ jobs:
       # Install client and server dependencies
       - name: Install Node Dependencies
         run: |
-          cd server && npm install
-          cd ../client && npm install
+          cd server && npm ci
+          cd ../client && npm ci
 
       # Install Robot Framework and Browser library for UAT
       - name: Install Robot Framework and Browser
@@ -495,7 +495,7 @@ jobs:
   dast-zap-full:
     name: OWASP ZAP Full Scan
     needs: [ bdd-tests, uat-tests ]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     if: github.ref == 'refs/heads/main'
     services:
       mysql:
@@ -514,12 +514,12 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6.3.0
         with:
-          node-version: '25'
+          node-version: '24'
 
       - name: Install Node Dependencies
         run: |
-          cd server && npm install
-          cd ../client && npm install
+          cd server && npm ci
+          cd ../client && npm ci
 
       - name: Start Application for DAST
         run: |
@@ -586,7 +586,7 @@ jobs:
   build-server:
     name: Server Build
     needs: [ dast-zap-full ]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       # Checkout code from repository
       - name: Checkout code
@@ -596,14 +596,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6.3.0
         with:
-          node-version: '25'
+          node-version: '24'
           cache: 'npm'
           cache-dependency-path: './server/package-lock.json'
 
       # Install only production dependencies
       - name: Install Production Dependencies
         working-directory: ./server
-        run: npm install --omit=dev
+        run: npm ci --omit=dev
 
       # Delete development files
       - name: Clean Dev Files
@@ -623,7 +623,7 @@ jobs:
   build-client:
     name: Client Build
     needs: [ dast-zap-full ]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       # Checkout code from repository
       - name: Checkout code
@@ -633,7 +633,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6.3.0
         with:
-          node-version: '25'
+          node-version: '24'
           cache: 'npm'
           cache-dependency-path: './client/package-lock.json'
 
@@ -676,7 +676,7 @@ jobs:
   deploy-docker:
     name: Docker Deploy
     needs: [build-server, build-client]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       # Download the build artifacts from the previous jobs
       - name: Download Server Artifact
