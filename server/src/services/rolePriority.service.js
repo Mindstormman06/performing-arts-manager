@@ -1,3 +1,14 @@
+/**
+ * Helpers for ranking show roles.
+ *
+ * @remarks
+ * Exports `SHOW_ROLE_PRIORITY` (show role names, highest first),
+ * `normalizeRoleNames`, `getHighestRoleWeight` and `isSelfDemotion`. A role's
+ * weight grows with its position from the end of the list; a role not in the
+ * list weighs 1 and an empty list weighs 0. Pure functions with no database
+ * access.
+ */
+
 const SHOW_ROLE_PRIORITY = [
 	"director",
 	"co-director",

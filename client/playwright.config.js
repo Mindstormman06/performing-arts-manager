@@ -1,3 +1,14 @@
+/**
+ * The Playwright end-to-end test configuration.
+ *
+ * @remarks
+ * Runs `tests/e2e` serially in Desktop Chrome against `localhost:5173`,
+ * starting the Vite dev server (or reusing one already running). Only the
+ * client is started: the backend API (`server/`, default port 8050) and its
+ * database must already be running. `globalSetup` re-seeds that database via
+ * `server/seed.js` before the run. Retries once when `CI` is set.
+ */
+
 import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
@@ -13,9 +24,6 @@ export default defineConfig({
 		baseURL: "http://localhost:5173",
 		trace: "on-first-retry",
 	},
-	// NOTE: only the Vite dev server is started here. The backend API
-	// (server/, default http://localhost:8050) and its database must already be
-	// running; globalSetup re-seeds the database via server/seed.js.
 	webServer: [
 		{
 			command: "npm run dev",

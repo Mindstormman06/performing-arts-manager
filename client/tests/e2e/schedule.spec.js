@@ -1,7 +1,16 @@
+/**
+ * End-to-end test for creating a show rehearsal event.
+ *
+ * @remarks
+ * Logs in as the seeded user Laura, opens the Santa in Space scheduling page,
+ * creates an event 30 days ahead and checks it appears in the event list.
+ * Writes that event to the database, so it relies on the global setup
+ * re-seeding before each run. Needs the backend API and its database running.
+ */
+
 import { expect, test } from "@playwright/test";
 import { loginAs, USERS } from "./setup.js";
 
-// A date ~30 days in the future, formatted as YYYY-MM-DD (local time) for the date input.
 const futureDate = () => {
 	const d = new Date();
 	d.setDate(d.getDate() + 30);
@@ -41,7 +50,6 @@ test.describe("Show Scheduling UI Flow", () => {
 
 		await expect(page.locator('h2:has-text("Create Event")')).not.toBeVisible();
 
-		// Switch to list view to see the event title
 		await page.getByRole("button", { name: "Event List" }).click();
 
 		await expect(page.getByText("Blocking Act 1")).toBeVisible();

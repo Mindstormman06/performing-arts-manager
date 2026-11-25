@@ -1,15 +1,28 @@
+/**
+ * Express controller for destructive database maintenance.
+ *
+ * @remarks
+ * Exports `resetDb`, which drops and recreates every table with
+ * `sequelize.sync({ force: true })` and then seeds the fixed OrganizationRole
+ * and ShowRole names in a transaction, using the models directly rather than a
+ * service. The drop and recreate is MySQL DDL and can't be rolled back, so a
+ * failed reset may leave empty tables; running the reset again recovers. Any
+ * error responds 500. The admin route only enables it outside production when
+ * `ALLOW_DB_RESET=true`, or under Vitest.
+ */
+
 import models from "../models/index.js";
 import sequelize from "../services/db.service.js";
 
 const resetDb = async (_req, res) => {
-	const t = await sequelize.transaction();
+	let t;
 
 	try {
-		// Force sync to drop and recreate tables
-		await sequelize.sync({ force: true, transaction: t });
+		await sequelize.sync({ force: true });
 		console.log("Database reset complete!");
 
-		// Seed organizations/show roles instead of generic Role model
+		t = await sequelize.transaction();
+
 		const { OrganizationRole, ShowRole } = models;
 		const orgRoles = [
 			"admin",
@@ -31,7 +44,6 @@ const resetDb = async (_req, res) => {
 			"tech",
 		];
 
-		// ensure org roles
 		await Promise.all(
 			orgRoles.map((roleName) =>
 				OrganizationRole.findOrCreate({
@@ -41,7 +53,6 @@ const resetDb = async (_req, res) => {
 			),
 		);
 
-		// ensure show roles
 		await Promise.all(
 			showRoles.map((roleName) =>
 				ShowRole.findOrCreate({

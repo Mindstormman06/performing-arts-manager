@@ -1,3 +1,12 @@
+/**
+ * The ESLint flat config for the client.
+ *
+ * @remarks
+ * Applies the recommended JS, React Hooks and React Refresh (Vite) rules to
+ * all `.js` and `.jsx` files with browser globals, ignores `dist`, and allows
+ * unused variables whose names start with a capital letter or underscore.
+ */
+
 import js from "@eslint/js";
 import { defineConfig, globalIgnores } from "eslint/config";
 import reactHooks from "eslint-plugin-react-hooks";

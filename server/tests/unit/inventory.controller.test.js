@@ -1,3 +1,13 @@
+/**
+ * Unit tests for every inventory controller handler: success responses,
+ * mapping of known service errors to 4xx, and forwarding of other errors.
+ *
+ * @remarks
+ * Needs no database. Handlers are called directly with mock
+ * `req`/`res`/`next`, and `inventoryService` methods are stubbed with
+ * `vi.spyOn` and restored after use.
+ */
+
 import { describe, expect, it, vi } from "vitest";
 
 import inventoryController from "../../src/controllers/inventory.controller.js";
@@ -181,7 +191,7 @@ describe("Inventory Controller - Direct Tests", () => {
 				user: { id: 5 },
 			};
 
-			// Mock the error message so it doesn't contain the expected string
+			// A message the controller doesn't recognize, so it goes to `next`.
 			error.message = "Something went wrong";
 
 			await inventoryController.pullItem(mockReq, mockRes, mockNext);
@@ -262,7 +272,7 @@ describe("Inventory Controller - Direct Tests", () => {
 				params: { showId: 1, inventoryId: 10 },
 			};
 
-			// Mock the error message so it doesn't contain the expected string
+			// A message the controller doesn't recognize, so it goes to `next`.
 			error.message = "Something went wrong";
 
 			await inventoryController.removeItem(mockReq, mockRes, mockNext);

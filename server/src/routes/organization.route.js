@@ -1,3 +1,14 @@
+/**
+ * Express router for organizations and their members, mounted at `/api/orgs`.
+ *
+ * @remarks
+ * Every route requires a logged-in user. Listing orgs, listing the caller's
+ * own orgs, creating an org and answering an invite need nothing more. Reading
+ * an org or its members requires active membership. Updating or deleting the
+ * org, adding members, inviting, and changing roles require an org admin or
+ * president; members may remove themselves.
+ */
+
 import Router from "express";
 
 import organizationController from "../controllers/organization.controller.js";
@@ -13,9 +24,13 @@ const router = Router();
 
 router.get("/my", authenticate, orgMembershipController.getUserOrganizations);
 
-// Org CRUD routes
-router.get("/", organizationController.get);
-router.get("/:id", organizationController.getById);
+router.get("/", authenticate, organizationController.get);
+router.get(
+	"/:id",
+	authenticate,
+	authorizeOrg(),
+	organizationController.getById,
+);
 router.post("/", authenticate, organizationController.create);
 router.put(
 	"/:id",
@@ -30,7 +45,6 @@ router.delete(
 	organizationController.remove,
 );
 
-// POST /api/organizations/1/join -> Links User 1 to Org 1 (assignment_id created)
 router.post(
 	"/:orgId/join",
 	authenticate,
@@ -38,7 +52,6 @@ router.post(
 	orgMembershipController.join,
 );
 
-// PUT /api/organizations/1/users/1/roles -> Appends roles to that assignment_id
 router.put(
 	"/:orgId/users/:userId/roles",
 	authenticate,
@@ -46,7 +59,6 @@ router.put(
 	orgMembershipController.addRoles,
 );
 
-// GET all users in an organizations
 router.get(
 	"/:orgId/users",
 	authenticate,
@@ -54,7 +66,6 @@ router.get(
 	orgMembershipController.getAllUsers,
 );
 
-// GET all users with a specific role (usage: /api/organizations/1/users/role?role=admin)
 router.get(
 	"/:orgId/users/role",
 	authenticate,
@@ -62,7 +73,6 @@ router.get(
 	orgMembershipController.getByRole,
 );
 
-// GET a specific user by ID in an organizations
 router.get(
 	"/:orgId/users/:userId",
 	authenticate,
@@ -70,7 +80,6 @@ router.get(
 	orgMembershipController.getUser,
 );
 
-// DELETE user from organizations (Leave)
 // Members may remove themselves; removing someone else needs an admin role
 const requireOrgAdmin = authorizeOrg(ORG_ADMIN_ROLES);
 router.delete(
@@ -80,7 +89,6 @@ router.delete(
 	orgMembershipController.leave,
 );
 
-// DELETE a specific role from a user
 router.delete(
 	"/:orgId/users/:userId/roles",
 	authenticate,
@@ -88,14 +96,12 @@ router.delete(
 	orgMembershipController.removeRole,
 );
 
-// POST /api/organizations/1/invite -> Invite user by email to join org (creates pending assignment_id)
 router.post(
 	"/:orgId/invite",
 	authenticate,
 	authorizeOrg(ORG_ADMIN_ROLES),
 	orgMembershipController.invite,
 );
-// PUT /api/organizations/1/respond -> Accept or decline invite (updates status to 'active' or deletes assignment_id)
 router.put(
 	"/:orgId/respond",
 	authenticate,

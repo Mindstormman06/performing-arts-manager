@@ -28,6 +28,21 @@ import {
 	ModalWrapper,
 } from "../../ui/modals/index.js";
 
+/**
+ * A two-tab modal for creating an organization calendar event and choosing who
+ * must attend.
+ *
+ * @remarks
+ * Holds the event form (date plus start and end time), the organization's
+ * members fetched with `getOrganizationUsers`, the roles found among them, the
+ * selected attendee ids and the id of an event already created; all of it
+ * resets each time the modal opens, optionally pre-filling a date from the
+ * parent. Local times are converted to UTC with `utils/dateTime.js` before
+ * `createOrgEvent`, then `assignOrgEventUsers` saves attendees. Selecting a
+ * role selects every member holding it. Renders nothing while closed. Requests
+ * go through `services/api.js`, which authenticates with the `token` in
+ * `localStorage`.
+ */
 export default function CreateOrgEventModal({
 	isOpen,
 	onClose,

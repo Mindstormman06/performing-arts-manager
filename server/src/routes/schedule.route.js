@@ -1,3 +1,15 @@
+/**
+ * Express router for organization and show calendars, mounted at
+ * `/api/schedule`.
+ *
+ * @remarks
+ * Every route requires a logged-in user, and `GET /personal` returns the
+ * caller's own events. Reading a calendar requires active org or show
+ * membership. Creating, editing, deleting and assigning people to org events
+ * requires the `admin`, `president` or `board-member` role; for show events
+ * it requires `director` or `stage-manager`, or org oversight.
+ */
+
 import Router from "express";
 
 import scheduleController from "../controllers/schedule.controller.js";
@@ -5,11 +17,12 @@ import {
 	authenticate,
 	authorizeOrg,
 	authorizeShow,
+	ORG_ADMIN_ROLES,
 } from "../middleware/auth.middleware.js";
 
-const router = Router();
+const ORG_EVENT_MANAGERS = [...ORG_ADMIN_ROLES, "board-member"];
 
-// GET ROUTES
+const router = Router();
 
 router.get(
 	"/orgs/:orgId",
@@ -25,12 +38,10 @@ router.get(
 	scheduleController.getShowCalendar,
 );
 
-// POST ROUTES
-
 router.post(
 	"/orgs/:orgId",
 	authenticate,
-	authorizeOrg(["president", "board-member"]),
+	authorizeOrg(ORG_EVENT_MANAGERS),
 	scheduleController.createOrgEvent,
 );
 
@@ -41,12 +52,10 @@ router.post(
 	scheduleController.createShowEvent,
 );
 
-// PUT ROUTES
-
 router.put(
 	"/orgs/:orgId/:eventId",
 	authenticate,
-	authorizeOrg(["president", "board-member"]),
+	authorizeOrg(ORG_EVENT_MANAGERS),
 	scheduleController.updateEvent,
 );
 
@@ -57,12 +66,10 @@ router.put(
 	scheduleController.updateEvent,
 );
 
-// DELETE ROUTES
-
 router.delete(
 	"/orgs/:orgId/:eventId",
 	authenticate,
-	authorizeOrg(["president", "board-member"]),
+	authorizeOrg(ORG_EVENT_MANAGERS),
 	scheduleController.deleteEvent,
 );
 
@@ -76,7 +83,7 @@ router.delete(
 router.post(
 	"/orgs/:orgId/:eventId/users",
 	authenticate,
-	authorizeOrg(["president", "board-member"]),
+	authorizeOrg(ORG_EVENT_MANAGERS),
 	scheduleController.assignOrgEventUsers,
 );
 
@@ -90,7 +97,7 @@ router.post(
 router.put(
 	"/orgs/:orgId/:eventId/users",
 	authenticate,
-	authorizeOrg(["president", "board-member"]),
+	authorizeOrg(ORG_EVENT_MANAGERS),
 	scheduleController.assignOrgEventUsers,
 );
 

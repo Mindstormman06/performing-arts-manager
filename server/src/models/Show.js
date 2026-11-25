@@ -1,3 +1,12 @@
+/**
+ * Sequelize model factory for the `shows` table: a production run by an
+ * organization.
+ *
+ * @remarks
+ * Requires `title`, `start_date` and `end_date`. `organization_id` decides
+ * which organization's members can reach the show at all.
+ */
+
 export default (sequelize, DataTypes) => {
 	const Show = sequelize.define(
 		"Show",

@@ -1,6 +1,20 @@
-import models from "../models/index.js";
+/**
+ * Service for organization (global) and show inventory.
+ *
+ * @remarks
+ * Exports functions to list departments, manage an organization's global
+ * items, and manage a show's items and their assignments. Reads Department,
+ * Show, ShowMembership, ShowRole and Casting; writes Inventory and the
+ * ShowInventory link table. Removing a show-only item (`is_global` 0) deletes
+ * it, removing a global item from a show only drops the link, and deleting a
+ * global item also drops every show link. Only name, description and
+ * department come from client data. A user can hold an item only if their
+ * show role fits its department, and characters can hold only costumes or
+ * props. Nothing is transactional. Callers must already have checked org or
+ * show access and department rights.
+ */
 
-// --- Departments ---
+import models from "../models/index.js";
 
 // Only descriptive fields come from the client; ownership is set server-side
 function pickItemFields(data = {}) {
@@ -12,15 +26,12 @@ function pickItemFields(data = {}) {
 }
 
 async function getDepartments() {
-	// Departments are static and global now, just return all of them
 	return await models.Department.findAll();
 }
 
-// --- Organization / Global Inventory ---
-
 async function getGlobalInventory(orgId) {
 	return await models.Inventory.findAll({
-		where: { is_global: 1, org_id: orgId }, // Filter by the new org_id column
+		where: { is_global: 1, org_id: orgId },
 		include: [
 			{
 				model: models.Department,
@@ -85,8 +96,6 @@ async function updateGlobalItem(orgId, inventoryId, data) {
 	return item;
 }
 
-// --- Show Inventory ---
-
 async function getShowInventory(showId) {
 	const items = await models.Inventory.findAll({
 		include: [
@@ -144,7 +153,7 @@ async function createShowItem(showId, data, userId, photoPath) {
 		photo_path: photoPath || null,
 		added_by: userId,
 		is_global: 0,
-		org_id: show.organization_id, // Inherit the org_id from the show
+		org_id: show.organization_id,
 	});
 
 	await models.ShowInventory.create({

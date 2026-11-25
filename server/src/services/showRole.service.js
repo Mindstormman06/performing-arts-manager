@@ -1,3 +1,16 @@
+/**
+ * Service for show roles and member management.
+ *
+ * @remarks
+ * Exports functions to replace a member's roles, list members (all, one, or by
+ * role), remove a member and revoke roles. Reads Show and ShowRole; writes
+ * ShowMembership and its role associations. With an acting user id and no org
+ * oversight, acting on someone else requires outranking the target and every
+ * changed role by `SHOW_ROLE_PRIORITY`; acting on yourself can never raise or
+ * remove your own highest role. Nothing is transactional. Callers must
+ * already have checked show membership and manager rights.
+ */
+
 import models from "../models/index.js";
 import {
 	getHighestRoleWeight,
@@ -6,11 +19,53 @@ import {
 	SHOW_ROLE_PRIORITY,
 } from "./rolePriority.service.js";
 
+const ROLE_HIERARCHY_ERROR =
+	"You cannot change roles at or above your own highest role";
+
+// The target's current roles and every role being changed must rank strictly
+// below the actor's highest show role.
+async function assertOutranks(
+	showId,
+	actingUserId,
+	targetRoleNames,
+	changedRoleNames,
+) {
+	const actor = await models.ShowMembership.findOne({
+		where: { show_id: showId, users_id: actingUserId },
+		include: [{ model: models.ShowRole, as: "assignedRoles" }],
+	});
+	const actorWeight = getHighestRoleWeight(
+		(actor?.assignedRoles || []).map((r) => r.name),
+		SHOW_ROLE_PRIORITY,
+	);
+	const targetWeight = getHighestRoleWeight(
+		targetRoleNames,
+		SHOW_ROLE_PRIORITY,
+	);
+	const changedWeight = getHighestRoleWeight(
+		changedRoleNames,
+		SHOW_ROLE_PRIORITY,
+	);
+	if (targetWeight >= actorWeight || changedWeight >= actorWeight) {
+		throw new Error(ROLE_HIERARCHY_ERROR);
+	}
+}
+
+function isOtherUser(actingUserId, userId, actorHasOversight) {
+	return (
+		actingUserId !== null &&
+		actingUserId !== undefined &&
+		!actorHasOversight &&
+		Number(actingUserId) !== Number(userId)
+	);
+}
+
 async function appendRolesToAssignment(
 	showId,
 	userId,
 	roleNames,
 	actingUserId = null,
+	actorHasOversight = false,
 ) {
 	const show = await models.Show.findOne({ where: { id: showId } });
 	if (!show) throw new Error("Show not found");
@@ -27,6 +82,18 @@ async function appendRolesToAssignment(
 			where: { name: roleNames },
 		});
 		if (!roles.length) throw new Error("No valid roles provided");
+	}
+
+	if (isOtherUser(actingUserId, userId, actorHasOversight)) {
+		const currentNames = normalizeRoleNames(
+			membership.assignedRoles.map((role) => role.name),
+		);
+		const nextNames = normalizeRoleNames(roles.map((role) => role.name));
+		const changed = [
+			...currentNames.filter((n) => !nextNames.includes(n)),
+			...nextNames.filter((n) => !currentNames.includes(n)),
+		];
+		await assertOutranks(showId, actingUserId, currentNames, changed);
 	}
 
 	if (Number(actingUserId) === Number(userId)) {
@@ -114,9 +181,29 @@ async function getUsersByRole(showId, roleName) {
 	});
 }
 
-async function removeUserFromShow(showId, userId) {
+async function removeUserFromShow(
+	showId,
+	userId,
+	actingUserId = null,
+	actorHasOversight = false,
+) {
 	const show = await models.Show.findOne({ where: { id: showId } });
 	if (!show) throw new Error("Show not found");
+
+	if (isOtherUser(actingUserId, userId, actorHasOversight)) {
+		const target = await models.ShowMembership.findOne({
+			where: { show_id: showId, users_id: userId },
+			include: [{ model: models.ShowRole, as: "assignedRoles" }],
+		});
+		if (target) {
+			await assertOutranks(
+				showId,
+				actingUserId,
+				target.assignedRoles.map((role) => role.name),
+				[],
+			);
+		}
+	}
 
 	const deleted = await models.ShowMembership.destroy({
 		where: { show_id: showId, users_id: userId },
@@ -130,6 +217,7 @@ async function removeRolesFromUser(
 	userId,
 	roleNames,
 	actingUserId = null,
+	actorHasOversight = false,
 ) {
 	const namesArray = normalizeRoleNames(
 		Array.isArray(roleNames) ? roleNames : [roleNames],
@@ -155,6 +243,15 @@ async function removeRolesFromUser(
 		.filter((n) => namesArray.includes(n));
 	if (!hasAny.length) {
 		throw new Error("User does not have any of these roles");
+	}
+
+	if (isOtherUser(actingUserId, userId, actorHasOversight)) {
+		await assertOutranks(
+			showId,
+			actingUserId,
+			membership.assignedRoles.map((role) => role.name),
+			namesArray,
+		);
 	}
 
 	if (Number(actingUserId) === Number(userId)) {

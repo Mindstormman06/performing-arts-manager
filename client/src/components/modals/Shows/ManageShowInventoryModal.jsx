@@ -26,6 +26,21 @@ import {
 	ModalWrapper,
 } from "../../ui/modals/index.js";
 
+/**
+ * A two-tab modal for adding items to a show's inventory, either by pulling
+ * from the organization's global stock or by creating a show-only item.
+ *
+ * @remarks
+ * Holds the active tab, the global items fetched with `getGlobalInventory`
+ * while the pull tab is open, the create form, the chosen photo and preview, an
+ * error and a loading flag; tab and form reset each time it opens. Global items
+ * already in the show, or in departments the user has no role for, are hidden;
+ * directors, stage managers and admins see every department. Pulling calls
+ * `pullGlobalItemToShow`; creating calls `createShowItemWithPhoto` with
+ * multipart data when a photo is chosen, otherwise `createShowItem`. Renders
+ * nothing while closed. Requests go through `services/api.js`, which
+ * authenticates with the `token` in `localStorage`.
+ */
 export default function ManageShowInventoryModal({
 	isOpen,
 	onClose,
@@ -36,7 +51,7 @@ export default function ManageShowInventoryModal({
 	currentInventory,
 	onSuccess,
 }) {
-	const [activeTab, setActiveTab] = useState("pull"); // 'pull' or 'create'
+	const [activeTab, setActiveTab] = useState("pull");
 	const [globalItems, setGlobalItems] = useState([]);
 
 	const [formData, setFormData] = useState({

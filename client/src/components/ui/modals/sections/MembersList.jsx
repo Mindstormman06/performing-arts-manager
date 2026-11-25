@@ -1,6 +1,14 @@
 import MemberRow from "./MemberRow.jsx";
 import ModalSubsection from "./ModalSubsection.jsx";
 
+/**
+ * A boxed list of `MemberRow`s, or an empty-state message when there are no
+ * members.
+ *
+ * @remarks
+ * Stateless. Passes the edit and remove handlers, the edit permission and the
+ * status flag through to every row. The empty-state text can be overridden.
+ */
 export default function MembersList({
 	members,
 	onEditRoles,

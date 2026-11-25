@@ -10,6 +10,18 @@ import {
 	verifyToken,
 } from "../../services/api.js";
 
+/**
+ * The organization schedule page at `/orgs/:orgId/scheduling`.
+ *
+ * @remarks
+ * Reads `orgId` from the route. On mount it verifies the token to get the
+ * current user, then loads the org calendar (org events and show events) and
+ * the org's members to derive the user's roles. Toggles between a calendar
+ * and a list view. Presidents and board members can create events (from the
+ * button or by clicking a calendar date) and manage org-level events; show
+ * events are read-only here. Holds the events, roles, view mode, selected
+ * event and create-modal state; both modals reload the schedule on success.
+ */
 export default function OrgSchedule() {
 	const { orgId } = useParams();
 	const [events, setEvents] = useState([]);
@@ -53,8 +65,9 @@ export default function OrgSchedule() {
 		fetchScheduleData();
 	}, [fetchScheduleData]);
 
-	const canManageSchedule =
-		userRoles.includes("president") || userRoles.includes("board-member");
+	const canManageSchedule = ["admin", "president", "board-member"].some(
+		(role) => userRoles.includes(role),
+	);
 
 	const formatDateForInput = (date) => {
 		const local = new Date(date);

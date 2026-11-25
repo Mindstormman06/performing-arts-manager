@@ -1,3 +1,12 @@
+/**
+ * Sequelize model factory for the `notes` table: a short note written about a
+ * show.
+ *
+ * @remarks
+ * Requires `show_id`, `author_id` and `content` (up to 255 characters);
+ * `dept_id` is optional and targets the note at one department.
+ */
+
 export default (sequelize, DataTypes) => {
 	const Note = sequelize.define(
 		"Note",

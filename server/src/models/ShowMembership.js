@@ -1,3 +1,14 @@
+/**
+ * Sequelize model factory for `show_has_users`, the membership of a user in a
+ * show.
+ *
+ * @remarks
+ * Each row has its own `assignment_id`, which show roles attach to through
+ * `ShowRoleRelationship`. `status` is `pending` or `active`, and only active
+ * memberships pass authorization. Also stores the member's show-specific `bio`
+ * and `photo_path`. No timestamps.
+ */
+
 export default (sequelize, DataTypes) => {
 	return sequelize.define(
 		"ShowMembership",

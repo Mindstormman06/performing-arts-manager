@@ -1,3 +1,14 @@
+/**
+ * Unit tests for the show membership controller handlers: join, invite,
+ * role changes, member lookups, leave and role removal, including their
+ * error mapping.
+ *
+ * @remarks
+ * Needs no database. Handlers are called directly with mock
+ * `req`/`res`/`next`, and `showMembershipService` and `showRoleService`
+ * methods are stubbed with `vi.spyOn` and restored after use.
+ */
+
 import { describe, expect, it, vi } from "vitest";
 
 import showMembershipController from "../../src/controllers/showMembership.controller.js";
@@ -659,7 +670,13 @@ describe("ShowMembership Controller - Direct Tests", () => {
 
 			await showMembershipController.removeRole(mockReq, mockRes, mockNext);
 
-			expect(spy).toHaveBeenCalledWith(1, 5, ["director", "actor"], undefined);
+			expect(spy).toHaveBeenCalledWith(
+				1,
+				5,
+				["director", "actor"],
+				undefined,
+				false,
+			);
 			expect(mockRes.json).toHaveBeenCalledWith(mockResult);
 
 			spy.mockRestore();

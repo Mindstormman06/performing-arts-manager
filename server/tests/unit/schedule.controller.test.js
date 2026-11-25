@@ -1,3 +1,13 @@
+/**
+ * Unit tests for the schedule controller handlers: org and show calendars,
+ * event create/update/delete, attendee assignment and the personal schedule.
+ *
+ * @remarks
+ * Needs no database. Handlers are called directly with mock
+ * `req`/`res`/`next`, and `scheduleService` methods are stubbed with
+ * `vi.spyOn` and restored after use.
+ */
+
 import { describe, expect, it, vi } from "vitest";
 
 import scheduleController from "../../src/controllers/schedule.controller.js";

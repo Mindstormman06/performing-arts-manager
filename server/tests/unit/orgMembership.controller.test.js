@@ -1,28 +1,50 @@
+/**
+ * Unit tests for the org membership controller's `respondToInvite`: accepting
+ * and declining with and without shows in the org, invalid actions, and error
+ * forwarding.
+ *
+ * @remarks
+ * Needs no database. The handler is called directly with mock `req`/`res`/
+ * `next`, `sequelize.transaction` runs its callback with a fake transaction,
+ * and the `OrgMembership`, `Show` and `ShowMembership` model methods are
+ * stubbed with `vi.spyOn`. All spies are restored after each test.
+ */
+
 import { Op } from "sequelize";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import orgMembershipController from "../../src/controllers/orgMembership.controller.js";
 import models from "../../src/models/index.js";
+import sequelize from "../../src/services/db.service.js";
+
+const mockTransaction = { id: "test-transaction" };
 
 describe("OrgMembership Controller - Direct Tests", () => {
+	beforeEach(() => {
+		vi.spyOn(sequelize, "transaction").mockImplementation(async (callback) =>
+			callback(mockTransaction),
+		);
+	});
+
+	afterEach(() => {
+		vi.restoreAllMocks();
+	});
+
 	describe("respondToInvite - accept action with shows", () => {
 		it("should update ShowMembership status when accepting invite and shows exist (Line 197)", async () => {
-			// Mock the org membership
 			const mockMembership = { update: vi.fn() };
 			const membershipSpy = vi
 				.spyOn(models.OrgMembership, "findOne")
 				.mockResolvedValue(mockMembership);
 
-			// Mock the shows returned
 			const mockShows = [{ id: 1 }, { id: 2 }];
 			const showSpy = vi
 				.spyOn(models.Show, "findAll")
 				.mockResolvedValue(mockShows);
 
-			// Mock ShowMembership update
 			const showMembershipSpy = vi
 				.spyOn(models.ShowMembership, "update")
-				.mockResolvedValue([1, 1]); // [number of affected rows, updated rows]
+				.mockResolvedValue([1, 1]);
 
 			const mockRes = {
 				json: vi.fn(),
@@ -36,7 +58,6 @@ describe("OrgMembership Controller - Direct Tests", () => {
 
 			await orgMembershipController.respondToInvite(mockReq, mockRes, mockNext);
 
-			// Verify ShowMembership.update was called with correct parameters
 			expect(showMembershipSpy).toHaveBeenCalledWith(
 				{ status: "active" },
 				{
@@ -45,6 +66,7 @@ describe("OrgMembership Controller - Direct Tests", () => {
 						show_id: { [Op.in]: [1, 2] },
 						status: "pending",
 					},
+					transaction: mockTransaction,
 				},
 			);
 			expect(mockRes.json).toHaveBeenCalledWith({
@@ -59,16 +81,13 @@ describe("OrgMembership Controller - Direct Tests", () => {
 		});
 
 		it("should not update ShowMembership when accepting invite but no shows exist", async () => {
-			// Mock the org membership
 			const mockMembership = { update: vi.fn() };
 			const membershipSpy = vi
 				.spyOn(models.OrgMembership, "findOne")
 				.mockResolvedValue(mockMembership);
 
-			// Mock the shows returned (empty array)
 			const showSpy = vi.spyOn(models.Show, "findAll").mockResolvedValue([]);
 
-			// Mock ShowMembership update should NOT be called
 			const showMembershipSpy = vi
 				.spyOn(models.ShowMembership, "update")
 				.mockResolvedValue([0, 0]);
@@ -85,7 +104,6 @@ describe("OrgMembership Controller - Direct Tests", () => {
 
 			await orgMembershipController.respondToInvite(mockReq, mockRes, mockNext);
 
-			// Verify ShowMembership.update was NOT called
 			expect(showMembershipSpy).not.toHaveBeenCalled();
 			expect(mockRes.json).toHaveBeenCalledWith({
 				success: true,
@@ -101,22 +119,19 @@ describe("OrgMembership Controller - Direct Tests", () => {
 
 	describe("respondToInvite - decline action with shows", () => {
 		it("should destroy ShowMembership when declining invite and shows exist (Line 217)", async () => {
-			// Mock the org membership
 			const mockMembership = { destroy: vi.fn() };
 			const membershipSpy = vi
 				.spyOn(models.OrgMembership, "findOne")
 				.mockResolvedValue(mockMembership);
 
-			// Mock the shows returned
 			const mockShows = [{ id: 1 }, { id: 2 }];
 			const showSpy = vi
 				.spyOn(models.Show, "findAll")
 				.mockResolvedValue(mockShows);
 
-			// Mock ShowMembership destroy
 			const showMembershipSpy = vi
 				.spyOn(models.ShowMembership, "destroy")
-				.mockResolvedValue(2); // number of rows deleted
+				.mockResolvedValue(2);
 
 			const mockRes = {
 				json: vi.fn(),
@@ -130,13 +145,13 @@ describe("OrgMembership Controller - Direct Tests", () => {
 
 			await orgMembershipController.respondToInvite(mockReq, mockRes, mockNext);
 
-			// Verify ShowMembership.destroy was called with correct parameters
 			expect(showMembershipSpy).toHaveBeenCalledWith({
 				where: {
 					users_id: 5,
 					show_id: { [Op.in]: [1, 2] },
 					status: "pending",
 				},
+				transaction: mockTransaction,
 			});
 			expect(mockRes.json).toHaveBeenCalledWith({
 				success: true,
@@ -150,16 +165,13 @@ describe("OrgMembership Controller - Direct Tests", () => {
 		});
 
 		it("should not destroy ShowMembership when declining invite but no shows exist", async () => {
-			// Mock the org membership
 			const mockMembership = { destroy: vi.fn() };
 			const membershipSpy = vi
 				.spyOn(models.OrgMembership, "findOne")
 				.mockResolvedValue(mockMembership);
 
-			// Mock the shows returned (empty array)
 			const showSpy = vi.spyOn(models.Show, "findAll").mockResolvedValue([]);
 
-			// Mock ShowMembership destroy should NOT be called
 			const showMembershipSpy = vi
 				.spyOn(models.ShowMembership, "destroy")
 				.mockResolvedValue(0);
@@ -176,7 +188,6 @@ describe("OrgMembership Controller - Direct Tests", () => {
 
 			await orgMembershipController.respondToInvite(mockReq, mockRes, mockNext);
 
-			// Verify ShowMembership.destroy was NOT called
 			expect(showMembershipSpy).not.toHaveBeenCalled();
 			expect(mockRes.json).toHaveBeenCalledWith({
 				success: true,
@@ -192,7 +203,6 @@ describe("OrgMembership Controller - Direct Tests", () => {
 
 	describe("respondToInvite - invalid action", () => {
 		it("should return 400 for invalid action (Line 229)", async () => {
-			// Mock the org membership
 			const mockMembership = { update: vi.fn(), destroy: vi.fn() };
 			const membershipSpy = vi
 				.spyOn(models.OrgMembership, "findOne")

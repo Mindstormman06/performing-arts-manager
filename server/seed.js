@@ -1,3 +1,16 @@
+/**
+ * Development script that wipes the database and fills it with demo data.
+ *
+ * @remarks
+ * Run directly with Node against the database from the `DB_*` env vars. It
+ * calls `sequelize.sync({ force: true })`, which drops and re-creates every
+ * table, then inserts org and show roles, departments, the users from
+ * `seed-users.local.js` (all with password `password123`), one organization,
+ * two shows with members, roles, casting and rehearsals, and inventory linked
+ * to the shows. Errors are logged, not rethrown, and the connection is always
+ * closed.
+ */
+
 import bcrypt from "bcryptjs";
 
 import { seedUsers } from "./seed-users.local.js";
@@ -9,7 +22,7 @@ const { usersData, showProfileDataByUserId } = seedUsers;
 async function seed() {
 	try {
 		console.log("🔄 Wiping database and syncing tables...");
-		await sequelize.sync({ force: true }); // Wipes and recreates tables based on models
+		await sequelize.sync({ force: true });
 
 		const now = new Date();
 		const inTwoWeeks = new Date();
@@ -19,9 +32,6 @@ async function seed() {
 		const inTwoMonths = new Date();
 		inTwoMonths.setMonth(inTwoMonths.getMonth() + 2);
 
-		// ------------------------
-		// 1. Roles & Departments
-		// ------------------------
 		console.log("🌱 Seeding Roles & Departments...");
 
 		await models.OrganizationRole.bulkCreate([
@@ -62,9 +72,6 @@ async function seed() {
 			{ id: 6, name: "Front of House" },
 		]);
 
-		// ------------------------
-		// 2. Users from CSV
-		// ------------------------
 		console.log("👥 Seeding Users from CSV...");
 		const passwordHash = await bcrypt.hash("password123", 10);
 		const usersWithPasswordHash = usersData.map((user) => ({
@@ -73,16 +80,12 @@ async function seed() {
 		}));
 		await models.User.bulkCreate(usersWithPasswordHash);
 
-		// ------------------------
-		// 3. Organization & Memberships
-		// ------------------------
 		console.log("🏢 Seeding Organizations & Memberships...");
 		const org = await models.Organization.create({
 			id: 1,
 			name: "Shawnigan Players",
 		});
 
-		// Add all users to the organization
 		const orgMembershipsData = usersData.map((u) => ({
 			users_id: u.id,
 			org_id: org.id,
@@ -93,7 +96,6 @@ async function seed() {
 			{ returning: true },
 		);
 
-		// Assign organization roles
 		await models.OrgRoleRelationship.bulkCreate([
 			{
 				assignment_id: orgMemberships.find((m) => m.users_id === 4)
@@ -127,9 +129,6 @@ async function seed() {
 			}, // Lily: Board Member
 		]);
 
-		// ------------------------
-		// 4. Shows & Show Memberships
-		// ------------------------
 		console.log("🎭 Seeding Shows & Cast/Crew...");
 		await models.Show.bulkCreate([
 			{
@@ -148,7 +147,6 @@ async function seed() {
 			},
 		]);
 
-		// Map user IDs to show memberships for Santa in Space (all except SP-only cast)
 		const santaMembersData = [
 			{ users_id: 1, show_id: 1, status: "active" }, // Laura: Director
 			{ users_id: 2, show_id: 1, status: "active" }, // Jade: Co-Director
@@ -195,7 +193,6 @@ async function seed() {
 			{ returning: true },
 		);
 
-		// Map user IDs to show memberships for Scottish Play
 		const spMembersData = [
 			{ users_id: 2, show_id: 2, status: "active" }, // Jade: Co-Director & Actor
 			{ users_id: 3, show_id: 2, status: "active" }, // Joshua: Director
@@ -218,7 +215,6 @@ async function seed() {
 			{ returning: true },
 		);
 
-		// Assign Show Roles for Santa in Space
 		await models.ShowRoleRelationship.bulkCreate([
 			{
 				assignment_id: santaMembers.find((m) => m.users_id === 1).assignment_id,
@@ -396,7 +392,6 @@ async function seed() {
 			}, // Joel: Crew
 		]);
 
-		// Assign Show Roles for Scottish Play
 		await models.ShowRoleRelationship.bulkCreate([
 			{
 				assignment_id: spMembers.find((m) => m.users_id === 3).assignment_id,
@@ -448,16 +443,12 @@ async function seed() {
 			}, // Max: Actor
 		]);
 
-		// ------------------------
-		// 7. Casting/Characters
-		// ------------------------
 		console.log("🎬 Seeding Character Casting...");
 
-		// Santa in Space Characters
 		const santaCasting = await models.Casting.bulkCreate([
 			{ name: "Santa Claus", show_id: 1, users_id: 14 }, // Rob Foell
 			{ name: "Captain Dick Daring", show_id: 1, users_id: 2 }, // Jade Edgar
-			{ name: "Astra the Astrologer", show_id: 1, users_id: 7 }, // Lily Wilson
+			{ name: "Astra the Astrologer", show_id: 1, users_id: 7 }, // Lily Parker
 			{ name: "Vileun the Vile", show_id: 1, users_id: 9 }, // Alex Gallacher
 			{ name: "Dame Dangle", show_id: 1, users_id: 10 }, // Dan Leckey
 			{ name: "Null", show_id: 1, users_id: 11 }, // Bowie Farquarson
@@ -487,7 +478,6 @@ async function seed() {
 			{ name: "Villager", show_id: 1, users_id: 22 }, // Kael Reintjes
 		]);
 
-		// Scottish Play Characters
 		const spCasting = await models.Casting.bulkCreate([
 			{ name: "Conall Cra Bhuidhe", show_id: 2, users_id: 14 }, // Rob Foell
 			{ name: "King of Lochlan", show_id: 2, users_id: 18 }, // Aaron Montan
@@ -504,15 +494,11 @@ async function seed() {
 		console.log(`   - ${santaCasting.length} Santa in Space characters cast`);
 		console.log(`   - ${spCasting.length} Scottish Play characters cast`);
 
-		// ------------------------
-		// 5. Schedules/Rehearsals
-		// ------------------------
 		console.log("📅 Seeding Rehearsal Schedules...");
 
 		const schedules = [];
 		let scheduleId = 1;
 
-		// Santa in Space Rehearsals
 		const d1 = new Date(now);
 		d1.setDate(d1.getDate() + 2);
 		const d2 = new Date(now);
@@ -613,7 +599,6 @@ async function seed() {
 			},
 		);
 
-		// Scottish Play Rehearsals
 		const sp1 = new Date(inOneMonth);
 		sp1.setDate(sp1.getDate() + 2);
 		const sp2 = new Date(inOneMonth);
@@ -681,10 +666,8 @@ async function seed() {
 
 		await models.Schedule.bulkCreate(schedules);
 
-		// Schedule Assignments (Who is called to each rehearsal)
 		const userSchedules = [];
 
-		// Santa in Space attendance
 		const santaCastIds = [
 			1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
 			22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35,
@@ -695,7 +678,6 @@ async function seed() {
 			}
 		}
 
-		// Scottish Play attendance
 		const spCastIds = [2, 3, 5, 14, 17, 18, 19, 22, 23, 25];
 		for (let i = 9; i <= 13; i++) {
 			for (const userId of spCastIds) {
@@ -705,14 +687,10 @@ async function seed() {
 
 		await models.UserSchedule.bulkCreate(userSchedules);
 
-		// ------------------------
-		// 6. Inventory
-		// ------------------------
 		console.log("📦 Seeding Inventory...");
 		const inventory = [];
 		let invId = 1;
 
-		// Lighting Inventory
 		inventory.push(
 			{
 				id: invId++,
@@ -766,7 +744,6 @@ async function seed() {
 			},
 		);
 
-		// Sound Inventory
 		inventory.push(
 			{
 				id: invId++,
@@ -810,7 +787,6 @@ async function seed() {
 			},
 		);
 
-		// Costume Inventory
 		inventory.push(
 			{
 				id: invId++,
@@ -864,7 +840,6 @@ async function seed() {
 			},
 		);
 
-		// Props Inventory
 		inventory.push(
 			{
 				id: invId++,
@@ -918,7 +893,6 @@ async function seed() {
 			},
 		);
 
-		// Sets/Scenic Inventory
 		inventory.push(
 			{
 				id: invId++,
@@ -972,7 +946,6 @@ async function seed() {
 			},
 		);
 
-		// Front of House
 		inventory.push(
 			{
 				id: invId++,
@@ -998,48 +971,37 @@ async function seed() {
 
 		await models.Inventory.bulkCreate(inventory);
 
-		// Link inventory to shows
 		const showInventories = [
-			// Santa in Space - Lighting
 			{ inventory_id: 1, shows_id: 1, user_id: 5 },
 			{ inventory_id: 2, shows_id: 1, user_id: 5 },
 			{ inventory_id: 3, shows_id: 1, user_id: 5 },
 			{ inventory_id: 4, shows_id: 1, user_id: 5 },
 			{ inventory_id: 5, shows_id: 1, user_id: 5 },
-			// Santa in Space - Sound
 			{ inventory_id: 6, shows_id: 1, user_id: 8 },
 			{ inventory_id: 7, shows_id: 1, user_id: 8 },
 			{ inventory_id: 8, shows_id: 1, user_id: 8 },
 			{ inventory_id: 9, shows_id: 1, user_id: 8 },
-			// Santa in Space - Costumes
 			{ inventory_id: 10, shows_id: 1, user_id: 1 },
 			{ inventory_id: 11, shows_id: 1, user_id: 1 },
 			{ inventory_id: 13, shows_id: 1, user_id: 1 },
 			{ inventory_id: 14, shows_id: 1, user_id: 1 },
-			// Santa in Space - Props
 			{ inventory_id: 15, shows_id: 1, user_id: 1 },
 			{ inventory_id: 17, shows_id: 1, user_id: 1 },
 			{ inventory_id: 18, shows_id: 1, user_id: 1 },
 			{ inventory_id: 19, shows_id: 1, user_id: 1 },
-			// Santa in Space - Sets
 			{ inventory_id: 20, shows_id: 1, user_id: 3 },
 			{ inventory_id: 22, shows_id: 1, user_id: 3 },
 			{ inventory_id: 23, shows_id: 1, user_id: 3 },
-			// Scottish Play - Lighting
 			{ inventory_id: 1, shows_id: 2, user_id: 5 },
 			{ inventory_id: 2, shows_id: 2, user_id: 5 },
 			{ inventory_id: 4, shows_id: 2, user_id: 5 },
-			// Scottish Play - Sound
 			{ inventory_id: 6, shows_id: 2, user_id: 8 },
 			{ inventory_id: 8, shows_id: 2, user_id: 8 },
-			// Scottish Play - Costumes
 			{ inventory_id: 12, shows_id: 2, user_id: 1 },
 			{ inventory_id: 13, shows_id: 2, user_id: 1 },
-			// Scottish Play - Props
 			{ inventory_id: 16, shows_id: 2, user_id: 1 },
 			{ inventory_id: 18, shows_id: 2, user_id: 1 },
 			{ inventory_id: 19, shows_id: 2, user_id: 1 },
-			// Scottish Play - Sets
 			{ inventory_id: 21, shows_id: 2, user_id: 3 },
 			{ inventory_id: 22, shows_id: 2, user_id: 3 },
 			{ inventory_id: 23, shows_id: 2, user_id: 3 },
@@ -1048,9 +1010,6 @@ async function seed() {
 
 		await models.ShowInventory.bulkCreate(showInventories);
 
-		// ------------------------
-		// Summary
-		// ------------------------
 		console.log("✅ Test data seeded successfully!");
 		console.log(`   - ${usersData.length} Users created`);
 		console.log(`   - 1 Organization created (Shawnigan Players)`);
@@ -1062,10 +1021,8 @@ async function seed() {
 	} catch (err) {
 		console.error("❌ Seeding failed:", err);
 	} finally {
-		// Close the connection so the script doesn't hang
 		await sequelize.close();
 	}
 }
 
-// Execute the seed function
 seed();

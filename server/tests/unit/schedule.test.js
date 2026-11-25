@@ -1,3 +1,16 @@
+/**
+ * Integration tests for every route under `/api/schedule`: org and show
+ * calendars, event CRUD, attendee assignment and the personal schedule, plus
+ * 404/500 mapping in the controllers.
+ *
+ * @remarks
+ * Needs the live MySQL test DB: `beforeAll` runs `setupTestDatabase`, then
+ * creates an org where the main user is president, a show where they are
+ * director, and a second user in both. The happy-path tests run in order:
+ * they create one org and one show event, update and assign them, and delete
+ * them at the end. Error tests spy on `scheduleService` and restore each spy.
+ */
+
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
@@ -8,19 +21,6 @@ import {
 	closeDatabase,
 	setupTestDatabase,
 } from "./utils/test-setup.js";
-
-/**
- * End-to-end coverage for the schedule endpoints mounted at /api/schedule.
- *
- * The happy‑path portion exercises every route in the router with a real
- * database, creating an organizations and a show, elevating the primary test
- * user to the required roles, and then manipulating events in both scopes.
- *
- * A second user is created so we can verify assignment logic and personal
- * calendar retrieval.  The error‑handling suite makes heavy use of
- * vitest.spyOn()/mockRejectedValue() to force 404 and 500 responses from the
- * controller wrappers.
- */
 
 describe("Schedule Routes", () => {
 	let authToken;
@@ -34,7 +34,6 @@ describe("Schedule Routes", () => {
 	beforeAll(async () => {
 		await setupTestDatabase();
 
-		// create a user and log them in
 		const email = `schedule-tester-${Date.now()}@viu.ca`;
 		const userRes = await request(app).post("/api/users").send({
 			fname: "Schedule",
@@ -50,21 +49,18 @@ describe("Schedule Routes", () => {
 		});
 		authToken = loginRes.body.token;
 
-		// create an organizations and give our user org admin permissions
 		const orgRes = await request(app)
 			.post("/api/orgs")
 			.set("Authorization", `Bearer ${authToken}`)
 			.send({ name: "Schedule Test Org" });
 		testOrgId = orgRes.body.id;
 
-		// join and elevate to president (required for org schedule endpoints)
 		await addActiveOrgMember(testOrgId, testUserId);
 		await request(app)
 			.put(`/api/orgs/${testOrgId}/users/${testUserId}/roles`)
 			.set("Authorization", `Bearer ${authToken}`)
 			.send({ roles: ["president"] });
 
-		// create a show within the org and give user a director role
 		const showRes = await request(app)
 			.post("/api/shows")
 			.set("Authorization", `Bearer ${authToken}`)
@@ -76,7 +72,6 @@ describe("Schedule Routes", () => {
 			});
 		testShowId = showRes.body.id;
 
-		// join the show and grant a director role (required for show schedule)
 		await request(app)
 			.post(`/api/shows/${testShowId}/join`)
 			.set("Authorization", `Bearer ${authToken}`)
@@ -86,7 +81,6 @@ describe("Schedule Routes", () => {
 			.set("Authorization", `Bearer ${authToken}`)
 			.send({ roles: ["director"] });
 
-		// make another user to play with assignment and personal calendar
 		const otherRes = await request(app)
 			.post("/api/users")
 			.send({
@@ -97,7 +91,6 @@ describe("Schedule Routes", () => {
 			});
 		otherUserId = otherRes.body.id;
 
-		// ensure the other user is a member of both org and show
 		await addActiveOrgMember(testOrgId, otherUserId);
 		await request(app)
 			.post(`/api/shows/${testShowId}/join`)
@@ -200,7 +193,6 @@ describe("Schedule Routes", () => {
 				.set("Authorization", `Bearer ${authToken}`);
 			expect(res.statusCode).toEqual(200);
 			expect(Array.isArray(res.body.data)).toBe(true);
-			// user should see at least the org event
 			expect(res.body.data.some((e) => e.id === orgEventId)).toBe(true);
 		});
 

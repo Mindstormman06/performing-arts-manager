@@ -1,3 +1,14 @@
+/**
+ * Service for joining and inviting users to an organization.
+ *
+ * @remarks
+ * Exports `getUserOrganizations` (a user's OrgMemberships with their
+ * Organization and roles), `addUserToOrg` and `inviteByEmail`. Reads
+ * Organization and User and writes OrgMembership; invites create a `pending`
+ * membership and send no email. Callers must already have checked that the
+ * acting user may manage the organization.
+ */
+
 import models from "../models/index.js";
 
 async function getUserOrganizations(userId) {
@@ -8,7 +19,7 @@ async function getUserOrganizations(userId) {
 			{
 				model: models.OrganizationRole,
 				as: "assignedRoles",
-				through: { attributes: [] }, // Don't include junction table attributes
+				through: { attributes: [] },
 			},
 		],
 	});

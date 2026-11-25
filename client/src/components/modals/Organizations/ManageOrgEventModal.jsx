@@ -32,6 +32,19 @@ import {
 	ModalWrapper,
 } from "../../ui/modals/index.js";
 
+/**
+ * A two-tab modal for editing, re-assigning or deleting an existing
+ * organization event.
+ *
+ * @remarks
+ * Holds the event form, the organization's members and their roles fetched with
+ * `getOrganizationUsers`, and the selected attendee ids, all reloaded from the
+ * event each time the modal opens. Times are shown in local time and saved as
+ * UTC via `utils/dateTime.js`. Saving calls `updateOrgEvent` and then
+ * `assignOrgEventUsers`; deleting asks for `window.confirm` and calls
+ * `deleteOrgEvent`. Renders nothing while closed. Requests go through
+ * `services/api.js`, which authenticates with the `token` in `localStorage`.
+ */
 export default function ManageOrgEventModal({
 	isOpen,
 	onClose,

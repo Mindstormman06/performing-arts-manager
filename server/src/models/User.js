@@ -1,3 +1,12 @@
+/**
+ * Sequelize model factory for the `users` table: a person with a login.
+ *
+ * @remarks
+ * `email` is unique and validated. The default scope leaves out
+ * `passwordHash`, `sessionToken` and `sessionExpiry`, so queries never return
+ * credentials unless they use the `withPassword` scope or list the attributes.
+ */
+
 export default (sequelize, DataTypes) => {
 	const User = sequelize.define(
 		"User",
@@ -40,7 +49,6 @@ export default (sequelize, DataTypes) => {
 		},
 		{
 			tableName: "users",
-			// Never return credentials or session data unless explicitly asked for
 			defaultScope: {
 				attributes: {
 					exclude: ["passwordHash", "sessionToken", "sessionExpiry"],

@@ -1,3 +1,14 @@
+/**
+ * Cucumber step definitions for the show scheduling feature: creating,
+ * assigning users to and deleting events on show 1.
+ *
+ * @remarks
+ * Needs the live MySQL DB filled by `seed.js`; every request targets show
+ * id 1 and event ids from the seed, and sends `this.currentToken` from the
+ * shared login step. Each When step stores its response in
+ * `this.lastResponse` for the Then steps. Creating an event writes to the DB.
+ */
+
 import assert from "node:assert";
 
 import { Given, Then, When } from "@cucumber/cucumber";
@@ -5,17 +16,9 @@ import request from "supertest";
 
 import app from "../../../server.js";
 
-// ----------------------------------------------------------------
-// GIVEN STEPS
-// ----------------------------------------------------------------
-
 Given("a schedule event with ID {int} exists for Rock of Ages", (_eventId) => {
-	// No action needed, ID will be created
+	// Nothing to do: the seed data creates this event.
 });
-
-// ----------------------------------------------------------------
-// WHEN STEPS
-// ----------------------------------------------------------------
 
 When(
 	"they attempt to create a {string} event for Rock of Ages on {string} from {string} to {string}",
@@ -49,10 +52,6 @@ When(
 			.set("Authorization", `Bearer ${this.currentToken}`);
 	},
 );
-
-// ----------------------------------------------------------------
-// THEN STEPS (Asserting the responses)
-// ----------------------------------------------------------------
 
 Then("the event should be saved successfully", function () {
 	assert.strictEqual(this.lastResponse.body.success, true);

@@ -1,8 +1,19 @@
+/**
+ * Express controller for organization CRUD.
+ *
+ * @remarks
+ * Delegates to `organization.service`. Listing returns only organizations the
+ * caller is an active member of, and `create` makes `req.user.id` the new
+ * organization's president. "Organization not found" responds 404; anything
+ * else goes to `next`. Role checks for update and delete happen in route
+ * middleware.
+ */
+
 import organizationService from "../services/organization.service.js";
 
-async function get(_req, res, next) {
+async function get(req, res, next) {
 	try {
-		res.json(await organizationService.getAll());
+		res.json(await organizationService.getAll(req.user.id));
 	} catch (error) {
 		console.error(error);
 		next(error);

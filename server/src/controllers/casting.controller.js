@@ -1,3 +1,14 @@
+/**
+ * Express controller for a show's characters (casting).
+ *
+ * @remarks
+ * Delegates to `casting.service`, passing `showId` and `characterId` from the
+ * route. Service errors map by message: "not found" to 404, and "required" or
+ * "member" (missing name, assignee not in the show) to 400; anything else goes
+ * to `next` and the global error handler. Route middleware must already have
+ * checked show membership and roles.
+ */
+
 import castingService from "../services/casting.service.js";
 
 async function getAll(req, res, next) {

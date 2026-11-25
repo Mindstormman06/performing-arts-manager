@@ -1,3 +1,15 @@
+/**
+ * Service for the characters (Casting rows) of a show.
+ *
+ * @remarks
+ * Exports functions to list, get, create, update, assign and delete
+ * characters. Reads and writes Casting, reads ShowMembership, and includes the
+ * assigned User's public fields. Every query is filtered by `showId`, so a
+ * character from another show is reported as not found, and an assignee must
+ * have a ShowMembership in the show. Nothing is transactional. Callers must
+ * already have checked that the acting user may manage the show.
+ */
+
 import models from "../models/index.js";
 
 async function getShowCharacters(showId) {

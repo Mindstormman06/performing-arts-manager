@@ -1,3 +1,13 @@
+/**
+ * Unit tests for the Express config's `API_PORT` handling.
+ *
+ * @remarks
+ * Needs no database. Each test edits `process.env` and imports
+ * `express.config.js` with a distinct query string so a fresh copy of the
+ * module reads the env; the original env is restored after the suite. Uses
+ * Vitest globals instead of imports.
+ */
+
 describe("Express Config Coverage", () => {
 	const originalEnv = { ...process.env };
 

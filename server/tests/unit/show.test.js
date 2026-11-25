@@ -1,3 +1,17 @@
+/**
+ * Integration tests for the show routes (CRUD, roles, dashboard, membership),
+ * controller error handling and the org/show authorization middleware, plus
+ * direct tests of the show, show-membership and show-role services.
+ *
+ * @remarks
+ * Needs the live MySQL test DB: `beforeAll` runs `setupTestDatabase`, then
+ * registers a user and creates an org through the API; the dashboard test
+ * also writes inventory, casting and schedule rows directly. Tests run in
+ * order and share one show: the first test creates it, the service tests
+ * rely on the user having been removed from it earlier, and the final test
+ * deletes it. Error paths spy on services and restore each spy.
+ */
+
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
@@ -17,7 +31,6 @@ describe("Show Management API", () => {
 	beforeAll(async () => {
 		await setupTestDatabase();
 
-		// 1. Create a user
 		const email = `show-tester-${Date.now()}@viu.ca`;
 		const userRes = await request(app).post("/api/users").send({
 			fname: "Show",
@@ -27,21 +40,18 @@ describe("Show Management API", () => {
 		});
 		testUserId = userRes.body.id;
 
-		// 2. Login to get Auth Token
 		const loginRes = await request(app).post("/api/auth/login").send({
 			email,
 			password: "password123",
 		});
 		authToken = loginRes.body.token;
 
-		// 3. Create an Organization
 		const orgRes = await request(app)
 			.post("/api/orgs")
 			.set("Authorization", `Bearer ${authToken}`)
 			.send({ name: "Show Test Org" });
 		testOrgId = orgRes.body.id;
 
-		// 4. Join the Org & elevate to Admin (Required to create shows)
 		await request(app)
 			.post(`/api/orgs/${testOrgId}/join`)
 			.send({ userId: testUserId });
@@ -68,11 +78,10 @@ describe("Show Management API", () => {
 				});
 
 			expect(res.statusCode).toEqual(201);
-			testShowId = res.body.id; // Save for later tests
+			testShowId = res.body.id;
 		});
 
 		it("PUT .../roles - should assign roles (actor, director) to a user in a show", async () => {
-			// Must join the show before receiving roles
 			await request(app)
 				.post(`/api/shows/${testShowId}/join`)
 				.send({ userId: testUserId });
@@ -173,7 +182,6 @@ describe("Show Management API", () => {
 
 	describe("Show Controller Error Handling", () => {
 		it("DELETE /api/shows/:id - should return 404 when show is not found", async () => {
-			// Mock the deletion service to simulate a non-existent show
 			const spy = vi
 				.spyOn(showService, "remove")
 				.mockRejectedValue(new Error("Show not found"));
@@ -206,9 +214,11 @@ describe("Show Management API", () => {
 	describe("showController - Error Handling", () => {
 		it("GET /api/shows - should handle generic errors", async () => {
 			const spy = vi
-				.spyOn(showService, "getAll")
+				.spyOn(showService, "getUserShows")
 				.mockRejectedValue(new Error("Some error"));
-			const res = await request(app).get("/api/shows");
+			const res = await request(app)
+				.get("/api/shows")
+				.set("Authorization", `Bearer ${authToken}`);
 			expect(res.statusCode).toEqual(500);
 			spy.mockRestore();
 		});
@@ -216,7 +226,9 @@ describe("Show Management API", () => {
 			const spy = vi
 				.spyOn(showService, "getById")
 				.mockRejectedValue(new Error("Show not found"));
-			const res = await request(app).get(`/api/shows/999`);
+			const res = await request(app)
+				.get(`/api/shows/999`)
+				.set("Authorization", `Bearer ${authToken}`);
 			expect(res.statusCode).toEqual(404);
 			spy.mockRestore();
 		});
@@ -224,7 +236,9 @@ describe("Show Management API", () => {
 			const spy = vi
 				.spyOn(showService, "getById")
 				.mockRejectedValue(new Error("Some other error"));
-			const res = await request(app).get(`/api/shows/${testShowId}`);
+			const res = await request(app)
+				.get(`/api/shows/${testShowId}`)
+				.set("Authorization", `Bearer ${authToken}`);
 			expect(res.statusCode).toEqual(500);
 			spy.mockRestore();
 		});
@@ -447,7 +461,6 @@ describe("Show Management API", () => {
 		let basicUserId;
 
 		beforeAll(async () => {
-			// Create a regular user to test permission rejections
 			const userRes = await request(app)
 				.post("/api/users")
 				.send({
@@ -465,7 +478,6 @@ describe("Show Management API", () => {
 		});
 
 		it("authorizeOrg - should return 400 if orgId is missing (Line 33)", async () => {
-			// Trying to create a show without providing an organization_id in the body
 			const res = await request(app)
 				.post("/api/shows")
 				.set("Authorization", `Bearer ${authToken}`)
@@ -479,7 +491,6 @@ describe("Show Management API", () => {
 		});
 
 		it("authorizeOrg - should return 403 if user is not a member of the org (Line 41)", async () => {
-			// basicUser never joined testOrgId
 			const res = await request(app)
 				.post("/api/shows")
 				.set("Authorization", `Bearer ${basicAuthToken}`)
@@ -492,7 +503,7 @@ describe("Show Management API", () => {
 		});
 
 		it("authorizeOrg - should return 403 for insufficient org permissions (Line 54)", async () => {
-			// Join org (admin adds them, they accept), but don't get 'admin' role
+			// A plain active member, without the admin role.
 			await request(app)
 				.post(`/api/orgs/${testOrgId}/join`)
 				.set("Authorization", `Bearer ${authToken}`)
@@ -514,7 +525,6 @@ describe("Show Management API", () => {
 		});
 
 		it("authorizeShow - should return 403 if user is not a member of the show (Line 75)", async () => {
-			// basicUser tries to edit testShowId without joining it
 			const res = await request(app)
 				.put(`/api/shows/${testShowId}`)
 				.set("Authorization", `Bearer ${basicAuthToken}`)
@@ -526,7 +536,7 @@ describe("Show Management API", () => {
 		});
 
 		it("authorizeShow - should return 403 for insufficient show permissions (Line 87)", async () => {
-			// basicUser joins show, but is given 'actor' role (updating requires director/admin)
+			// The actor role alone is not enough to edit the show.
 			await request(app)
 				.post(`/api/shows/${testShowId}/join`)
 				.set("Authorization", `Bearer ${authToken}`)
@@ -561,10 +571,9 @@ describe("Show Management API", () => {
 		});
 
 		it("addUserToShow - should throw 'User already in show' (Line 14)", async () => {
-			// 1. Add the user back to the show (since they were removed by earlier tests)
+			// The user was removed from the show by an earlier test.
 			await showMembershipService.addUserToShow(testShowId, testUserId);
 
-			// 2. Try to add them a second time to trigger the native error
 			await expect(
 				showMembershipService.addUserToShow(testShowId, testUserId),
 			).rejects.toThrow("User already in show");
@@ -599,8 +608,7 @@ describe("Show Management API", () => {
 		});
 
 		it("getShowUsers - should throw 'No users found'", async () => {
-			// Create a temporary show with no users to trigger the empty array error
-			// We must include start_date and end_date to satisfy the database constraints!
+			// start_date and end_date are NOT NULL in the schema.
 			const emptyShow = await models.Show.create({
 				title: "Empty",
 				organization_id: testOrgId,
@@ -660,12 +668,10 @@ describe("Show Management API", () => {
 		});
 
 		it("removeRolesFromUser - should throw 'Membership or Roles not found' (Lines 108-109)", async () => {
-			// Fake user ID to trigger !membership
 			await expect(
 				showRoleService.removeRolesFromUser(testShowId, 99999, ["actor"]),
 			).rejects.toThrow("Membership or Roles not found");
 
-			// Fake role to trigger !roles.length
 			await expect(
 				showRoleService.removeRolesFromUser(testShowId, testUserId, [
 					"mythical-role",
@@ -674,7 +680,6 @@ describe("Show Management API", () => {
 		});
 
 		it("removeRolesFromUser - should throw 'User does not have any of these roles' (Line 120)", async () => {
-			// testUserId is in the show, but doesn't have the 'stagehand' role assigned.
 			await expect(
 				showRoleService.removeRolesFromUser(testShowId, testUserId, [
 					"stagehand",
@@ -683,12 +688,10 @@ describe("Show Management API", () => {
 		});
 
 		it("removeRolesFromUser - should remove role successfully (Happy Path)", async () => {
-			// Assign a role first so we have something to successfully remove
 			await showRoleService.appendRolesToAssignment(testShowId, testUserId, [
 				"actor",
 			]);
 
-			// Now remove it to hit the final return statement (Line 123)
 			const res = await showRoleService.removeRolesFromUser(
 				testShowId,
 				testUserId,
@@ -774,8 +777,6 @@ describe("Show Management API", () => {
 		});
 
 		it("remove - should delete show successfully (Lines 37-38)", async () => {
-			// Because this is the absolute last test in the file,
-			// we can safely destroy the test show directly through the service!
 			const res = await showService.remove(testShowId);
 			expect(res.message).toBe("Show deleted successfully");
 		});

@@ -15,6 +15,17 @@ import {
 	ModalWrapper,
 } from "../../ui/modals/index.js";
 
+/**
+ * A modal form for renaming an existing organization.
+ *
+ * @remarks
+ * Holds the name field, an error message and a loading flag, and copies the
+ * organization's current name into the field whenever the parent passes a new
+ * organization. Requires a non-blank name, calls `updateOrganization`, then
+ * triggers the parent's success callback and closes. Renders nothing while
+ * closed. Requests go through `services/api.js`, which authenticates with the
+ * `token` in `localStorage`.
+ */
 export default function EditOrgModal({ isOpen, onClose, onSuccess, org }) {
 	const [name, setName] = useState("");
 	const [error, setError] = useState("");

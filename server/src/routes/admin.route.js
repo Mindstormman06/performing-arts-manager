@@ -1,3 +1,13 @@
+/**
+ * Express router for database maintenance, mounted at `/api/admin`.
+ *
+ * @remarks
+ * Exposes `POST /reset-db`, which wipes and re-creates the database. It
+ * requires a logged-in user and answers 404 unless `ALLOW_DB_RESET` is `true`
+ * and `NODE_ENV` is not `production`, or the process runs under Vitest. Only
+ * enable it on throwaway databases.
+ */
+
 import Router from "express";
 
 import adminController from "../controllers/admin.controller.js";
@@ -9,14 +19,14 @@ const router = Router();
 // the real server (UAT, DAST) can't wipe the database mid-run.
 const isUnitTestRun = () => typeof process.env.VITEST !== "undefined";
 
-// Destructive maintenance endpoints are disabled unless explicitly enabled.
-// Set ALLOW_DB_RESET=true only on throwaway development/test databases.
 const requireDbResetEnabled = (_req, res, next) => {
-	if (process.env.ALLOW_DB_RESET === "true" || isUnitTestRun()) return next();
+	const allowedHere =
+		process.env.ALLOW_DB_RESET === "true" &&
+		process.env.NODE_ENV !== "production";
+	if (allowedHere || isUnitTestRun()) return next();
 	return res.status(404).json({ success: false, message: "Route Not Found" });
 };
 
-// POST /api/admin/reset-db
 router.post(
 	"/reset-db",
 	requireDbResetEnabled,

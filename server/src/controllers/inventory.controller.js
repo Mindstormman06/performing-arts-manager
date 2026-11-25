@@ -1,3 +1,16 @@
+/**
+ * Express controller for organization (global) and show inventory.
+ *
+ * @remarks
+ * Delegates to `inventory.service`. A photo uploaded by multer arrives as
+ * `req.file` and is stored as `/uploads/inventory/<filename>`, and
+ * `req.user.id` is recorded as the item's creator. Service errors map by
+ * message: "not found" to 404, "already in this show" to 409, and "Invalid
+ * department" or assignment-rule violations (eligibility, user-or-character,
+ * membership) to 400; anything else goes to `next`. Org or show access and
+ * department rights are enforced by route middleware before these run.
+ */
+
 import inventoryService from "../services/inventory.service.js";
 
 async function getDepartments(_req, res, next) {

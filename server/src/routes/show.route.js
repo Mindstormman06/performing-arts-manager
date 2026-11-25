@@ -1,3 +1,16 @@
+/**
+ * Express router for shows, their members and casting, mounted at
+ * `/api/shows`.
+ *
+ * @remarks
+ * Every route requires a logged-in user. Creating a show requires an org admin or president of the
+ * `organization_id` in the body. Show routes require active membership in the
+ * show and its organization, and changes require `director` or
+ * `stage-manager`, except for org admins, presidents and board members, who
+ * pass every show check. A member's profile (bio and `photo` upload under
+ * `uploads/profiles`) can be edited by that member or a show manager.
+ */
+
 import Router from "express";
 
 import upload, { setUploadSubDir } from "../config/multer.config.js";
@@ -31,9 +44,8 @@ const requireSelfOrShowManager = (req, res, next) => {
 
 const router = Router();
 
-// Show CRUD routes
-router.get("/", showController.get);
-router.get("/roles/available", showController.getAvailableRoles);
+router.get("/", authenticate, showController.get);
+router.get("/roles/available", authenticate, showController.getAvailableRoles);
 router.get("/user", authenticate, showController.getUserShows);
 router.get(
 	"/:id/dashboard",
@@ -41,7 +53,7 @@ router.get(
 	authorizeShow(),
 	showController.getDashboardSummary,
 );
-router.get("/:id", showController.getById);
+router.get("/:id", authenticate, authorizeShow(), showController.getById);
 router.post(
 	"/",
 	authenticate,
@@ -61,7 +73,6 @@ router.delete(
 	showController.remove,
 );
 
-// POST /api/shows/1/join -> Links User 1 to Show 1 (assignment_id created)
 router.post(
 	"/:showId/join",
 	authenticate,
@@ -76,7 +87,6 @@ router.post(
 	showMembershipController.invite,
 );
 
-// PUT /api/shows/1/users/1/roles -> Appends roles to that assignment_id
 router.put(
 	"/:showId/users/:userId/roles",
 	authenticate,
@@ -84,7 +94,6 @@ router.put(
 	showMembershipController.addRoles,
 );
 
-// GET all users in an show
 router.get(
 	"/:showId/users",
 	authenticate,
@@ -92,7 +101,6 @@ router.get(
 	showMembershipController.getAllUsers,
 );
 
-// GET all users with a specific role (usage: /api/shows/1/users/search?role=admin)
 router.get(
 	"/:showId/users/search",
 	authenticate,
@@ -100,7 +108,6 @@ router.get(
 	showMembershipController.getByRole,
 );
 
-// GET a specific user by ID in an show
 router.get(
 	"/:showId/users/:userId",
 	authenticate,
@@ -108,7 +115,6 @@ router.get(
 	showMembershipController.getUser,
 );
 
-// DELETE user from show (Leave)
 router.delete(
 	"/:showId/users/:userId",
 	authenticate,
@@ -116,7 +122,6 @@ router.delete(
 	showMembershipController.leave,
 );
 
-// DELETE a specific role from a user
 router.delete(
 	"/:showId/users/:userId/roles",
 	authenticate,
@@ -124,7 +129,6 @@ router.delete(
 	showMembershipController.removeRole,
 );
 
-// UPDATE user profile (bio and/or photo) for a specific show
 router.put(
 	"/:showId/users/:userId/profile",
 	authenticate,
@@ -135,7 +139,6 @@ router.put(
 	showMembershipController.updateProfile,
 );
 
-// Casting (characters)
 router.get(
 	"/:showId/casting",
 	authenticate,

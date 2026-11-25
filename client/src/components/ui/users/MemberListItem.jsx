@@ -1,3 +1,13 @@
+/**
+ * A list item button showing a member's initials, name and optional secondary
+ * line.
+ *
+ * @remarks
+ * Stateless; renders an `<li>` so it belongs inside a `<ul>` or `<ol>`. Reads
+ * the name from the member's nested `User` record and dims the row and shows a
+ * "Pending" badge when the membership status is `pending`. Clicking calls the
+ * parent's handler.
+ */
 export default function MemberListItem({ member, onClick, secondaryText }) {
 	const { fname, lname } = member.User || {};
 	const initials = `${fname?.charAt(0) || ""}${lname?.charAt(0) || ""}`;

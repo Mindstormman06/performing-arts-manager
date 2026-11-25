@@ -1,3 +1,13 @@
+/**
+ * End-to-end tests for logging in through the UI.
+ *
+ * @remarks
+ * Covers a successful login as the seeded president (landing on
+ * `/organizations` with Shawnigan Players listed) and the error message shown
+ * for bad credentials. Needs the backend API and its database running, seeded
+ * by the global setup.
+ */
+
 import { expect, test } from "@playwright/test";
 import { loginAs, USERS } from "./setup.js";
 
@@ -21,7 +31,6 @@ test.describe("Authentication Flow", () => {
 		await page.getByPlaceholder("Password").fill("wrongpassword");
 		await page.getByRole("button", { name: "Login", exact: true }).click();
 
-		// Checks the error paragraph in Login.jsx
 		const errorMsg = page.locator("p.text-red-500");
 		await expect(errorMsg).toBeVisible();
 	});

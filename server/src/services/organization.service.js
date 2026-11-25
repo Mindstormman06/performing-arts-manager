@@ -1,11 +1,33 @@
+/**
+ * Service for organization CRUD.
+ *
+ * @remarks
+ * Exports `getAll` (organizations where a user is an active member),
+ * `getById`, `create`, `update` and `remove`. `create` inserts the
+ * Organization and an active OrgMembership holding the president
+ * OrganizationRole for `data.userId` in one transaction, and fails if that
+ * role has not been seeded. `create` and `update` only accept `name` from the
+ * client; other fields are ignored. Callers must already have checked
+ * membership or admin rights.
+ */
+
 import models from "../models/index.js";
 import sequelize from "./db.service.js";
 
 const { Organization } = models;
 
-async function getAll() {
-	const organizations = await Organization.findAll();
-	return organizations;
+const pickOrgFields = ({ name } = {}) => (name === undefined ? {} : { name });
+
+async function getAll(userId) {
+	return await Organization.findAll({
+		include: [
+			{
+				model: models.OrgMembership,
+				where: { users_id: userId, status: "active" },
+				attributes: [],
+			},
+		],
+	});
 }
 
 async function getById(id) {
@@ -20,7 +42,9 @@ async function create(data) {
 	const t = await sequelize.transaction();
 
 	try {
-		const newOrg = await Organization.create(data, { transaction: t });
+		const newOrg = await Organization.create(pickOrgFields(data), {
+			transaction: t,
+		});
 
 		const presidentRole = await models.OrganizationRole.findOne({
 			where: { name: "president" },
@@ -54,7 +78,7 @@ async function update(id, data) {
 	if (!organization) {
 		throw new Error("Organization not found");
 	}
-	await organization.update(data);
+	await organization.update(pickOrgFields(data));
 	return organization.toJSON();
 }
 

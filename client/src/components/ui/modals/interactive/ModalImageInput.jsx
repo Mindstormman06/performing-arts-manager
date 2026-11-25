@@ -1,6 +1,16 @@
 import { useRef } from "react";
 import ModalLabel from "../text/ModalLabel.jsx";
 
+/**
+ * A file picker for one image with an inline preview and remove button.
+ *
+ * @remarks
+ * Holds only a ref to the file input. The chosen `File` (or `null` on removal)
+ * goes to the parent's change handler, and a data URL read with the browser's
+ * `FileReader` goes to the optional preview handler; the parent stores both and
+ * passes the preview URL back in to show it. Removing the image also clears the
+ * file input so the same file can be picked again. Accepts any `image/*` type.
+ */
 export default function ModalImageInput({
 	id,
 	label,
@@ -15,7 +25,6 @@ export default function ModalImageInput({
 		const file = e.target.files?.[0];
 		if (file) {
 			onChange(file);
-			// Create preview URL
 			const reader = new FileReader();
 			reader.onloadend = () => {
 				onPreview?.(reader.result);

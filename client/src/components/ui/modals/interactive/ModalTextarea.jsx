@@ -1,3 +1,10 @@
+/**
+ * A full-width styled multi-line text input for use inside modals.
+ *
+ * @remarks
+ * Stateless; every prop, including `value`, `onChange` and `rows`, is passed to
+ * the `<textarea>`, and a passed `className` replaces the default styling.
+ */
 export default function ModalTextarea({ ...props }) {
 	return (
 		<textarea

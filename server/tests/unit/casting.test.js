@@ -1,3 +1,14 @@
+/**
+ * Integration tests for the show casting routes: create, list, assign,
+ * rename and delete characters, and the role and membership checks on them.
+ *
+ * @remarks
+ * Needs the live MySQL test DB: `beforeAll` runs `setupTestDatabase`, then
+ * creates an org admin who directs a show, a show member and an outsider
+ * through the API. Tests run in order: later ones use the character created
+ * by the first test, and the delete test must run last.
+ */
+
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 

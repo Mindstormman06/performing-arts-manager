@@ -1,3 +1,19 @@
+/**
+ * Express controller for show membership, roles, invitations and profiles.
+ *
+ * @remarks
+ * Delegates to `showMembership.service` (join, invite, profile) and
+ * `showRole.service` (role changes, member lookups, removal), passing
+ * `req.user.id` and `req.showOversight` (set by `authorizeShow` for org
+ * admins) so the role-hierarchy rules apply. Invites always target the
+ * organization of `req.show`. Service errors map by message: hierarchy
+ * violations to 403; "not found", "No valid", "does not", a missing role name,
+ * or a non-member target of a role change or removal to 404; "User already in
+ * show" to 409; and joining from outside the org or a failed invite to 400.
+ * Anything else goes to `next`. `updateProfile` accepts a multer `req.file`
+ * stored under `/uploads/profiles/`.
+ */
+
 import showMembershipService from "../services/showMembership.service.js";
 import showRoleService from "../services/showRole.service.js";
 
@@ -62,13 +78,14 @@ async function invite(req, res, next) {
 async function addRoles(req, res, next) {
 	try {
 		const { showId, userId } = req.params;
-		const { roles } = req.body; // Expecting ["admin", "tech"]
+		const { roles } = req.body;
 
 		const updatedRoles = await showRoleService.appendRolesToAssignment(
 			showId,
 			userId,
 			roles,
 			req.user?.id,
+			Boolean(req.showOversight),
 		);
 
 		return res.json({
@@ -79,7 +96,8 @@ async function addRoles(req, res, next) {
 		if (
 			error.message.includes("higher role") ||
 			error.message.includes("highest role") ||
-			error.message.includes("cannot remove")
+			error.message.includes("cannot remove") ||
+			error.message.includes("cannot change roles")
 		) {
 			return res.status(403).json({ success: false, message: error.message });
 		}
@@ -145,9 +163,14 @@ async function leave(req, res, next) {
 		const result = await showRoleService.removeUserFromShow(
 			req.params.showId,
 			req.params.userId,
+			req.user?.id,
+			Boolean(req.showOversight),
 		);
 		res.status(200).json(result);
 	} catch (error) {
+		if (error.message.includes("cannot change roles")) {
+			return res.status(403).json({ success: false, message: error.message });
+		}
 		if (
 			error.message.includes("not a member") ||
 			error.message.includes("Show not found")
@@ -160,8 +183,7 @@ async function leave(req, res, next) {
 async function removeRole(req, res, next) {
 	try {
 		const { showId, userId } = req.params;
-		// Accept { "role": "admin" } or { "roles": ["admin", "president"] }
-		// Tested but not recognizing coverage. Ignoring for now.
+		// Covered by tests, but v8 does not register it.
 		/* v8 ignore next */ const rolesToRemove = req.body.roles || req.body.role;
 
 		const result = await showRoleService.removeRolesFromUser(
@@ -169,13 +191,14 @@ async function removeRole(req, res, next) {
 			userId,
 			rolesToRemove,
 			req.user?.id,
+			Boolean(req.showOversight),
 		);
-		// Tested but not recognizing coverage. Ignoring for now.
 		/* v8 ignore next */ res.json(result);
 	} catch (error) {
 		if (
 			error.message.includes("highest role") ||
-			error.message.includes("cannot remove")
+			error.message.includes("cannot remove") ||
+			error.message.includes("cannot change roles")
 		) {
 			return res.status(403).json({ success: false, message: error.message });
 		}

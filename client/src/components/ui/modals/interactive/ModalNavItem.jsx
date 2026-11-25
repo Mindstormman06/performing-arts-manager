@@ -1,3 +1,11 @@
+/**
+ * A tab button for a modal's tab bar.
+ *
+ * @remarks
+ * Stateless; the parent says whether this tab is active, which underlines it in
+ * blue. Other props pass to the `<button>`, but the styling cannot be
+ * overridden. Meant to sit inside `ModalNav`.
+ */
 export default function ModalNavItem({ children, isActive, ...props }) {
 	return (
 		<button

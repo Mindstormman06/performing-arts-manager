@@ -1,3 +1,17 @@
+/**
+ * The client for the backend REST API.
+ *
+ * @remarks
+ * Exports one thin function per endpoint (auth, organizations, shows,
+ * casting, inventory, schedules, membership), each returning the axios
+ * promise, plus `AUTH_LOGOUT_EVENT`. All calls go through a shared axios
+ * instance based at `API_BASE_URL` from `config.js`. Its request interceptor
+ * reads `localStorage` key `token` and sends it as a Bearer header. Its
+ * response interceptor, on any 401 except from `/auth/login`, removes the
+ * stored token and dispatches `AUTH_LOGOUT_EVENT` on `window` so
+ * `AuthProvider` can sign out; the error is still rejected to the caller.
+ */
+
 import axios from "axios";
 import { API_BASE_URL } from "./config.js";
 
@@ -19,10 +33,8 @@ API.interceptors.response.use(
 	(response) => response,
 	(error) => {
 		if (error.response && error.response.status === 401) {
-			// Safely check if the URL contains the login path
+			// A 401 from login means bad credentials, not an expired session.
 			if (!error.config?.url?.includes("/auth/login")) {
-				// Single place that handles 401s: clear the stored token and let
-				// AuthProvider reset state and navigate to /login.
 				localStorage.removeItem("token");
 				window.dispatchEvent(new Event(AUTH_LOGOUT_EVENT));
 			}
@@ -31,12 +43,10 @@ API.interceptors.response.use(
 	},
 );
 
-// Authentication
 export const login = (credentials) => API.post("/auth/login", credentials);
 export const signup = (userData) => API.post("/users", userData);
 export const verifyToken = () => API.get("/auth/verify");
 
-// Organizations
 export const getOrganizations = () => API.get("/orgs");
 export const getOrganization = (id) => API.get(`/orgs/${id}`);
 export const createOrganization = (orgData) => API.post("/orgs", orgData);
@@ -54,7 +64,6 @@ export const respondToInvite = (orgId, action) =>
 	API.put(`/orgs/${orgId}/respond`, { action });
 export const getMyOrganizations = () => API.get("/orgs/my");
 
-// Shows
 export const getShows = () => API.get("/shows");
 export const getUserShows = (orgId) => API.get(`/shows/user?orgId=${orgId}`);
 export const getOrgShows = (orgId) => API.get(`/shows?org=${orgId}`);
@@ -77,7 +86,6 @@ export const removeShowUserRole = (showId, userId, roles) =>
 export const getShowDashboard = (id) => API.get(`/shows/${id}/dashboard`);
 export const getAvailableShowRoles = () => API.get("/shows/roles/available");
 
-// Casting
 export const getShowCasting = (showId) => API.get(`/shows/${showId}/casting`);
 export const getShowCharacter = (showId, characterId) =>
 	API.get(`/shows/${showId}/casting/${characterId}`);
@@ -90,10 +98,8 @@ export const assignShowCharacter = (showId, characterId, users_id) =>
 export const deleteShowCharacter = (showId, characterId) =>
 	API.delete(`/shows/${showId}/casting/${characterId}`);
 
-// --- Inventory ---
 export const getDepartments = () => API.get("/inventory/departments");
 
-// Global Org Inventory
 export const getGlobalInventory = (orgId) =>
 	API.get(`/inventory/orgs/${orgId}`);
 export const createGlobalInventoryItem = (orgId, data) =>
@@ -103,7 +109,6 @@ export const updateGlobalInventoryItem = (orgId, itemId, data) =>
 export const deleteGlobalInventoryItem = (orgId, itemId) =>
 	API.delete(`/inventory/orgs/${orgId}/items/${itemId}`);
 
-// Show Inventory
 export const getShowInventory = (showId) =>
 	API.get(`/inventory/shows/${showId}`);
 export const createShowItem = (showId, data) =>
@@ -121,20 +126,15 @@ export const pullGlobalItemToShow = (showId, itemId) =>
 export const removeShowItem = (showId, itemId) =>
 	API.delete(`/inventory/shows/${showId}/items/${itemId}`);
 
-// Global Org Inventory
 export const createGlobalInventoryItemWithPhoto = (orgId, formData) =>
 	API.post(`/inventory/orgs/${orgId}`, formData, {
 		headers: { "Content-Type": "multipart/form-data" },
 	});
 
-// -- Schedules --
-
-// Fetching
 export const getOrgCalendar = (orgId) => API.get(`/schedule/orgs/${orgId}`);
 export const getShowCalendar = (showId) => API.get(`/schedule/shows/${showId}`);
 export const getPersonalCalendar = () => API.get("/schedule/personal");
 
-// Managing (Show Level)
 export const createShowEvent = (showId, eventData) =>
 	API.post(`/schedule/shows/${showId}`, eventData);
 export const updateShowEvent = (showId, eventId, eventData) =>
@@ -144,7 +144,6 @@ export const deleteShowEvent = (showId, eventId) =>
 export const assignShowEventUsers = (showId, eventId, assignData) =>
 	API.put(`/schedule/shows/${showId}/${eventId}/users`, assignData);
 
-// Managing (Org Level)
 export const createOrgEvent = (orgId, eventData) =>
 	API.post(`/schedule/orgs/${orgId}`, eventData);
 export const updateOrgEvent = (orgId, eventId, eventData) =>
@@ -154,7 +153,6 @@ export const deleteOrgEvent = (orgId, eventId) =>
 export const assignOrgEventUsers = (orgId, eventId, assignData) =>
 	API.put(`/schedule/orgs/${orgId}/${eventId}/users`, assignData);
 
-// -- Membership --
 export const addUserToShow = (showId, userId) =>
 	API.post(`/shows/${showId}/join`, { userId });
 export const inviteUserToShow = (showId, data) =>

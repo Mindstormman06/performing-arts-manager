@@ -29,6 +29,21 @@ import {
 	ModalWrapper,
 } from "../../ui/modals/index.js";
 
+/**
+ * A two-tab modal for creating a show event and choosing which members and
+ * uncast characters must attend.
+ *
+ * @remarks
+ * Holds the event form (date plus start and end time), the show's members
+ * labelled with their cast character, the uncast characters, the roles found
+ * among members, the selected user and character ids, and the id of an event
+ * already created; all of it resets each time the modal opens, optionally
+ * pre-filling a date from the parent. Loads data with `getShowUsers` and
+ * `getShowCasting`, converts local times to UTC with `utils/dateTime.js`, then
+ * calls `createShowEvent` and `assignShowEventUsers`. Selecting a role selects
+ * every member holding it. Renders nothing while closed. Requests go through
+ * `services/api.js`, which authenticates with the `token` in `localStorage`.
+ */
 export default function CreateEventModal({
 	isOpen,
 	onClose,

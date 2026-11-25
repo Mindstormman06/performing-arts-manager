@@ -1,3 +1,15 @@
+/**
+ * Service for adding, inviting and profiling show members.
+ *
+ * @remarks
+ * Exports `addUserToShow`, `inviteByEmail` and `updateProfile`. Reads Show and
+ * User; writes ShowMembership and OrgMembership. Adding requires an active
+ * membership in the show's organization. Inviting creates a pending
+ * OrgMembership if the user has none, and the show membership stays pending
+ * while the org membership is. Nothing is transactional and no email is sent.
+ * Callers must already have checked show manager rights.
+ */
+
 import models from "../models/index.js";
 
 async function addUserToShow(showId, userId) {
@@ -18,13 +30,11 @@ async function addUserToShow(showId, userId) {
 		throw new Error("User is not a member of this show's organization");
 	}
 
-	// Check if membership already exists
 	const existing = await models.ShowMembership.findOne({
 		where: { show_id: showId, users_id: userId },
 	});
 	if (existing) throw new Error("User already in show");
 
-	// Create membership without any roles in the second join table
 	return await models.ShowMembership.create({
 		show_id: showId,
 		users_id: userId,

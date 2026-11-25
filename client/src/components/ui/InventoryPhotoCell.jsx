@@ -1,6 +1,18 @@
 import { useState } from "react";
 import { BACKEND_URL } from "../../services/config.js";
 
+/**
+ * A thumbnail of an inventory item's photo that opens a full-size preview when
+ * clicked.
+ *
+ * @remarks
+ * Holds whether the preview overlay is open. Takes the item's server-relative
+ * photo path and its name (used as alt text and caption); the image URL is
+ * built by prefixing `BACKEND_URL` from `services/config.js`, which reads
+ * `VITE_BACKEND_URL`. Without a photo path it renders a dashed camera
+ * placeholder instead. The overlay is a fixed full-screen layer closed only by
+ * its close button.
+ */
 export default function InventoryPhotoCell({ photoPath, itemName }) {
 	const [showModal, setShowModal] = useState(false);
 
@@ -29,7 +41,7 @@ export default function InventoryPhotoCell({ photoPath, itemName }) {
 			</button>
 
 			{showModal && (
-				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
 					<div className="relative max-h-screen max-w-2xl">
 						<button
 							type="button"

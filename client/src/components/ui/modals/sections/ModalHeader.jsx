@@ -1,3 +1,11 @@
+/**
+ * A modal's title row with a close (x) button.
+ *
+ * @remarks
+ * Stateless; `children` become the heading text, and every other prop, usually
+ * the close handler as `onClick`, goes to the close button rather than the
+ * heading.
+ */
 export default function ModalHeader({ children, ...props }) {
 	return (
 		<div className="mb-4 flex items-center justify-between">

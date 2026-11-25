@@ -3,6 +3,19 @@ import interactionPlugin from "@fullcalendar/interaction";
 import FullCalendar from "@fullcalendar/react";
 import "./ScheduleCalendar.css";
 
+/**
+ * A month-grid calendar of scheduled events built on FullCalendar.
+ *
+ * @remarks
+ * Stateless wrapper around `@fullcalendar/react` with the day-grid and
+ * interaction plugins. Maps the parent's events (using `id`, `title`,
+ * `start_time`, `end_time`) to FullCalendar events and keeps the original
+ * object in `extendedProps`, so the event-click callback receives the event as
+ * the parent supplied it; the date-click callback receives a `Date`. When asked
+ * to fill its container it expands rows to the parent's height, otherwise it
+ * sizes itself by aspect ratio. Imports `ScheduleCalendar.css`, which restyles
+ * FullCalendar under the `pam-calendar-wrapper` class.
+ */
 export default function ScheduleCalendarView({
 	events = [],
 	onDateClick,
@@ -35,7 +48,7 @@ export default function ScheduleCalendarView({
 					onEventClick?.(info.event.extendedProps.originalEvent)
 				}
 				eventDisplay="block"
-				displayEventTime={false} /* <-- ADDED THIS PROP */
+				displayEventTime={false}
 				dayMaxEvents={3}
 				fixedWeekCount={fillSpace}
 				expandRows={fillSpace}

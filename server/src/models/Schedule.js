@@ -1,3 +1,14 @@
+/**
+ * Sequelize model factory for the `schedules` table: a calendar event such as a
+ * rehearsal.
+ *
+ * @remarks
+ * Requires `title`, `start_time` and `end_time`, with optional `location` and
+ * `description`. `org_id` and `show_id` are both nullable so an event can
+ * belong to an organization, a show, or both. Attendees and required characters
+ * are linked through `UserSchedule` and `ScheduleCasting`.
+ */
+
 export default (sequelize, DataTypes) => {
 	const Schedule = sequelize.define(
 		"Schedule",

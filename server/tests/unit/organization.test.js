@@ -1,3 +1,17 @@
+/**
+ * Integration tests for the organization routes (CRUD, membership, roles and
+ * invitations) plus direct tests of the organization, org-membership and
+ * org-role services.
+ *
+ * @remarks
+ * Needs the live MySQL test DB: `beforeAll` runs `setupTestDatabase`, then
+ * registers a user who creates an org. Tests run in order and share that org:
+ * "should create organizations when authenticated" replaces `testOrgId`, the
+ * duplicate-invite test needs the earlier invite, the empty-roles test
+ * restores the user's admin role, and the final test deletes the org. Error
+ * paths spy on services or models and restore each spy.
+ */
+
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
@@ -16,7 +30,6 @@ describe("Organization API & Permissions", () => {
 	beforeAll(async () => {
 		await setupTestDatabase();
 
-		// Create a user and login to obtain a JWT for all tests
 		const email = `org-tester-${Date.now()}@viu.ca`;
 		const userRes = await request(app).post("/api/users").send({
 			fname: "Org",
@@ -32,7 +45,6 @@ describe("Organization API & Permissions", () => {
 		});
 		authToken = loginRes.body.token;
 
-		// ensure we have an organizations before any individual test runs
 		const orgRes = await request(app)
 			.post("/api/orgs")
 			.set("Authorization", `Bearer ${authToken}`)
@@ -53,21 +65,51 @@ describe("Organization API & Permissions", () => {
 		});
 
 		it("POST /api/orgs - should create organizations when authenticated", async () => {
-			// This route is also exercised in beforeAll; we simply verify it still works
 			const res = await request(app)
 				.post("/api/orgs")
 				.set("Authorization", `Bearer ${authToken}`)
 				.send({ name: "Updated Org Creation" });
 
 			expect(res.statusCode).toEqual(201);
-			// update the id reference just in case the previous org needs to be replaced
 			testOrgId = res.body.id;
 		});
 
-		it("GET /api/orgs - should fetch all organizations", async () => {
-			const res = await request(app).get("/api/orgs");
+		it("GET /api/orgs - should list only the caller's organizations", async () => {
+			const res = await request(app)
+				.get("/api/orgs")
+				.set("Authorization", `Bearer ${authToken}`);
 			expect(res.statusCode).toEqual(200);
 			expect(Array.isArray(res.body)).toBe(true);
+			expect(res.body.map((o) => o.id)).toContain(testOrgId);
+		});
+
+		it("GET /api/orgs and /api/orgs/:id - should require authentication", async () => {
+			expect((await request(app).get("/api/orgs")).statusCode).toEqual(401);
+			expect(
+				(await request(app).get(`/api/orgs/${testOrgId}`)).statusCode,
+			).toEqual(401);
+		});
+
+		it("GET /api/orgs/:id - should hide organizations the caller is not in", async () => {
+			const email = `outsider-${Date.now()}@viu.ca`;
+			await request(app)
+				.post("/api/users")
+				.send({ fname: "Out", lname: "Sider", email, password: "password123" });
+			const login = await request(app)
+				.post("/api/auth/login")
+				.send({ email, password: "password123" });
+			const outsider = `Bearer ${login.body.token}`;
+
+			const single = await request(app)
+				.get(`/api/orgs/${testOrgId}`)
+				.set("Authorization", outsider);
+			expect(single.statusCode).toEqual(403);
+
+			const list = await request(app)
+				.get("/api/orgs")
+				.set("Authorization", outsider);
+			expect(list.statusCode).toEqual(200);
+			expect(list.body).toEqual([]);
 		});
 
 		it("PUT /api/orgs/:id - should update organizations details", async () => {
@@ -81,7 +123,6 @@ describe("Organization API & Permissions", () => {
 
 	describe("Organization Membership & Roles", () => {
 		it("Should allow a new user to join an organizations", async () => {
-			// Create a brand new user who isn't in the org yet
 			const newUserRes = await request(app)
 				.post("/api/users")
 				.send({
@@ -150,7 +191,6 @@ describe("Organization API & Permissions", () => {
 		});
 
 		it("DELETE /api/orgs/:orgId/users/:userId - should remove user from organizations (Line 96)", async () => {
-			// Create another user to leave
 			const leaveUserRes = await request(app)
 				.post("/api/users")
 				.send({
@@ -172,13 +212,12 @@ describe("Organization API & Permissions", () => {
 		});
 
 		it("DELETE /api/orgs/:orgId/users/:userId/roles - should remove a role (Line 111)", async () => {
-			// 1. Send BOTH roles so the PUT endpoint doesn't overwrite and wipe out 'admin'
+			// The PUT replaces all roles, so "admin" is resent to keep it.
 			await request(app)
 				.put(`/api/orgs/${testOrgId}/users/${testUserId}/roles`)
 				.set("Authorization", `Bearer ${authToken}`)
 				.send({ roles: ["admin", "tech"] });
 
-			// 2. Now safely remove only the disposable actor role
 			const res = await request(app)
 				.delete(`/api/orgs/${testOrgId}/users/${testUserId}/roles`)
 				.set("Authorization", `Bearer ${authToken}`)
@@ -191,7 +230,6 @@ describe("Organization API & Permissions", () => {
 		const inviteeEmail = `invitee-${Date.now()}@viu.ca`;
 
 		it("Should invite a user via email", async () => {
-			// Create the user first so they exist in the DB
 			await request(app).post("/api/users").send({
 				fname: "Invitee",
 				lname: "User",
@@ -210,7 +248,7 @@ describe("Organization API & Permissions", () => {
 		});
 
 		it("Should accept an organizations invite", async () => {
-			// Mocking the DB call to simulate an active invitation
+			// Stub the lookup so the caller appears to have a pending invite.
 			const mockMembership = { update: vi.fn(), destroy: vi.fn() };
 			const spy = vi
 				.spyOn(models.OrgMembership, "findOne")
@@ -227,9 +265,7 @@ describe("Organization API & Permissions", () => {
 		});
 
 		it("Should reject invite if user is already in org or pending (Service Line 43)", async () => {
-			// inviteeEmail was successfully invited in the first test of this block,
-			// meaning their status is now 'pending' or 'active'.
-			// Inviting them again natively forces the service to throw its own error.
+			// Relies on the first test in this block having invited inviteeEmail.
 			const res = await request(app)
 				.post(`/api/orgs/${testOrgId}/invite`)
 				.set("Authorization", `Bearer ${authToken}`)
@@ -286,7 +322,7 @@ describe("Organization API & Permissions", () => {
 				.set("Authorization", `Bearer ${authToken}`)
 				.send({ userId: 99999 });
 
-			expect(res.statusCode).toEqual(500);
+			expect(res.statusCode).toEqual(404);
 		});
 
 		it("should throw 'No user found with that email.' natively (Line 37)", async () => {
@@ -627,7 +663,9 @@ describe("Organization API & Permissions", () => {
 			const spy = vi
 				.spyOn(organizationService, "getAll")
 				.mockRejectedValue(new Error("Some error"));
-			const res = await request(app).get("/api/orgs");
+			const res = await request(app)
+				.get("/api/orgs")
+				.set("Authorization", `Bearer ${authToken}`);
 			expect(res.statusCode).toEqual(500);
 			spy.mockRestore();
 		});
@@ -635,7 +673,9 @@ describe("Organization API & Permissions", () => {
 			const spy = vi
 				.spyOn(organizationService, "getById")
 				.mockRejectedValue(new Error("Organization not found"));
-			const res = await request(app).get(`/api/orgs/999`);
+			const res = await request(app)
+				.get(`/api/orgs/${testOrgId}`)
+				.set("Authorization", `Bearer ${authToken}`);
 			expect(res.statusCode).toEqual(404);
 			spy.mockRestore();
 		});
@@ -643,7 +683,9 @@ describe("Organization API & Permissions", () => {
 			const spy = vi
 				.spyOn(organizationService, "getById")
 				.mockRejectedValue(new Error("Some other error"));
-			const res = await request(app).get(`/api/orgs/${testOrgId}`);
+			const res = await request(app)
+				.get(`/api/orgs/${testOrgId}`)
+				.set("Authorization", `Bearer ${authToken}`);
 			expect(res.statusCode).toEqual(500);
 			spy.mockRestore();
 		});
@@ -691,7 +733,7 @@ describe("Organization API & Permissions", () => {
 		});
 
 		it("getOrgUsers - should throw 'No users found' (Line 68)", async () => {
-			// Create an empty org using Sequelize directly to guarantee zero members
+			// Created directly through the model so the org has no members.
 			const emptyOrg = await models.Organization.create({
 				name: "Ghost Town Org",
 			});
@@ -718,12 +760,10 @@ describe("Organization API & Permissions", () => {
 		});
 
 		it("removeRolesFromUser - should throw 'Membership or Roles not found' (Line 149)", async () => {
-			// Testing a fake user id
 			await expect(
 				orgRoleService.removeRolesFromUser(testOrgId, 99999, ["admin"]),
 			).rejects.toThrow("Membership or Roles not found");
 
-			// Testing a fake role
 			await expect(
 				orgRoleService.removeRolesFromUser(testOrgId, testUserId, [
 					"mythical-role",
@@ -732,8 +772,8 @@ describe("Organization API & Permissions", () => {
 		});
 
 		it("removeRolesFromUser - should throw 'User does not have any of these roles'", async () => {
-			// testUserId is an "admin". "president" is a real role in the DB,
-			// but this user doesn't have it. This will yield a deletedCount of 0.
+			// "president" exists but this user only holds "admin", so nothing is
+			// deleted.
 			await expect(
 				orgRoleService.removeRolesFromUser(testOrgId, testUserId, [
 					"president",
@@ -784,7 +824,6 @@ describe("Organization API & Permissions", () => {
 		});
 
 		it("setRolesForAssignment - should clear all roles when passing an empty array (Line 40)", async () => {
-			// Passing an empty array skips the role creation block entirely
 			const res = await orgRoleService.setRolesForAssignment(
 				testOrgId,
 				testUserId,
@@ -792,7 +831,7 @@ describe("Organization API & Permissions", () => {
 			);
 			expect(Array.isArray(res)).toBe(true);
 
-			// Restore the admin role so the final test can successfully delete the org!
+			// Restore the admin role; the final test needs it to delete the org.
 			await orgRoleService.setRolesForAssignment(testOrgId, testUserId, [
 				"admin",
 			]);
@@ -818,7 +857,6 @@ describe("Organization API & Permissions", () => {
 			});
 
 			it("create - should throw 'President role not found' (Line 30)", async () => {
-				// Intercept the Role lookup and pretend the 'president' role doesn't exist in the DB
 				const spy = vi
 					.spyOn(models.OrganizationRole, "findOne")
 					.mockResolvedValue(null);
@@ -834,14 +872,12 @@ describe("Organization API & Permissions", () => {
 			});
 
 			it("getById - should return organizations successfully (Line 16)", async () => {
-				// Directly calling the service's happy path
 				const org = await organizationService.getById(testOrgId);
 				expect(org).toBeDefined();
 				expect(org.id).toBe(testOrgId);
 			});
 
 			it("create - should rollback transaction on error (Lines 47-48)", async () => {
-				// Intercept the Organization creation and force a critical database failure
 				const spy = vi
 					.spyOn(models.Organization, "create")
 					.mockRejectedValue(new Error("Critical DB Transaction Failure"));
@@ -855,8 +891,6 @@ describe("Organization API & Permissions", () => {
 		});
 
 		it("DELETE /api/orgs/:id - should delete organizations", async () => {
-			// Because the testUser retained their admin role, we can safely
-			// delete the main test organizations to finish the file!
 			const res = await request(app)
 				.delete(`/api/orgs/${testOrgId}`)
 				.set("Authorization", `Bearer ${authToken}`);

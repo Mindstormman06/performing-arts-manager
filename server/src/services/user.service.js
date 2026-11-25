@@ -1,3 +1,16 @@
+/**
+ * Service for user accounts.
+ *
+ * @remarks
+ * Exports `getAll`, `getById`, `create`, `update` and `remove`. Reads and
+ * writes User and reads OrgMembership. Other users are visible only if they
+ * share an active organization with the viewer, and then only by id and name.
+ * Only name, email, phone and password come from client data; passwords must
+ * be at least 8 characters and are bcrypt-hashed, and emails must be unique.
+ * Password hashes and session fields are never returned. Callers must already
+ * have checked that the caller owns the account being changed.
+ */
+
 import bcrypt from "bcryptjs";
 import { Op } from "sequelize";
 
@@ -41,16 +54,50 @@ async function buildUserData(data = {}, existingId = null) {
 	return clean;
 }
 
-async function getAll() {
-	return await User.findAll();
+const PUBLIC_USER_FIELDS = ["id", "fname", "lname"];
+
+async function activeOrgIds(userId) {
+	const memberships = await models.OrgMembership.findAll({
+		where: { users_id: userId, status: "active" },
+		attributes: ["org_id"],
+	});
+	return memberships.map((m) => m.org_id);
 }
 
-async function getById(id) {
+async function getAll(viewerId) {
+	const orgIds = await activeOrgIds(viewerId);
+	const peers = orgIds.length
+		? await models.OrgMembership.findAll({
+				where: { org_id: orgIds, status: "active" },
+				attributes: ["users_id"],
+			})
+		: [];
+	const ids = [...new Set([Number(viewerId), ...peers.map((p) => p.users_id)])];
+	return await User.findAll({
+		where: { id: ids },
+		attributes: PUBLIC_USER_FIELDS,
+	});
+}
+
+async function getById(id, viewerId) {
 	const user = await User.findByPk(id);
 	if (!user) {
 		throw new Error("User not found");
 	}
-	return user;
+	if (viewerId === undefined || String(id) === String(viewerId)) {
+		return user;
+	}
+	const orgIds = await activeOrgIds(viewerId);
+	const shared = orgIds.length
+		? await models.OrgMembership.count({
+				where: { users_id: id, org_id: orgIds, status: "active" },
+			})
+		: 0;
+	// Mirror the missing-user error so other users' ids can't be probed.
+	if (!shared) {
+		throw new Error("User not found");
+	}
+	return { id: user.id, fname: user.fname, lname: user.lname };
 }
 
 async function create(data) {

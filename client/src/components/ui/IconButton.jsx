@@ -1,3 +1,13 @@
+/**
+ * A small square or round button that shows a single icon or glyph.
+ *
+ * @remarks
+ * Stateless. The parent picks a colour preset (`blue`, `red`, or `custom` with
+ * its own class string), a shape (`none`, `circle`, `square`), a size key
+ * (fixed `sm`/`md`/`lg` or padding-based `p1_5` to `p4`), the button type, and
+ * extra classes. The title doubles as the native tooltip. Exported as a named
+ * export, not a default.
+ */
 export const IconButton = ({
 	onClick,
 	title,

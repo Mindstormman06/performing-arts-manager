@@ -1,3 +1,12 @@
+/**
+ * Demo user rows for `seed.js`.
+ *
+ * @remarks
+ * Exports `seedUsers` with `usersData` (id, first and last name, and an
+ * `example.com` email for each of 35 users) and `showProfileDataByUserId`,
+ * which gives every user an empty show bio and photo.
+ */
+
 const userSeedRows = [
 	[1, "Laura", "Gibson", "laura.gibson@example.com"],
 	[2, "Jade", "Edgar", "jade.edgar@example.com"],

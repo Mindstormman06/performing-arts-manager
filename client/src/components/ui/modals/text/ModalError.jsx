@@ -1,3 +1,10 @@
+/**
+ * A red error message box for modals.
+ *
+ * @remarks
+ * Stateless; shows `children` as the message. A passed `className` replaces the
+ * default styling and other props pass to the `<div>`.
+ */
 export default function ModalError({ children, ...props }) {
 	return (
 		<div

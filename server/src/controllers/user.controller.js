@@ -1,3 +1,14 @@
+/**
+ * Express controller for user accounts.
+ *
+ * @remarks
+ * Delegates to `user.service`, which limits listing and lookup to users who
+ * share an active organization with the caller. Update and delete are allowed
+ * only on the caller's own account and respond 403 otherwise. Known service
+ * errors map through `CLIENT_ERRORS` (404, 409, 400) and Sequelize validation
+ * errors to 400; anything else goes to `next`.
+ */
+
 import userService from "../services/user.service.js";
 
 const CLIENT_ERRORS = {
@@ -32,9 +43,9 @@ function forbidUnlessSelf(req, res) {
 	return false;
 }
 
-async function get(_req, res, next) {
+async function get(req, res, next) {
 	try {
-		res.json(await userService.getAll());
+		res.json(await userService.getAll(req.user.id));
 	} catch (error) {
 		handleError(error, res, next);
 	}
@@ -42,7 +53,7 @@ async function get(_req, res, next) {
 
 async function getById(req, res, next) {
 	try {
-		res.json(await userService.getById(req.params.id));
+		res.json(await userService.getById(req.params.id, req.user.id));
 	} catch (error) {
 		handleError(error, res, next);
 	}

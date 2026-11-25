@@ -1,3 +1,13 @@
+/**
+ * Sequelize model factory for the `lighting_plots` table: one lighting fixture
+ * placed on a stage layout.
+ *
+ * @remarks
+ * Holds the fixture `name`, optional `type`, `shape` enum, DMX `channel` and
+ * `dmx_address`, a 7-character hex `colour`, and `posX`, `posY` and `rotation`.
+ * The `layout_id` foreign key comes from associations in `models/index.js`.
+ */
+
 export default (sequelize, DataTypes) => {
 	const LightingPlot = sequelize.define(
 		"LightingPlot",

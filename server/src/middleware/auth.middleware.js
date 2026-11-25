@@ -1,3 +1,21 @@
+/**
+ * Express middleware for JWT authentication and organization, show and
+ * department authorization.
+ *
+ * @remarks
+ * `authenticate` verifies the `Authorization: Bearer` token with `JWT_SECRET`,
+ * checks the user still exists, and sets `req.user` to the token payload.
+ * `authorizeOrg(roles)` and `authorizeShow(roles)` require an active
+ * membership and, when roles are given, one of them; show access also requires
+ * active membership in the show's organization. They set `req.orgRoles`,
+ * `req.show` and `req.showRoles`, and org admins, presidents and board members
+ * skip show role checks with `req.showOversight` set.
+ * `authorizeInventoryDept(level)` admits org admins (or show directors and
+ * stage managers), otherwise requires a role named after the item's department
+ * and deletes any uploaded file when it rejects. Also exports
+ * `ORG_ADMIN_ROLES` and `isSelf`. Every check queries the database.
+ */
+
 import fs from "node:fs";
 
 import jwt from "jsonwebtoken";
@@ -116,12 +134,19 @@ export const authorizeShow = (requiredRoles = []) => {
 			include: [{ model: models.OrganizationRole, as: "assignedRoles" }],
 		});
 
-		if (orgMembership) {
-			const orgRoles = roleNames(orgMembership);
-			if (ORG_SHOW_OVERSIGHT_ROLES.some((r) => orgRoles.includes(r))) {
-				req.showOversight = true;
-				return next();
-			}
+		// Show access always requires belonging to the show's organization, so
+		// removing someone from the org also cuts off its shows.
+		if (!orgMembership) {
+			return res.status(403).json({
+				success: false,
+				message: "Not a member of this show's organization.",
+			});
+		}
+
+		const orgRoles = roleNames(orgMembership);
+		if (ORG_SHOW_OVERSIGHT_ROLES.some((r) => orgRoles.includes(r))) {
+			req.showOversight = true;
+			return next();
 		}
 
 		const membership = await models.ShowMembership.findOne({
@@ -170,6 +195,18 @@ export const authorizeInventoryDept = (level) => {
 			if (!membership) return deny(403, "Not a member of this organization.");
 			userRoles = roleNames(membership);
 		} else if (level === "show") {
+			const show = await models.Show.findByPk(req.params.showId);
+			if (!show) return deny(404, "Show not found.");
+			const orgMembership = await models.OrgMembership.findOne({
+				where: {
+					org_id: show.organization_id,
+					users_id: userId,
+					status: "active",
+				},
+			});
+			if (!orgMembership)
+				return deny(403, "Not a member of this show's organization.");
+
 			const membership = await models.ShowMembership.findOne({
 				where: {
 					show_id: req.params.showId,
@@ -230,10 +267,6 @@ export const authorizeInventoryDept = (level) => {
 	};
 };
 
-/**
- * True when the authenticated user is acting on their own record
- * (req.params[param] === req.user.id).
- */
 export const isSelf = (req, param = "userId") =>
 	// eslint-disable-next-line security/detect-object-injection -- param is a route name chosen in code
 	String(req.params[param]) === String(req.user?.id);

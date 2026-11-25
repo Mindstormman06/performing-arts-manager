@@ -1,3 +1,14 @@
+/**
+ * Multer setup for image uploads saved to local disk.
+ *
+ * @remarks
+ * Creates `server/uploads` on import. Exports the configured `upload` instance
+ * (default), `MIME_EXTENSIONS`, and `setUploadSubDir(dir)`, which must run
+ * before `upload` to save into `uploads/<dir>` (created on demand). Accepts
+ * only JPEG, PNG, WebP and GIF files up to 5 MB, named from the sanitized
+ * original name, a timestamp and `req.user.id`.
+ */
+
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -7,7 +18,6 @@ import multer from "multer";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Create uploads directory if it doesn't exist
 const uploadsDir = path.join(__dirname, "../../uploads");
 if (!fs.existsSync(uploadsDir)) {
 	fs.mkdirSync(uploadsDir, { recursive: true });
@@ -20,7 +30,6 @@ export const MIME_EXTENSIONS = {
 	"image/gif": ".gif",
 };
 
-// Set up storage
 const storage = multer.diskStorage({
 	destination: (req, _file, cb) => {
 		const subDir = req.uploadSubDir || "";
@@ -34,7 +43,6 @@ const storage = multer.diskStorage({
 		cb(null, targetDir);
 	},
 	filename: (req, file, cb) => {
-		// Create unique filename: originalname-timestamp-userid.ext
 		// The extension always comes from the (allow-listed) MIME type, never the
 		// client's filename, so an upload can't be served back as HTML/JS.
 		const uniqueSuffix = `${Date.now()}-${req.user?.id || "unknown"}`;
@@ -48,7 +56,6 @@ const storage = multer.diskStorage({
 	},
 });
 
-// File filter - only accept images
 const fileFilter = (_req, file, cb) => {
 	if (Object.hasOwn(MIME_EXTENSIONS, file.mimetype)) {
 		cb(null, true);
@@ -57,12 +64,11 @@ const fileFilter = (_req, file, cb) => {
 	}
 };
 
-// Configure multer
 const upload = multer({
 	storage,
 	fileFilter,
 	limits: {
-		fileSize: 5 * 1024 * 1024, // 5MB
+		fileSize: 5 * 1024 * 1024,
 	},
 });
 

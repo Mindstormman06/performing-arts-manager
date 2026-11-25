@@ -15,6 +15,17 @@ import {
 	ModalWrapper,
 } from "../../ui/modals/index.js";
 
+/**
+ * A modal form for inviting someone by email to an organization or a show.
+ *
+ * @remarks
+ * Holds the email field, an error message and a loading flag. When the parent
+ * passes a show id it calls `inviteUserToShow`, otherwise `inviteByEmail` for
+ * the organization; on success it clears the field, triggers the parent's
+ * success callback and closes. Renders nothing while closed. Requests go
+ * through `services/api.js`, which authenticates with the `token` in
+ * `localStorage`.
+ */
 export default function InviteMemberModal({
 	isOpen,
 	onClose,

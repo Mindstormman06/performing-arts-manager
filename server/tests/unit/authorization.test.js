@@ -1,8 +1,16 @@
 /**
- * Regression tests for access-control holes found in code review.
- * Each test exercises a request that used to succeed for an unauthorized
- * caller and must now be rejected.
+ * Integration tests that unauthorized callers are rejected across org
+ * membership, shows, schedule events, inventory and the database-reset route.
+ *
+ * @remarks
+ * Needs the live MySQL test DB: `beforeAll` runs `setupTestDatabase`, then
+ * builds Org A (president, props-department member, plus an outsider with no
+ * org) and Org B (its own president, show, event and inventory item). The
+ * profile-edit tests rely on the earlier test that adds the props member to
+ * Show A, and the reset test temporarily unsets `VITEST` and
+ * `ALLOW_DB_RESET` in `process.env`.
  */
+
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
@@ -32,8 +40,6 @@ async function makeUser(label) {
 const bearer = (user) => ({ Authorization: `Bearer ${user.token}` });
 
 describe("Authorization regressions", () => {
-	// Org A: president + a props-department member + an outsider.
-	// Org B: a separate org with its own president, show and inventory.
 	let presA;
 	let propsMember;
 	let outsider;
@@ -334,7 +340,7 @@ describe("Authorization regressions", () => {
 					id: 9999,
 				});
 			expect(res.statusCode).toBe(201);
-			// ownership fields in the body are ignored
+			// Ownership fields in the body are ignored.
 			expect(Number(res.body.data.org_id)).toBe(orgA);
 			expect(res.body.data.id).not.toBe(9999);
 		});
