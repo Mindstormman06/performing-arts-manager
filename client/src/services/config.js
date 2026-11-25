@@ -1,6 +1,10 @@
 /**
- * Central configuration for the application
- * Loads environment variables and provides them throughout the app
+ * The client's backend URL configuration.
+ *
+ * @remarks
+ * Exports `BACKEND_URL`, read from the Vite env var `VITE_BACKEND_URL` at
+ * build time and defaulting to `http://localhost:8050`, and `API_BASE_URL`,
+ * which is that URL plus `/api`. Both are also on the default export.
  */
 
 export const BACKEND_URL =

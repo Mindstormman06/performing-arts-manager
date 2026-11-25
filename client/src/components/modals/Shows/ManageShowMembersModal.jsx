@@ -21,6 +21,22 @@ import MembersList from "../../ui/modals/sections/MembersList.jsx";
 import InviteMemberModal from "../Organizations/InviteMemberModal.jsx";
 import ShowRoleModal from "./ShowRoleModal.jsx";
 
+/**
+ * A modal for managing a show's roster: adding organization members, inviting
+ * by email, editing roles and removing members.
+ *
+ * @remarks
+ * Holds the organization's members fetched with `getOrganizationUsers` on open,
+ * the member picked to add, which nested modal (`ShowRoleModal` or
+ * `InviteMemberModal`) is open, an error and a loading flag. Only active
+ * organization members not already in the show can be added, via
+ * `addUserToShow`; removal asks for `window.confirm` and calls
+ * `removeUserFromShow`. Adding, inviting and role editing are shown only when
+ * the parent grants edit permission; the current user's id and roles are passed
+ * on to `ShowRoleModal` to limit which roles they can assign. Renders nothing
+ * while closed. Requests go through `services/api.js`, which authenticates with
+ * the `token` in `localStorage`.
+ */
 export default function ManageShowMembersModal({
 	isOpen,
 	onClose,

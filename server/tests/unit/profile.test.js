@@ -1,3 +1,15 @@
+/**
+ * Integration tests for the show-specific profile routes (bio, photo path and
+ * profile fetch) on a show membership.
+ *
+ * @remarks
+ * Needs the live MySQL test DB with tables already created: it does not call
+ * `setupTestDatabase`, so it relies on an earlier suite or the seed having
+ * synced the schema. Loads `.env` via dotenv, find-or-creates its own user,
+ * org, active memberships and show, and signs a JWT directly. The fetch test
+ * expects the bio written by the first test.
+ */
+
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import request from "supertest";
@@ -15,7 +27,6 @@ describe("ShowMembership Profile API", () => {
 	let showId;
 
 	beforeAll(async () => {
-		// Find or create a user
 		const [user] = await models.User.findOrCreate({
 			where: { email: "profile-test@example.com" },
 			defaults: { fname: "Profile", lname: "Test", passwordHash: "hashed" },
@@ -31,7 +42,6 @@ describe("ShowMembership Profile API", () => {
 			defaults: { status: "active" },
 		});
 
-		// Find or create a show
 		const [show] = await models.Show.findOrCreate({
 			where: { title: "Profile Test Show" },
 			defaults: {
@@ -42,13 +52,11 @@ describe("ShowMembership Profile API", () => {
 		});
 		showId = show.id;
 
-		// Create membership
 		await models.ShowMembership.findOrCreate({
 			where: { show_id: showId, users_id: userId },
 			defaults: { status: "active" },
 		});
 
-		// Create token
 		authToken = jwt.sign({ id: userId, email: user.email }, JWT_SECRET);
 	});
 
@@ -62,7 +70,6 @@ describe("ShowMembership Profile API", () => {
 		expect(res.body.success).toBe(true);
 		expect(res.body.data.bio).toEqual("This is my show-specific bio!");
 
-		// Verify in DB
 		const membership = await models.ShowMembership.findOne({
 			where: { show_id: showId, users_id: userId },
 		});
@@ -79,7 +86,6 @@ describe("ShowMembership Profile API", () => {
 		expect(res.body.success).toBe(true);
 		expect(res.body.data.photo_path).toEqual("uploads/profiles/test-photo.jpg");
 
-		// Verify in DB
 		const membership = await models.ShowMembership.findOne({
 			where: { show_id: showId, users_id: userId },
 		});
@@ -92,12 +98,9 @@ describe("ShowMembership Profile API", () => {
 			.set("Authorization", `Bearer ${authToken}`);
 
 		expect(res.statusCode).toEqual(200);
-		// The client expects data to be in res.data.data or res.data
+		// The profile may come back wrapped in `data` or as the body itself.
 		const data = res.body.data || res.body;
 		expect(data.bio).toEqual("This is my show-specific bio!");
 		expect(data).toHaveProperty("photo_path");
 	});
-
-	// Note: Testing file upload with supertest is possible but might be complex with the current setup.
-	// Let's at least test the bio update which confirms the route and service work.
 });

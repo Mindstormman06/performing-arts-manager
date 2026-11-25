@@ -15,6 +15,17 @@ import ShowInventory from "./pages/shows/ShowInventory.jsx";
 import ShowOverview from "./pages/shows/ShowOverview.jsx";
 import ShowSchedule from "./pages/shows/ShowSchedule.jsx";
 
+/**
+ * The application shell: navbar, routed main content and footer.
+ *
+ * @remarks
+ * Reads `token` and `logout` from `useAuth`, so it must render inside
+ * `AuthProvider` and a router. The navbar shows Login/Sign Up links when
+ * signed out and Organizations/Logout when signed in. Declares every route;
+ * all org and show pages are wrapped in `PrivateRoute`, and unknown paths
+ * redirect to `/`. The login and signup pages are centered and the landing
+ * page gets a black background.
+ */
 function App() {
 	const { token, logout } = useAuth();
 	const location = useLocation();
@@ -25,7 +36,6 @@ function App() {
 
 	return (
 		<div className="flex min-h-screen flex-col">
-			{/* Navbar */}
 			<nav className="bg-blue-600 text-white shadow-lg">
 				<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 					<div className="flex h-16 justify-between">
@@ -76,7 +86,6 @@ function App() {
 				</div>
 			</nav>
 
-			{/* Main Content */}
 			<main
 				className={`flex-1 ${isLanding ? "bg-black" : "bg-gray-100"} ${shouldCenter ? "flex items-center justify-center" : ""}`}
 			>
@@ -152,7 +161,6 @@ function App() {
 				</Routes>
 			</main>
 
-			{/* Footer */}
 			<footer className="bg-gray-800 text-white">
 				<div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
 					<div className="mt-4 mb-4 border-gray-700 text-center">

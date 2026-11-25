@@ -13,6 +13,19 @@ import {
 	verifyToken,
 } from "../../services/api.js";
 
+/**
+ * The organization's global inventory page at `/orgs/:orgId/inventory`.
+ *
+ * @remarks
+ * Reads `orgId` from the route. On mount it verifies the token to get the
+ * current user, then loads the org's items, all departments and the org's
+ * members to work out the user's role names. Holds the items, departments,
+ * roles, search text, department filter and the create/edit modal state.
+ * Admins and presidents can manage every item; other users only items in a
+ * department matching one of their role names. Delete asks via
+ * `window.confirm`, removes the item from every show too, and reports
+ * failures with `alert`.
+ */
 export default function OrgInventory() {
 	const { orgId } = useParams();
 	const [items, setItems] = useState([]);
@@ -23,17 +36,14 @@ export default function OrgInventory() {
 	const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 	const [selectedItem, setSelectedItem] = useState(null);
 
-	// Filtering states
 	const [searchTerm, setSearchTerm] = useState("");
 	const [selectedDept, setSelectedDept] = useState("All");
 
 	const fetchData = useCallback(async () => {
 		try {
-			// 1. Get the current user's ID
 			const authRes = await verifyToken();
 			const currentUserId = authRes.data.user.id;
 
-			// 2. Fetch everything concurrently
 			const [itemsRes, deptsRes, usersRes] = await Promise.all([
 				getGlobalInventory(orgId),
 				getDepartments(),
@@ -43,7 +53,6 @@ export default function OrgInventory() {
 			setItems(itemsRes.data);
 			setDepartments(deptsRes.data);
 
-			// 3. Find current user's roles in this org
 			const myMembership = usersRes.data.find(
 				(u) => u.User?.id === currentUserId || u.users_id === currentUserId,
 			);
@@ -63,7 +72,6 @@ export default function OrgInventory() {
 		fetchData();
 	}, [fetchData]);
 
-	// Permission Checker
 	const canManageDept = (deptName) => {
 		if (!deptName) return false;
 		if (userRoles.includes("admin") || userRoles.includes("president"))
@@ -79,7 +87,7 @@ export default function OrgInventory() {
 		) {
 			try {
 				await deleteGlobalInventoryItem(orgId, itemId);
-				fetchData(); // Refresh list
+				fetchData();
 			} catch (err) {
 				alert(err.response?.data?.message || "Failed to delete item");
 			}
@@ -123,7 +131,6 @@ export default function OrgInventory() {
 
 	return (
 		<div className="mx-auto flex min-h-[calc(100vh-9rem)] max-w-7xl flex-col p-4 sm:p-6 lg:p-8">
-			{/* Header / Breadcrumb navigation */}
 			<div className="mb-6 flex items-center justify-between">
 				<div>
 					<Link
@@ -168,7 +175,6 @@ export default function OrgInventory() {
 				}
 				className="flex-1"
 			>
-				{/* Filters */}
 				<div className="mb-6 flex flex-col gap-4 sm:flex-row">
 					<input
 						type="text"
@@ -191,7 +197,6 @@ export default function OrgInventory() {
 					</select>
 				</div>
 
-				{/* Data Cards */}
 				{filteredItems.length > 0 ? (
 					<div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
 						{filteredItems.map((item) => (

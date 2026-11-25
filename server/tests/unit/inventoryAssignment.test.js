@@ -1,3 +1,14 @@
+/**
+ * Integration tests for assigning show inventory items to users and cast
+ * characters, including the department eligibility check.
+ *
+ * @remarks
+ * Needs the live MySQL test DB: `beforeAll` runs `setupTestDatabase`, then
+ * builds an org, a show with a director and an actor, a character, and one
+ * Costumes and one Tech item. The items use department ids 1 and 4, which
+ * depend on the seeding order in `setupTestDatabase`.
+ */
+
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 

@@ -1,3 +1,11 @@
+/**
+ * Express router for login, mounted at `/api/auth`.
+ *
+ * @remarks
+ * `POST /login` is public but rate-limited on failed attempts per IP and per
+ * account email. `GET /verify` requires a valid JWT.
+ */
+
 import Router from "express";
 
 import authController from "../controllers/auth.controller.js";
@@ -9,7 +17,6 @@ import {
 
 const router = Router();
 
-// POST /api/auth/login
 router.post(
 	"/login",
 	loginIpLimiter,
@@ -17,7 +24,6 @@ router.post(
 	authController.login,
 );
 
-// GET /api/auth/verify
 router.get("/verify", authenticate, authController.verify);
 
 export default router;

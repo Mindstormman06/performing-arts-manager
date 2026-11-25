@@ -11,6 +11,21 @@ import {
 	verifyToken,
 } from "../../services/api.js";
 
+/**
+ * The show dashboard at `/orgs/:orgId/shows/:showId`.
+ *
+ * @remarks
+ * Reads `orgId` and `showId` from the route. On mount it loads the show
+ * dashboard (title, members, budget), the show calendar and the current user
+ * in parallel, deriving the user's show roles. Renders a sidebar linking to
+ * the show's sub-pages (Notes, Budgeting, Design Hub and Files are shown as
+ * under construction), a calendar whose events open a details popup, a
+ * budget bar that turns red above 85% spent, and the cast and crew list.
+ * Presidents, board members, directors, stage managers and admins can open
+ * the roster modal; any member row opens the role modal. Holds the dashboard
+ * data, events, roles and modal state; navigates to the scheduling page from
+ * the calendar.
+ */
 export default function ShowOverview() {
 	const { orgId, showId } = useParams();
 	const navigate = useNavigate();
@@ -64,7 +79,6 @@ export default function ShowOverview() {
 
 	const desktopPanelHeightClass = "xl:h-[clamp(44rem,calc(100vh-15rem),56rem)]";
 
-	// Add/remove paths here to mark sidebar items as under construction.
 	const underConstructionPaths = new Set(["notes", "budgets", "tech", "files"]);
 
 	const navLinks = [
@@ -237,7 +251,6 @@ export default function ShowOverview() {
 				</div>
 			)}
 
-			{/* Sidebar Navigation */}
 			<aside className="flex w-64 shrink-0 flex-col overflow-hidden rounded-2xl bg-white shadow-xl ring-1 ring-gray-200">
 				<div className="bg-gray-800 p-6 text-white">
 					<h2 className="truncate font-bold text-xl" title={showData.title}>
@@ -277,12 +290,9 @@ export default function ShowOverview() {
 				</nav>
 			</aside>
 
-			{/* Main Widget Grid */}
 			<main className="min-h-0 flex-1 overflow-y-auto">
 				<div className="grid min-h-0 grid-cols-1 gap-6 xl:grid-cols-3 xl:items-stretch">
-					{/* Left/Center Column: Primary Widgets */}
 					<div className="flex min-h-0 flex-col gap-6 xl:col-span-2">
-						{/* Calendar Widget */}
 						<DashboardSection
 							title="Show Calendar"
 							actionTitle="View Full Calendar"
@@ -300,7 +310,6 @@ export default function ShowOverview() {
 							/>
 						</DashboardSection>
 
-						{/* Compact Budget Widget */}
 						<DashboardSection
 							title="Budget Overview"
 							actionTitle="Manage Budget"
@@ -324,7 +333,6 @@ export default function ShowOverview() {
 						</DashboardSection>
 					</div>
 
-					{/* Right Column: People  */}
 					<div className="flex h-full min-h-0 flex-col gap-6 self-stretch">
 						<DashboardSection
 							title="Cast & Crew"

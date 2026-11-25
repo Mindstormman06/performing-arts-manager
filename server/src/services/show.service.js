@@ -1,3 +1,17 @@
+/**
+ * Service for shows and the show dashboard.
+ *
+ * @remarks
+ * Exports show CRUD, `getUserShows` (every show in orgs where the user is
+ * admin, president or board member, plus shows they actively belong to),
+ * `getDashboardSummary` and `getAvailableRoles`. `create` inserts the Show
+ * and, given `creatorId`, a ShowMembership with the director ShowRole in one
+ * transaction. Only title and dates are editable; `organization_id` is set on
+ * create only. The dashboard reads members, Budget, Expense and upcoming
+ * Schedule rows, plus the viewer's own roles, casting, events and inventory.
+ * Callers must already have checked show membership.
+ */
+
 import { Op } from "sequelize";
 
 import models from "../models/index.js";
@@ -107,8 +121,6 @@ async function getAll(orgId) {
 	return await models.Show.findAll({ where: whereClause });
 }
 
-// Shows the user can see: every show in orgs where they hold an oversight
-// role, plus shows they are an active member of in orgs they still belong to.
 async function getUserShows(orgId, userId) {
 	if (!userId) return [];
 

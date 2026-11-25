@@ -14,6 +14,18 @@ import {
 const getErrorMessage = (err, fallback) =>
 	err?.response?.data?.message || fallback;
 
+/**
+ * The show casting page at `/orgs/:orgId/shows/:showId/casting`.
+ *
+ * @remarks
+ * Reads `orgId` and `showId` from the route. On mount it verifies the token
+ * to get the current user, then loads the show's characters and members to
+ * derive the user's show roles. Directors and stage managers can add, rename
+ * (via `window.prompt`), delete (after `window.confirm`) and assign
+ * characters, but only to members holding the actor role; everyone else sees
+ * a read-only table. Every change reloads the data, and errors are shown
+ * inline above the table.
+ */
 export default function ShowCasting() {
 	const { orgId, showId } = useParams();
 	const [characters, setCharacters] = useState([]);

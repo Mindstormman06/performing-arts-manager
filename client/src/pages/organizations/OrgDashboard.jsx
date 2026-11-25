@@ -3,6 +3,16 @@ import { Link } from "react-router-dom";
 import CreateOrgModal from "../../components/modals/Organizations/CreateOrgModal.jsx";
 import { getMyOrganizations, respondToInvite } from "../../services/api.js";
 
+/**
+ * The organizations hub at `/organizations`, listing the user's memberships.
+ *
+ * @remarks
+ * Loads the user's memberships on mount and splits them into active
+ * organizations (cards linking to `/orgs/:id/overview`) and pending invites
+ * with Accept and Decline buttons. Holds the membership list, a loading flag
+ * and the open state of `CreateOrgModal`; creating an org or answering an
+ * invite reloads the list. Invite failures are shown with `alert`.
+ */
 export default function OrgDashboard() {
 	const [organizations, setOrganizations] = useState([]);
 	const [isModalOpen, setIsModalOpen] = useState(false);
@@ -47,7 +57,6 @@ export default function OrgDashboard() {
 				onSuccess={fetchOrganizations}
 			/>
 
-			{/* Page Header */}
 			<section className="mb-8 rounded-2xl border border-blue-100 bg-linear-to-r from-blue-50 to-indigo-50 p-6 shadow-sm sm:p-8">
 				<div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
 					<div>
@@ -83,7 +92,6 @@ export default function OrgDashboard() {
 				</div>
 			</section>
 
-			{/* Pending Invitations */}
 			{pendingInvites.length > 0 && (
 				<section className="mb-10">
 					<div className="mb-4 flex items-center justify-between">
@@ -130,7 +138,6 @@ export default function OrgDashboard() {
 				</section>
 			)}
 
-			{/* Organizations */}
 			<section>
 				<div className="mb-4 flex items-center justify-between">
 					<h2 className="font-bold text-gray-900 text-xl sm:text-2xl">

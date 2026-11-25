@@ -3,6 +3,15 @@ import { useNavigate } from "react-router-dom";
 import PageInput from "../components/ui/PageInput.jsx";
 import { signup } from "../services/api.js";
 
+/**
+ * The signup page: a form to create a new user account.
+ *
+ * @remarks
+ * Holds first name, last name, email, password, a separate confirm-password
+ * field and an error message. Rejects mismatched passwords client-side, posts
+ * the rest to the signup endpoint, and navigates to `/login` on success
+ * without signing the user in.
+ */
 export default function SignupPage() {
 	const [formData, setFormData] = useState({
 		fname: "",
@@ -26,7 +35,6 @@ export default function SignupPage() {
 			return;
 		}
 		try {
-			// Sends fname, lname, email, and password
 			await signup(formData);
 			navigate("/login");
 		} catch (err) {

@@ -1,28 +1,19 @@
+/**
+ * Service for organization roles and member management.
+ *
+ * @remarks
+ * Exports functions to replace a member's roles, list members (all, one, or by
+ * role), remove a member and revoke roles. Reads Organization, User and
+ * OrganizationRole; writes OrgMembership, OrgRoleRelationship and
+ * ShowMembership. Replacing roles and removing a member each run in a
+ * transaction, and removal also deletes the user's memberships in the
+ * organization's shows. When an acting user id is passed, only a president may
+ * grant or revoke the president role or act on a president. Callers must
+ * already have checked org admin rights.
+ */
+
 import models from "../models/index.js";
 import sequelize from "./db.service.js";
-
-// async function appendRolesToAssignment(orgId, userId, roleNames) {
-// 	const org = await models.Organization.findOne({ where: { id: orgId } });
-// 	if (!org) throw new Error("Organization not found");
-// 	const membership = await models.OrgMembership.findOne({
-// 		where: { org_id: orgId, users_id: userId },
-// 	});
-// 	if (!membership) throw new Error("User is not a member of this organizations");
-
-// 	const roles = await models.Role.findAll({
-// 		where: { name: roleNames },
-// 	});
-// 	if (!roles.length) throw new Error("No valid roles provided");
-
-// 	const roleEntries = roles.map((role) => ({
-// 		assignment_id: membership.assignment_id,
-// 		role_id: role.id,
-// 	}));
-
-// 	await models.OrgRole.bulkCreate(roleEntries, { ignoreDuplicates: true });
-
-// 	return await membership.getAssignedRoles();
-// }
 
 const PRESIDENT_ROLE_ERROR =
 	"Only a president can grant, remove or change a president's roles";
@@ -41,9 +32,8 @@ async function hasOrgRole(orgId, userId, roleName) {
 	return Boolean(membership);
 }
 
-// Admins manage the org day to day, but only a president may hand out the
-// president role or act on an existing president. Internal calls without an
-// acting user are exempt.
+// Only a president may grant or revoke the president role or act on a
+// president; internal calls without an acting user skip the check.
 async function assertPresidentRules(orgId, actingUserId, targetUserId, roles) {
 	if (actingUserId === null || actingUserId === undefined) return;
 	const names = (Array.isArray(roles) ? roles : [roles]).map((r) =>
@@ -77,7 +67,6 @@ async function setRolesForAssignment(
 	await assertPresidentRules(orgId, actingUserId, userId, roleNames || []);
 
 	await sequelize.transaction(async (transaction) => {
-		// Replace all existing roles
 		await models.OrgRoleRelationship.destroy({
 			where: { assignment_id: membership.assignment_id },
 			transaction,
@@ -152,7 +141,7 @@ async function getUsersByRole(orgId, roleName) {
 					{
 						model: models.OrganizationRole,
 						as: "assignedRoles",
-						where: { name: roleName }, // Filter by role name here
+						where: { name: roleName },
 					},
 				],
 			},
@@ -175,7 +164,6 @@ async function removeUserFromOrg(orgId, userId, actingUserId = null) {
 		});
 		if (!deleted) throw new Error("User is not a member of this organizations");
 
-		// Leaving an org also removes the user from every show in it
 		const shows = await models.Show.findAll({
 			where: { organization_id: orgId },
 			attributes: ["id"],
@@ -231,7 +219,6 @@ async function removeRolesFromUser(
 }
 
 export default {
-	// appendRolesToAssignment,
 	setRolesForAssignment,
 	getOrgUsers,
 	getOrgUserById,

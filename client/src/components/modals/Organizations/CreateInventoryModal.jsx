@@ -21,6 +21,19 @@ import {
 	ModalWrapper,
 } from "../../ui/modals/index.js";
 
+/**
+ * A modal form for adding an item to an organization's global inventory.
+ *
+ * @remarks
+ * Holds the name, description and department fields, the chosen photo and its
+ * preview, an error and a loading flag. The department list is limited to
+ * departments named in the user's roles, unless the user is an admin or
+ * president; with none allowed it shows only a permission error. Calls
+ * `createGlobalInventoryItemWithPhoto` with multipart form data when a photo is
+ * chosen, otherwise `createGlobalInventoryItem`. Renders nothing while closed.
+ * Requests go through `services/api.js`, which authenticates with the `token`
+ * in `localStorage`.
+ */
 export default function CreateInventoryModal({
 	isOpen,
 	onClose,
@@ -39,7 +52,6 @@ export default function CreateInventoryModal({
 	const [error, setError] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
 
-	// Filter departments based on user permissions
 	const isSuperAdmin =
 		userRoles.includes("admin") || userRoles.includes("president");
 	const allowedDepartments = departments.filter(

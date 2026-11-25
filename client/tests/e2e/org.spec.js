@@ -1,3 +1,12 @@
+/**
+ * End-to-end test for opening the Create Organization modal.
+ *
+ * @remarks
+ * Logs in as the seeded user Bill and checks that the New Organization button
+ * opens the modal; nothing is submitted. Needs the backend API and its
+ * database running, seeded by the global setup.
+ */
+
 import { expect, test } from "@playwright/test";
 import { loginAs, USERS } from "./setup.js";
 

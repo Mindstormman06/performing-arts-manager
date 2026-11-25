@@ -1,3 +1,16 @@
+/**
+ * Service for user accounts.
+ *
+ * @remarks
+ * Exports `getAll`, `getById`, `create`, `update` and `remove`. Reads and
+ * writes User and reads OrgMembership. Other users are visible only if they
+ * share an active organization with the viewer, and then only by id and name.
+ * Only name, email, phone and password come from client data; passwords must
+ * be at least 8 characters and are bcrypt-hashed, and emails must be unique.
+ * Password hashes and session fields are never returned. Callers must already
+ * have checked that the caller owns the account being changed.
+ */
+
 import bcrypt from "bcryptjs";
 import { Op } from "sequelize";
 
@@ -51,8 +64,6 @@ async function activeOrgIds(userId) {
 	return memberships.map((m) => m.org_id);
 }
 
-// The viewer plus anyone who shares an active organization with them.
-// Other users only ever expose their name.
 async function getAll(viewerId) {
 	const orgIds = await activeOrgIds(viewerId);
 	const peers = orgIds.length
@@ -68,8 +79,6 @@ async function getAll(viewerId) {
 	});
 }
 
-// A user can read their own full record; anyone else they share an
-// organization with is visible by name only. Others look like "not found".
 async function getById(id, viewerId) {
 	const user = await User.findByPk(id);
 	if (!user) {
@@ -84,6 +93,7 @@ async function getById(id, viewerId) {
 				where: { users_id: id, org_id: orgIds, status: "active" },
 			})
 		: 0;
+	// Mirror the missing-user error so other users' ids can't be probed.
 	if (!shared) {
 		throw new Error("User not found");
 	}

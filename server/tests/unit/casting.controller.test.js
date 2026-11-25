@@ -1,3 +1,13 @@
+/**
+ * Unit tests for the casting controller's success responses, 404 mapping and
+ * error forwarding.
+ *
+ * @remarks
+ * Needs no database. Controller handlers are called directly with mock
+ * `req`/`res`/`next`, and `castingService` methods are stubbed with
+ * `vi.spyOn`; all mocks are restored after each test.
+ */
+
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import castingController from "../../src/controllers/casting.controller.js";

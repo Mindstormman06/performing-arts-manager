@@ -1,3 +1,10 @@
+/**
+ * A full-width styled text input for use inside modals.
+ *
+ * @remarks
+ * Stateless; every prop, including `value`, `onChange` and `type`, is passed to
+ * the `<input>`, and a passed `className` replaces the default styling.
+ */
 export default function ModalInput({ ...props }) {
 	return (
 		<input

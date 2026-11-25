@@ -1,3 +1,16 @@
+/**
+ * Service for show roles and member management.
+ *
+ * @remarks
+ * Exports functions to replace a member's roles, list members (all, one, or by
+ * role), remove a member and revoke roles. Reads Show and ShowRole; writes
+ * ShowMembership and its role associations. With an acting user id and no org
+ * oversight, acting on someone else requires outranking the target and every
+ * changed role by `SHOW_ROLE_PRIORITY`; acting on yourself can never raise or
+ * remove your own highest role. Nothing is transactional. Callers must
+ * already have checked show membership and manager rights.
+ */
+
 import models from "../models/index.js";
 import {
 	getHighestRoleWeight,
@@ -9,10 +22,8 @@ import {
 const ROLE_HIERARCHY_ERROR =
 	"You cannot change roles at or above your own highest role";
 
-// When someone manages another member's roles, both the target's current
-// standing and every role being added or removed must rank strictly below
-// the actor's own highest show role. Org oversight (admin/president/board)
-// and internal calls without an acting user are exempt.
+// The target's current roles and every role being changed must rank strictly
+// below the actor's highest show role.
 async function assertOutranks(
 	showId,
 	actingUserId,

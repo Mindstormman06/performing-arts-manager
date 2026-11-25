@@ -1,8 +1,16 @@
 /**
- * Regression tests for the second round of access-control fixes:
- * show mass-assignment, scoped read endpoints, org membership required for
- * show access, and role hierarchy for show and org role management.
+ * Integration tests for access control across shows, organizations and users.
+ *
+ * @remarks
+ * Covers the show field allow-list, scoping of the show, org and user read
+ * endpoints, the requirement that show access needs an active org membership,
+ * and role hierarchy for show and org role changes. Needs the live MySQL
+ * test DB: `beforeAll` runs `setupTestDatabase`, then builds one org with a
+ * president, admin, director, stage-manager and actor, plus an unrelated org
+ * and an outsider. Tests run in order and later ones depend on role state
+ * left by earlier ones.
  */
+
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
@@ -255,7 +263,7 @@ describe("Authorization hardening", () => {
 				.send({ roles: ["stage-manager"] });
 			expect(res.statusCode).toBe(200);
 
-			// Reset for later tests
+			// Restore the actor role, which later tests expect.
 			await request(app)
 				.put(`/api/shows/${show}/users/${actor.id}/roles`)
 				.set(bearer(director))

@@ -15,6 +15,20 @@ import {
 	verifyToken,
 } from "../../services/api.js";
 
+/**
+ * The show inventory page at `/orgs/:orgId/shows/:showId/inventory`.
+ *
+ * @remarks
+ * Reads `orgId` and `showId` from the route. On mount it verifies the token
+ * to get the current user, then loads the show's items, all departments, the
+ * show's members and its characters. Directors, stage managers and admins can
+ * manage every item; other users only items in a department matching one of
+ * their role names. Managers can assign an item to a member or, for costumes
+ * and props, to a character (actors are also offered for those two
+ * departments), edit it, or remove it after `window.confirm`: global items go
+ * back to org stock, custom items are deleted. Holds the items, filters and
+ * the manage/edit modal state; failures are shown with `alert`.
+ */
 export default function ShowInventory() {
 	const { orgId, showId } = useParams();
 	const [items, setItems] = useState([]);

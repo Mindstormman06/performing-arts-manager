@@ -1,9 +1,14 @@
 /**
- * Small in-memory, fixed-window rate limiter.
+ * Fixed-window rate limiting middleware for Express, plus the limiters used on
+ * the login and sign-up routes.
  *
- * Good enough for a single API instance. If the API is ever scaled to more
- * than one process, move this to a shared store (e.g. Redis) so the limits
- * apply across instances.
+ * @remarks
+ * Exports the `rateLimit` factory and three configured limiters: failed logins
+ * per account, failed logins per IP, and sign-ups per IP. Over the limit it
+ * responds 429 with a `Retry-After` header. Counts live in process memory, so
+ * limits apply per API instance and reset on restart. Limiters are disabled
+ * when `NODE_ENV` is `test` or `RATE_LIMIT_DISABLED` is `true`, and key on
+ * `req.ip`, which needs `TRUST_PROXY` set when running behind a proxy.
  */
 
 const isTestEnv =
@@ -67,7 +72,6 @@ const normalizedEmail = (req) =>
 		.trim()
 		.toLowerCase();
 
-// Failed logins: per account (from any IP) and per IP (across accounts)
 export const loginAccountLimiter = rateLimit({
 	windowMs: FIFTEEN_MINUTES,
 	max: 10,

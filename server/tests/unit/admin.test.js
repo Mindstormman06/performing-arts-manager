@@ -1,3 +1,14 @@
+/**
+ * Integration tests for the admin database-reset route.
+ *
+ * @remarks
+ * Needs the live MySQL test DB: `beforeAll` runs `setupTestDatabase`, then
+ * registers and logs in a user through the API to get a bearer token. The
+ * first test spies on `sequelize.sync` to force a 500; the second really
+ * calls `POST /api/admin/reset-db`, which drops and reseeds the database, so
+ * it must stay last in the file.
+ */
+
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
@@ -11,7 +22,6 @@ describe("Admin & Database Operations", () => {
 	beforeAll(async () => {
 		await setupTestDatabase();
 
-		// Set up an admin user to interact with the protected reset routes
 		const userRes = await request(app)
 			.post("/api/users")
 			.send({
@@ -35,7 +45,6 @@ describe("Admin & Database Operations", () => {
 
 	describe("Database Reset Route", () => {
 		it("POST /api/admin/reset-db - should catch database execution errors", async () => {
-			// Spying on Sequelize's sync function to force a critical failure
 			const spy = vi
 				.spyOn(sequelize, "sync")
 				.mockRejectedValue(new Error("Database connection lost"));
@@ -63,6 +72,6 @@ describe("Admin & Database Operations", () => {
 				"message",
 				"Database reset and seeded successfully.",
 			);
-		}, 30000); // 30 second timeout as DB resets can be slow
+		}, 30000);
 	});
 });

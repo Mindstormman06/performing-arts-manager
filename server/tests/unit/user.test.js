@@ -1,3 +1,16 @@
+/**
+ * Integration tests for the user routes and controller error handling, plus
+ * direct tests of `user.service.js`.
+ *
+ * @remarks
+ * Needs the live MySQL test DB: `beforeAll` runs `setupTestDatabase` and
+ * registers two users through the API. Covers ownership checks, hidden
+ * password hashes, duplicate emails and password length; controller error
+ * paths spy on `userService` and restore each spy. The service test that
+ * hashes a new password changes the main test user's password, so it must
+ * stay after every test that logs in as that user.
+ */
+
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
@@ -39,7 +52,6 @@ describe("User Management API", () => {
 	it("GET /api/users - should get all users", async () => {
 		const res = await request(app).get("/api/users").set(auth());
 		expect(res.statusCode).toEqual(200);
-		// Ensure the response is a list
 		expect(Array.isArray(res.body)).toBe(true);
 	});
 
@@ -169,8 +181,6 @@ describe("User Management API", () => {
 	});
 
 	describe("User Controller - Error Handling", () => {
-		// Mock services to simulate database failures and test standard error responses
-
 		it("GET /api/users - should handle generic errors", async () => {
 			const spy = vi
 				.spyOn(userService, "getAll")

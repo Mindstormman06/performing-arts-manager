@@ -15,6 +15,17 @@ import {
 	ModalWrapper,
 } from "../../ui/modals/index.js";
 
+/**
+ * A modal form for creating a show in an organization.
+ *
+ * @remarks
+ * Holds the title, start and end date fields, an error and a loading flag.
+ * Requires all fields and an end date not before the start, then calls
+ * `createShow` with the parent's organization id, clears the form, triggers the
+ * parent's success callback and closes. Renders nothing while closed. Requests
+ * go through `services/api.js`, which authenticates with the `token` in
+ * `localStorage`.
+ */
 export default function CreateShowModal({ isOpen, onClose, onSuccess, orgId }) {
 	const [title, setTitle] = useState("");
 	const [startDate, setStartDate] = useState("");

@@ -1,3 +1,12 @@
+/**
+ * Barrel module for the shared modal building blocks.
+ *
+ * @remarks
+ * Re-exports every default-exported component under `buttons/`, `interactive/`,
+ * `sections/`, `text/` and `wrappers/` as a named export, so modals import them
+ * from one path. Has no side effects.
+ */
+
 export { default as ModalCancelButton } from "./buttons/ModalCancelButton.jsx";
 export { default as ModalDeleteButton } from "./buttons/ModalDeleteButton.jsx";
 export { default as ModalHyperButton } from "./buttons/ModalHyperButton.jsx";

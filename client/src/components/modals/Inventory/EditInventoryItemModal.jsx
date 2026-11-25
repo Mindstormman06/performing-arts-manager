@@ -16,6 +16,18 @@ import {
 	ModalWrapper,
 } from "../../ui/modals/index.js";
 
+/**
+ * A modal form for editing an inventory item's name, description and
+ * department.
+ *
+ * @remarks
+ * Holds the form fields, an error and a loading flag, refilled from the item
+ * each time the modal opens. Makes no API calls itself: it hands the form
+ * values (with a numeric `dept_id`) to the parent's async save callback and
+ * closes when that resolves, showing the server's error message if it rejects.
+ * The title and submit label can be overridden for reuse. Renders nothing while
+ * closed or without an item.
+ */
 export default function EditInventoryItemModal({
 	isOpen,
 	onClose,

@@ -16,6 +16,18 @@ import {
 	ModalWrapper,
 } from "../../ui/modals/index.js";
 
+/**
+ * A modal for choosing which organization roles a member holds.
+ *
+ * @remarks
+ * Exported as `RoleModal`. Holds the checked roles, reset from the member's
+ * current roles each time it opens, plus an error and loading flag. Only a
+ * fixed set of department roles is offered as checkboxes. Saving sends the
+ * complete role list with `updateOrganizationUserRoles`, then triggers the
+ * parent's success callback and closes. Expects a member record with a nested
+ * `User`. Renders nothing while closed. Requests go through `services/api.js`,
+ * which authenticates with the `token` in `localStorage`.
+ */
 export default function RoleModal({ isOpen, onClose, onSuccess, orgId, user }) {
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState("");
@@ -43,6 +55,8 @@ export default function RoleModal({ isOpen, onClose, onSuccess, orgId, user }) {
 		setError("");
 		setLoading(true);
 		try {
+			// Roles not offered as checkboxes (e.g. president) are re-sent so the
+			// full-list update does not strip them.
 			const hiddenRoles =
 				user?.assignedRoles
 					?.map((r) => r.name)

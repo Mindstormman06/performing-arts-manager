@@ -1,3 +1,14 @@
+/**
+ * Express controller for shows and show dashboards.
+ *
+ * @remarks
+ * Delegates to `show.service`. `getUserShows` decodes the Authorization bearer
+ * token itself with `JWT_SECRET` when `req.user` is not set, and the service
+ * returns an empty list if no user is identified. `create` makes `req.user.id`
+ * the show's director. "Show not found" responds 404; anything else goes to
+ * `next`. Show membership and role checks happen in route middleware.
+ */
+
 import jwt from "jsonwebtoken";
 
 import { JWT_SECRET } from "../config/jwt.config.js";
@@ -76,7 +87,8 @@ async function remove(req, res, next) {
 	try {
 		await showService.remove(req.params.id);
 		/* v8 ignore start */
-		res.status(200); // These lines are tested. Not sure why it's not recognizing the coverage. Ignoring for now.
+		// Covered by tests, but v8 does not register it.
+		res.status(200);
 		res.json({ success: true, message: "Show deleted successfully" });
 		/* v8 ignore stop */
 	} catch (error) {

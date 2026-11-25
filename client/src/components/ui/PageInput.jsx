@@ -1,3 +1,11 @@
+/**
+ * A full-width text input styled for regular pages rather than modals.
+ *
+ * @remarks
+ * Stateless and uncontrolled by itself: every prop, including `value` and
+ * `onChange`, is passed straight to the `<input>`, and a passed `className`
+ * replaces the default styling.
+ */
 export default function PageInput({ ...props }) {
 	return (
 		<input

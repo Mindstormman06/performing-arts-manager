@@ -10,6 +10,18 @@ import {
 	verifyToken,
 } from "../../services/api.js";
 
+/**
+ * The show schedule page at `/orgs/:orgId/shows/:showId/scheduling`.
+ *
+ * @remarks
+ * Reads `orgId` and `showId` from the route. On mount it verifies the token
+ * to get the current user, then loads the show calendar and the show's
+ * members to derive the user's show roles. Toggles between a calendar and a
+ * list view. Directors and stage managers can create events (from the button
+ * or by clicking a calendar date) and open any event to manage it. Holds the
+ * events, roles, view mode, selected event and create-modal state; both
+ * modals reload the schedule on success.
+ */
 export default function ShowSchedule() {
 	const { orgId, showId } = useParams();
 	const [events, setEvents] = useState([]);
@@ -190,7 +202,6 @@ export default function ShowSchedule() {
 										className="flex flex-col items-start justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow sm:flex-row sm:items-center"
 									>
 										<div className="flex items-start gap-4">
-											{/* Date Badge */}
 											<div className="flex min-w-16 flex-col items-center justify-center rounded-lg border border-blue-100 bg-blue-50 p-2 text-blue-700">
 												<span className="font-bold text-xs uppercase tracking-wider">
 													{start.weekday}
@@ -203,7 +214,6 @@ export default function ShowSchedule() {
 												</span>
 											</div>
 
-											{/* Event Details */}
 											<div>
 												<h3 className="font-bold text-gray-900 text-lg">
 													{event.title}
@@ -230,7 +240,6 @@ export default function ShowSchedule() {
 											</div>
 										</div>
 
-										{/* Manage Button */}
 										{canManageSchedule && (
 											<div className="mt-4 sm:mt-0">
 												<button

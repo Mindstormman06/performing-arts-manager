@@ -1,3 +1,13 @@
+/**
+ * End-to-end test for reaching a show's inventory page.
+ *
+ * @remarks
+ * Logs in as the seeded user Laura, navigates from Shawnigan Players to the
+ * Santa in Space show and its Inventory tab, and expects a seeded lighting
+ * item to be listed. Needs the backend API and its database running, seeded
+ * by the global setup.
+ */
+
 import { expect, test } from "@playwright/test";
 import { loginAs, USERS } from "./setup.js";
 

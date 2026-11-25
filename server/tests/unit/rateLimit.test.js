@@ -1,3 +1,13 @@
+/**
+ * Unit tests for the `rateLimit` middleware factory.
+ *
+ * @remarks
+ * Mounts each limiter on a throwaway Express app with `enabled: true`, since
+ * limiters are off by default under test. Covers blocking with `Retry-After`,
+ * failure-only counting, per-key limits, reset, window expiry and the
+ * disabled pass-through. Needs no database.
+ */
+
 import express from "express";
 import request from "supertest";
 import { describe, expect, it } from "vitest";

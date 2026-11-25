@@ -4,6 +4,15 @@ import PageInput from "../components/ui/PageInput.jsx";
 import { useAuth } from "../hooks/useAuth.js";
 import { login } from "../services/api.js";
 
+/**
+ * The login page: an email and password form.
+ *
+ * @remarks
+ * Holds the form fields and an error message. On success it stores the
+ * returned token in `localStorage` under `token`, pushes it into the auth
+ * context with `setToken`, and navigates to `/organizations`; on failure it
+ * shows the server's message. Requires `AuthProvider`.
+ */
 export default function LoginPage() {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
@@ -17,7 +26,7 @@ export default function LoginPage() {
 		try {
 			const { data } = await login({ email, password });
 			localStorage.setItem("token", data.token);
-			setToken(data.token); // Update the auth context
+			setToken(data.token);
 			navigate("/organizations");
 		} catch (err) {
 			setError(err.response?.data?.message || "Login failed");

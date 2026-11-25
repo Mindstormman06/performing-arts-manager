@@ -1,3 +1,14 @@
+/**
+ * Playwright global setup plus shared fixtures for the e2e tests.
+ *
+ * @remarks
+ * The default export runs `node seed.js` in `server/` with `NODE_ENV=test`,
+ * wiping and re-seeding the backend database, and exits the process if that
+ * fails; the database must be reachable with the server's env config. Also
+ * exports the seeded user emails (`USERS`), their shared password and
+ * `loginAs`, which logs in through the UI and waits for `/organizations`.
+ */
+
 import { execSync } from "node:child_process";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -25,7 +36,6 @@ async function globalSetup() {
 
 export default globalSetup;
 
-// Seeded test users (see server/seed.js).
 export const USERS = {
 	bill: "bill.levity@example.com",
 	laura: "laura.gibson@example.com",
@@ -33,10 +43,6 @@ export const USERS = {
 };
 export const DEFAULT_PASSWORD = "password123";
 
-/**
- * Shared login helper: logs in through the UI and waits until the
- * organizations dashboard has loaded.
- */
 export async function loginAs(page, email, password = DEFAULT_PASSWORD) {
 	await page.goto("/login");
 	await page.getByPlaceholder("Email").fill(email);

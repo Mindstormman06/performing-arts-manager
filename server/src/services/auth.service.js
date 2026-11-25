@@ -1,3 +1,14 @@
+/**
+ * Service for password login and token verification.
+ *
+ * @remarks
+ * Exports `login` and `verify`. `login` reads the User with the `withPassword`
+ * scope, compares the bcrypt hash and signs a JWT with `JWT_SECRET` and
+ * `JWT_EXPIRES_IN`; every failure throws the same "Invalid credentials" error
+ * so accounts can't be probed. `verify` loads a user by id and throws "User no
+ * longer exists" if it is gone. It never writes to the database.
+ */
+
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
@@ -11,17 +22,14 @@ async function login(email, password) {
 		throw new Error("Invalid credentials");
 	}
 
-	// 1. Find user by email
 	const user = await User.scope("withPassword").findOne({
 		where: { email: email.trim() },
 	});
 	if (!user?.passwordHash) throw new Error("Invalid credentials");
 
-	// 2. Verify password
 	const isMatch = await bcrypt.compare(password, user.passwordHash);
 	if (!isMatch) throw new Error("Invalid credentials");
 
-	// 3. Generate Token
 	const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, {
 		expiresIn: JWT_EXPIRES_IN,
 	});
@@ -30,12 +38,10 @@ async function login(email, password) {
 }
 
 async function verify(userId) {
-	// Find the user by their ID (extracted from the token)
 	const user = await User.findByPk(userId);
 
 	if (!user) throw new Error("User no longer exists");
 
-	// Return safe user data
 	return {
 		id: user.id,
 		fname: user.fname,

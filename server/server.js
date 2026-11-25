@@ -1,3 +1,15 @@
+/**
+ * Express application for the API server.
+ *
+ * @remarks
+ * Exports the configured `app`: CORS, security headers, JSON parsing, static
+ * `/uploads` with a strict Content-Security-Policy, the `/api/*` routers, a 404
+ * handler, and a JSON error handler that hides 5xx details when `NODE_ENV` is
+ * `production`. Outside tests it runs `sequelize.sync()` on import, and unless
+ * under Vitest it listens on `API_PORT`. Reads `CORS_ORIGIN`, `TRUST_PROXY`
+ * and `DB_SYNC_ALTER`, and adds crash-test routes when running tests.
+ */
+
 import cors from "cors";
 import express from "express";
 
@@ -70,7 +82,6 @@ app.get("/server-up", (_req, res) => {
 	res.json({ message: "ok" });
 });
 
-// Error-handling test routes exist only when running tests
 if (isTestEnv) {
 	app.get("/crash-test", (_req, _res, next) => {
 		next(new Error("Intentional crash for testing error handling"));
@@ -89,7 +100,6 @@ app.use("/api/users", userRouter);
 app.use("/api/orgs", organizationRouter);
 app.use("/api/shows", showRouter);
 app.use("/api/auth", authRouter);
-// POST /api/admin/reset-db is disabled unless ALLOW_DB_RESET=true
 app.use("/api/admin", adminRouter);
 app.use("/api/inventory", inventoryRouter);
 app.use("/api/schedule", scheduleRouter);

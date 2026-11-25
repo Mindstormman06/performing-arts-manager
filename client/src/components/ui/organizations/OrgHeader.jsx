@@ -1,5 +1,13 @@
 import { IconButton } from "../IconButton";
 
+/**
+ * The header banner of an organization page showing its name and president.
+ *
+ * @remarks
+ * Stateless. Shows "Loading..." until a name is supplied. Edit and delete icon
+ * buttons render only when the parent passes the matching handler, so the
+ * parent decides who may see them.
+ */
 export default function OrgHeader({ name, presidentName, onEdit, onDelete }) {
 	return (
 		<header className="flex items-start justify-between border-gray-200 border-b bg-gray-50 px-8 py-6">
@@ -12,7 +20,6 @@ export default function OrgHeader({ name, presidentName, onEdit, onDelete }) {
 				</p>
 			</div>
 
-			{/* Actions */}
 			<div className="flex space-x-2">
 				{onEdit && (
 					<IconButton

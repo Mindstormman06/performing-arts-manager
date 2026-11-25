@@ -3,6 +3,20 @@ import { useNavigate } from "react-router-dom";
 import { AUTH_LOGOUT_EVENT, verifyToken } from "../services/api.js";
 import { AuthContext } from "./AuthContextInstance";
 
+/**
+ * The provider that holds the signed-in session for the whole app.
+ *
+ * @remarks
+ * Provides `{ user, token, setToken, logout }` through `AuthContext`; read it
+ * with `useAuth`. The token is initialised from `localStorage` key `token`;
+ * whoever signs in must write it there as well as calling `setToken`. Whenever
+ * the token changes it calls `/auth/verify` to load `user`, keeping the
+ * session on non-401 errors. `logout` removes the stored token, clears state
+ * and navigates to `/login`. A 401 from any request makes the axios
+ * interceptor in `api.js` clear the token and fire `AUTH_LOGOUT_EVENT` on
+ * `window`, which this provider answers by calling `logout`. Must render
+ * inside a router because it uses `useNavigate`.
+ */
 export const AuthProvider = ({ children }) => {
 	const [token, setToken] = useState(() => localStorage.getItem("token"));
 	const [user, setUser] = useState(null);
@@ -16,8 +30,6 @@ export const AuthProvider = ({ children }) => {
 		navigate("/login");
 	}, [navigate]);
 
-	// Validate the session (and load the user) only when the token changes.
-	// A 401 here is handled by the API interceptor, which fires AUTH_LOGOUT_EVENT.
 	useEffect(() => {
 		if (!token) return;
 		let cancelled = false;
@@ -26,15 +38,13 @@ export const AuthProvider = ({ children }) => {
 				if (!cancelled) setUser(data.user ?? null);
 			})
 			.catch(() => {
-				// Non-401 failures (e.g. network) keep the session; 401 is handled globally.
+				// A 401 is already handled by the api.js interceptor.
 			});
 		return () => {
 			cancelled = true;
 		};
 	}, [token]);
 
-	// Single 401 handling path: the axios interceptor clears the stored token and
-	// dispatches this event; we reset React state and navigate to /login.
 	useEffect(() => {
 		window.addEventListener(AUTH_LOGOUT_EVENT, logout);
 		return () => window.removeEventListener(AUTH_LOGOUT_EVENT, logout);

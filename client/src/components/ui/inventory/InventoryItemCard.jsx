@@ -1,5 +1,15 @@
 import InventoryPhotoCell from "../InventoryPhotoCell.jsx";
 
+/**
+ * A card that presents one inventory item with its photo, text, badges and
+ * actions.
+ *
+ * @remarks
+ * Stateless layout component. Takes the item (only its `photo_path` is read,
+ * for `InventoryPhotoCell`), a title, an optional description, and optional
+ * badge, footer and action nodes that the parent builds; each optional area is
+ * omitted when not supplied. Extra classes can be appended to the outer card.
+ */
 export default function InventoryItemCard({
 	item,
 	title,

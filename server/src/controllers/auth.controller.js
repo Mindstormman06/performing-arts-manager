@@ -1,3 +1,13 @@
+/**
+ * Express controller for logging in and verifying a session token.
+ *
+ * @remarks
+ * Delegates to `auth.service`: `login` returns a JWT plus basic user fields,
+ * and `verify` returns the profile of `req.user`, which the `authenticate`
+ * middleware must have set. Any service error, including a deleted user,
+ * responds 401 with the error message.
+ */
+
 import authService from "../services/auth.service.js";
 
 async function login(req, res) {

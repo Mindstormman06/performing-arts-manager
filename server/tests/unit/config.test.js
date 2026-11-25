@@ -1,9 +1,18 @@
-// config.test.js
+/**
+ * Unit tests for the database config's env-var defaults.
+ *
+ * @remarks
+ * Needs no database. Each test edits `process.env`, resets the module cache
+ * and re-imports `database.config.js` so the new env is read; the original
+ * env is restored after the suite. Uses Vitest globals instead of imports.
+ */
+
 describe("Database Configuration Coverage", () => {
 	const originalEnv = process.env;
 
 	beforeEach(() => {
-		vi.resetModules(); // This is the magic line
+		// Without a module reset, the config keeps the env read at first import.
+		vi.resetModules();
 		process.env = { ...originalEnv };
 	});
 

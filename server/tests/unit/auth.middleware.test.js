@@ -1,3 +1,14 @@
+/**
+ * Unit tests for the auth middleware: `authenticate`, `authorizeOrg`,
+ * `authorizeShow` and `authorizeInventoryDept`.
+ *
+ * @remarks
+ * Needs no database. Each middleware is called directly with mock
+ * request/response objects, and Sequelize model methods are replaced with
+ * `vi.spyOn` stubs; tokens are signed with the test `JWT_SECRET`. Tests are
+ * independent of each other.
+ */
+
 import jwt from "jsonwebtoken";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 

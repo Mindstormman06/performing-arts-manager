@@ -10,6 +10,18 @@ import MembersList from "../../ui/modals/sections/MembersList.jsx";
 import PendingInvitesList from "../../ui/modals/sections/PendingInvitesList.jsx";
 import RoleModal from "./OrgRoleModal.jsx";
 
+/**
+ * A modal listing an organization's active members and pending invitations.
+ *
+ * @remarks
+ * Holds which member's roles are being edited and whether the nested
+ * `OrgRoleModal` is open. The parent supplies the full membership list, which
+ * is split by status, plus the organization id and a refresh callback. Removing
+ * a member or rescinding an invite asks for `window.confirm`, then calls
+ * `removeUserFromOrganization` and reports failure with `alert`. Renders
+ * nothing while closed. Requests go through `services/api.js`, which
+ * authenticates with the `token` in `localStorage`.
+ */
 export default function FullMembersModal({
 	isOpen,
 	onClose,

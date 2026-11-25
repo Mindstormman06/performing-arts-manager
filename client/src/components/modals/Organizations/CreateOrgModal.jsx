@@ -15,6 +15,16 @@ import {
 	ModalWrapper,
 } from "../../ui/modals/index.js";
 
+/**
+ * A modal form for creating a new organization by name.
+ *
+ * @remarks
+ * Holds the name field, an error message and a loading flag. Requires a
+ * non-blank name, calls `createOrganization`, then clears the field, triggers
+ * the parent's success callback and closes; server error messages are shown
+ * inline. Renders nothing while closed. Requests go through `services/api.js`,
+ * which authenticates with the `token` in `localStorage`.
+ */
 export default function CreateOrgModal({ isOpen, onClose, onSuccess }) {
 	const [name, setName] = useState("");
 	const [error, setError] = useState("");

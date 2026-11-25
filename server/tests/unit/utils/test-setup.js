@@ -1,40 +1,46 @@
+/**
+ * Shared database helpers for the unit test suites.
+ *
+ * @remarks
+ * Exports `setupTestDatabase`, which connects to the MySQL database named by
+ * the `DB_*` env vars, drops and recreates every table with
+ * `sequelize.sync({ force: true })`, and seeds the org roles, show roles and
+ * departments the services expect. It is destructive, so `DB_NAME` must point
+ * at a throwaway test database; connection errors are logged, not thrown.
+ * Also exports `closeDatabase` for `afterAll`, and `addActiveOrgMember`, which
+ * writes an active `OrgMembership` row directly because joining through the
+ * API needs an org admin and leaves the membership pending.
+ */
+
 import models from "../../../src/models/index.js";
 import sequelize from "../../../src/services/db.service.js";
 
-/**
- * Prepares the database for testing.
- * This drops existing tables, recreates them, and seeds required roles.
- * It should be called in the `beforeAll` block of any test file that hits the DB.
- */
 export const setupTestDatabase = async () => {
 	try {
-		// Verify connection to the database
 		await sequelize.authenticate();
-		// Force sync drops all tables and recreates them to ensure a clean slate
 		await sequelize.sync({ force: true });
 
-		// Seed all required roles necessary for the multi-tenant logic
+		// "admin" is not seeded in production; the tests use it as an org role.
 		const orgRoles = [
-			"admin", // Org - added for tests
-			"president", // Org
-			"board-member", // Org
-			"costumes", // Both
-			"props", // Both
-			"sets", // Both
-			"tech", // Both
+			"admin",
+			"president",
+			"board-member",
+			"costumes",
+			"props",
+			"sets",
+			"tech",
 		];
 		const showRoles = [
-			"director", // Show
-			"stage-manager", // Show
-			"actor", // Show
-			"stagehand", // Show
-			"costumes", // Both
-			"props", // Both
-			"sets", // Both
-			"tech", // Both
+			"director",
+			"stage-manager",
+			"actor",
+			"stagehand",
+			"costumes",
+			"props",
+			"sets",
+			"tech",
 		];
 
-		// Insert each role into the database if it doesn't already exist
 		for (const roleName of orgRoles) {
 			await models.OrganizationRole.findOrCreate({ where: { name: roleName } });
 		}
@@ -42,7 +48,6 @@ export const setupTestDatabase = async () => {
 			await models.ShowRole.findOrCreate({ where: { name: roleName } });
 		}
 
-		// Seed departments
 		const departments = ["Costumes", "Props", "Sets", "Tech"];
 		for (const deptName of departments) {
 			await models.Department.findOrCreate({ where: { name: deptName } });
@@ -55,19 +60,10 @@ export const setupTestDatabase = async () => {
 	}
 };
 
-/**
- * Gracefully closes the database connection after tests finish.
- * Call this in the `afterAll` block.
- */
 export const closeDatabase = async () => {
 	await sequelize.close();
 };
 
-/**
- * Makes a user an active member of an organization, as if they had been
- * invited and accepted. Joining through the API now requires an org admin
- * and leaves the membership pending, so test setup uses this instead.
- */
 export const addActiveOrgMember = async (orgId, userId) => {
 	const [membership] = await models.OrgMembership.findOrCreate({
 		where: { org_id: orgId, users_id: userId },

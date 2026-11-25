@@ -1,3 +1,14 @@
+/**
+ * Unit tests for the Multer upload config: MIME filtering, generated file
+ * names, destination folders and the `setUploadSubDir` middleware.
+ *
+ * @remarks
+ * Needs no database; Multer callbacks are called directly with mocks. The
+ * destination tests create `uploads/unit-test-multer` under the working
+ * directory, and "reuses existing destination directory" expects the
+ * previous test to have created it. `afterAll` deletes that folder.
+ */
+
 import fs from "node:fs";
 import path from "node:path";
 

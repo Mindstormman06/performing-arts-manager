@@ -1,3 +1,13 @@
+/**
+ * Vitest configuration for the server tests.
+ *
+ * @remarks
+ * Runs in the Node environment with global test APIs and executes test files
+ * one at a time rather than in parallel. V8 coverage is reported as text, JSON
+ * and HTML, and the run fails below 80% lines, functions, branches or
+ * statements.
+ */
+
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({

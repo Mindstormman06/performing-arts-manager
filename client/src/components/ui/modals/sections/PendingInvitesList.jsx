@@ -2,6 +2,14 @@ import ModalDeleteButton from "../buttons/ModalDeleteButton.jsx";
 import ModalSubHeader from "../text/ModalSubHeader.jsx";
 import ModalSubsection from "./ModalSubsection.jsx";
 
+/**
+ * A list of pending membership invitations, each with a rescind button.
+ *
+ * @remarks
+ * Stateless. Renders nothing when there are no pending members. Shows each
+ * invitee's email from the nested `User` record and hands the member's
+ * `users_id` to the parent's rescind handler.
+ */
 export default function PendingInvitesList({ pendingMembers, onRescind }) {
 	if (!pendingMembers || pendingMembers.length === 0) {
 		return null;

@@ -41,6 +41,24 @@ const getRoleWeight = (roleName) => {
 	return index >= 0 ? SHOW_ROLE_PRIORITY.length - index : 1;
 };
 
+/**
+ * A modal showing a show member's profile, with a popover for editing their
+ * show roles.
+ *
+ * @remarks
+ * Holds the member record re-fetched with `getShowUser`, the role names from
+ * `getAvailableShowRoles`, the selected roles, whether the role popover is open
+ * and whether any change was saved. Each checkbox toggle immediately saves the
+ * full role list with `updateShowUserRoles` and rolls back on failure. Roles
+ * are ranked by `SHOW_ROLE_PRIORITY`: the member's highest role cannot be
+ * removed, users cannot raise themselves, and editors cannot grant roles above
+ * their own unless they hold an organization-level role (president, board
+ * member, admin). The parent's success callback runs on close only if something
+ * changed. The popover closes on any outside mousedown, via a `document`
+ * listener. Builds the photo URL from `BACKEND_URL`. Renders nothing while
+ * closed. Requests go through `services/api.js`, which authenticates with the
+ * `token` in `localStorage`.
+ */
 export default function ShowRoleModal({
 	isOpen,
 	onClose,
@@ -196,6 +214,8 @@ export default function ShowRoleModal({
 		setSelectedRoles(updatedRoles);
 
 		try {
+			// Roles not offered as checkboxes are re-sent so the full-list
+			// update does not strip them.
 			const hiddenRoles =
 				resolvedMember?.assignedRoles
 					?.map((r) => r.name)

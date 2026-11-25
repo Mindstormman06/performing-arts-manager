@@ -1,3 +1,17 @@
+/**
+ * Service for organization and show calendar events.
+ *
+ * @remarks
+ * Exports functions to list org, show and personal calendars, create, update
+ * and delete events, and set event attendees. Reads Show, OrgMembership,
+ * ShowMembership, their roles and Casting; writes Schedule and its attendee
+ * and required-character associations. Only title, times, location and
+ * description come from client data. Updates, deletes and assignment find
+ * events within an org or show scope and report events outside it as not
+ * found, and assignees are limited to members of that org or show. Nothing is
+ * transactional. Callers must already have checked the acting user's role.
+ */
+
 import { Op } from "sequelize";
 
 import models from "../models/index.js";
@@ -19,11 +33,8 @@ function pickEventFields(data = {}) {
 	);
 }
 
-/**
- * Finds an event that belongs to the given scope.
- * scope: { orgId } matches org events and events of shows in that org;
- *        { showId } matches events of that show only.
- */
+// { orgId } matches org events and events of shows in that org; { showId }
+// matches only that show's events.
 async function findScopedEvent(eventId, scope = {}) {
 	const event = await models.Schedule.findByPk(eventId);
 	if (!event) throw new Error("Event not found");

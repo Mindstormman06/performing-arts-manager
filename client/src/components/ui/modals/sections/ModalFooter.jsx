@@ -1,3 +1,10 @@
+/**
+ * The bottom action row of a modal, right-aligned with a top border.
+ *
+ * @remarks
+ * Stateless; children are usually the cancel and submit buttons. Renders as an
+ * `<h3>` element, and a passed `className` replaces the default styling.
+ */
 export default function ModalFooter({ children, ...props }) {
 	return (
 		<h3

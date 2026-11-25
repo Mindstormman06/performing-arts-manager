@@ -1,3 +1,18 @@
+/**
+ * Registry of every Sequelize model and the associations between them.
+ *
+ * @remarks
+ * Instantiates all models on the shared connection from `db.service.js` and
+ * exports them as one object. Org and show memberships are through models
+ * between users and organizations or shows, each with roles under the
+ * `assignedRoles` alias. Inventory joins shows through `ShowInventory` (with
+ * `assignedUser` and `assignedCharacter`), schedules join users as `attendees`
+ * and casting as `requiredCharacters`, and shows, layouts, departments and
+ * users have one-to-many links. Some foreign keys, such as `show_id`,
+ * `layout_id`, `light_id` and `creator_id`, exist only through these
+ * associations.
+ */
+
 import { DataTypes } from "sequelize";
 
 import sequelize from "../services/db.service.js";
@@ -51,7 +66,6 @@ const models = {
 	ShowRole: ShowRoleModel(sequelize, DataTypes),
 };
 
-// Show Inventory (includes the user who added it to the show)
 models.Inventory.belongsToMany(models.Show, {
 	through: models.ShowInventory,
 	foreignKey: "inventory_id",
@@ -71,7 +85,6 @@ models.ShowInventory.belongsTo(models.Casting, {
 	as: "assignedCharacter",
 });
 
-// Schedules Many-to-Many
 models.Schedule.belongsToMany(models.User, {
 	through: models.UserSchedule,
 	foreignKey: "schedules_id",
@@ -101,11 +114,9 @@ models.Casting.belongsToMany(models.Schedule, {
 models.Show.hasMany(models.Schedule, { foreignKey: "show_id" });
 models.Schedule.belongsTo(models.Show, { foreignKey: "show_id" });
 
-// A Show has many Notes
 models.Show.hasMany(models.Note, { foreignKey: "show_id" });
 models.Note.belongsTo(models.Show, { foreignKey: "show_id" });
 
-// A User (Director/Stage Manager) creates many Schedules
 models.User.hasMany(models.Schedule, {
 	foreignKey: "creator_id",
 	as: "createdSchedules",
@@ -115,65 +126,50 @@ models.Schedule.belongsTo(models.User, {
 	as: "creator",
 });
 
-// A User (Author) writes many Notes
 models.User.hasMany(models.Note, { foreignKey: "author_id" });
 models.Note.belongsTo(models.User, { foreignKey: "author_id" });
 
-// A User adds many items to the global Inventory
 models.User.hasMany(models.Inventory, { foreignKey: "added_by" });
 models.Inventory.belongsTo(models.User, { foreignKey: "added_by" });
 
-// A Department (e.g., Costumes) owns many Inventory items
 models.Department.hasMany(models.Inventory, { foreignKey: "dept_id" });
 models.Inventory.belongsTo(models.Department, { foreignKey: "dept_id" });
 
-// A Department can be the target of many Notes (e.g., a "Tech Note")
 models.Department.hasMany(models.Note, { foreignKey: "dept_id" });
 models.Note.belongsTo(models.Department, { foreignKey: "dept_id" });
 
-// A show can have many cues
 models.Show.hasMany(models.Cue, { foreignKey: "show_id" });
 models.Cue.belongsTo(models.Show, { foreignKey: "show_id" });
 
-// A inventory piece can be used for many cues
 models.Inventory.hasMany(models.Cue, { foreignKey: "light_id" });
 models.Cue.belongsTo(models.Inventory, { foreignKey: "light_id" });
 
-// A budget can have one show
 models.Show.hasOne(models.Budget, { foreignKey: "show_id" });
 models.Budget.belongsTo(models.Show, { foreignKey: "show_id" });
 
-// A show can have many expenses
 models.Show.hasMany(models.Expense, { foreignKey: "show_id" });
 models.Expense.belongsTo(models.Show, { foreignKey: "show_id" });
 
-// A show can have many stage_layouts
 models.Show.hasMany(models.Layout, { foreignKey: "show_id" });
 models.Layout.belongsTo(models.Show, { foreignKey: "show_id" });
 
-// A layout can have many stage_objects
 models.Layout.hasMany(models.StageObject, { foreignKey: "layout_id" });
 models.StageObject.belongsTo(models.Layout, { foreignKey: "layout_id" });
 
-// A layout can have many lighting_plots
 models.Layout.hasMany(models.LightingPlot, { foreignKey: "layout_id" });
 models.LightingPlot.belongsTo(models.Layout, { foreignKey: "layout_id" });
 
-// A user and show can have many castings
 models.Show.hasMany(models.Casting, { foreignKey: "show_id" });
 models.User.hasMany(models.Casting, { foreignKey: "users_id" });
 models.Casting.belongsTo(models.Show, { foreignKey: "show_id" });
 models.Casting.belongsTo(models.User, { foreignKey: "users_id" });
 
-// Organization to Departments (One-to-Many)
 models.Organization.hasMany(models.Inventory, { foreignKey: "org_id" });
 models.Inventory.belongsTo(models.Organization, { foreignKey: "org_id" });
 
-// Organization to Shows (One-to-Many)
 models.Organization.hasMany(models.Show, { foreignKey: "organization_id" });
 models.Show.belongsTo(models.Organization, { foreignKey: "organization_id" });
 
-// Organization to Users (Many-to-Many)
 models.Organization.belongsToMany(models.User, {
 	through: models.OrgMembership,
 	foreignKey: "org_id",
@@ -191,7 +187,6 @@ models.OrgMembership.belongsTo(models.User, { foreignKey: "users_id" });
 models.Organization.hasMany(models.OrgMembership, { foreignKey: "org_id" });
 models.OrgMembership.belongsTo(models.Organization, { foreignKey: "org_id" });
 
-// OrgMembership to Roles (Many-to-Many)
 models.OrgMembership.belongsToMany(models.OrganizationRole, {
 	through: models.OrgRoleRelationship,
 	foreignKey: "assignment_id",
@@ -205,11 +200,9 @@ models.OrganizationRole.belongsToMany(models.OrgMembership, {
 	otherKey: "assignment_id",
 });
 
-// Organization to Schedules (One-to-Many)
 models.Organization.hasMany(models.Schedule, { foreignKey: "org_id" });
 models.Schedule.belongsTo(models.Organization, { foreignKey: "org_id" });
 
-// Shows to Users (Many-to-Many)
 models.Show.belongsToMany(models.User, {
 	through: models.ShowMembership,
 	foreignKey: "show_id",
@@ -227,7 +220,6 @@ models.ShowMembership.belongsTo(models.User, { foreignKey: "users_id" });
 models.Show.hasMany(models.ShowMembership, { foreignKey: "show_id" });
 models.ShowMembership.belongsTo(models.Show, { foreignKey: "show_id" });
 
-// ShowMembership to Roles (Many-to-Many)
 models.ShowMembership.belongsToMany(models.ShowRole, {
 	through: models.ShowRoleRelationship,
 	foreignKey: "assignment_id",
@@ -240,11 +232,5 @@ models.ShowRole.belongsToMany(models.ShowMembership, {
 	foreignKey: "role_id",
 	otherKey: "assignment_id",
 });
-
-// Object.values(models).forEach((model) => {
-// 	if (typeof model.associate === "function") {
-// 		model.associate(models);
-// 	}
-// });
 
 export default models;

@@ -13,10 +13,24 @@ import {
 	deleteOrganization,
 	getOrganization,
 	getOrganizationUsers,
-	getUserShows, // <-- Updated
-	verifyToken, // <-- Added
+	getUserShows,
+	verifyToken,
 } from "../../services/api.js";
 
+/**
+ * The organization overview page at `/orgs/:orgId/overview`.
+ *
+ * @remarks
+ * Reads `orgId` from the route. On mount it verifies the token to get the
+ * current user, then loads the organization, its members and the shows this
+ * user can see in it, deriving the user's org roles. Presidents and board
+ * members get edit, quick links to the org inventory and schedule, Add Show,
+ * Invite Member and per-member role editing; only presidents can delete the
+ * org. Holds the open state of the edit, invite, members, role and create-show
+ * modals, each of which reloads the page data on success. Deleting asks twice
+ * via `window.confirm`, then navigates to `/organizations`; failures use
+ * `alert`.
+ */
 export default function OrgOverview() {
 	const { orgId } = useParams();
 	const navigate = useNavigate();
@@ -27,7 +41,6 @@ export default function OrgOverview() {
 
 	const [isLoading, setIsLoading] = useState(true);
 
-	// --- RBAC STATE ---
 	const [userRoles, setUserRoles] = useState([]);
 	const [isSuperAdmin, setIsSuperAdmin] = useState(false);
 
@@ -40,21 +53,19 @@ export default function OrgOverview() {
 
 	const fetchData = useCallback(async () => {
 		try {
-			// 1. Get current user
 			const authRes = await verifyToken();
 			const currentUserId = authRes.data.user.id;
 
 			const [orgRes, usersRes, showsRes] = await Promise.all([
 				getOrganization(orgId),
 				getOrganizationUsers(orgId),
-				getUserShows(orgId), // <-- Now uses the filtered route
+				getUserShows(orgId),
 			]);
 
 			setOrganization(orgRes.data);
 			setMembers(usersRes.data);
 			setShows(showsRes.data || []);
 
-			// 2. Identify current user's roles
 			const myMembership = usersRes.data.find(
 				(m) => m.users_id === currentUserId || m.User?.id === currentUserId,
 			);
@@ -122,7 +133,6 @@ export default function OrgOverview() {
 
 	return (
 		<div className="mx-auto flex min-h-[calc(100vh-9rem)] max-w-7xl flex-col p-4 sm:p-6 lg:p-8">
-			{/* Modals */}
 			<EditOrgModal
 				isOpen={isEditOrgModalOpen}
 				onClose={() => setIsEditOrgModalOpen(false)}
@@ -166,7 +176,6 @@ export default function OrgOverview() {
 					}
 				/>
 
-				{/* RESTRICTED: Quick Links */}
 				{isSuperAdmin && (
 					<div className="flex items-center gap-4 border-gray-100 border-b bg-gray-50/50 px-8 py-4">
 						<Link

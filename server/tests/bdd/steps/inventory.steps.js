@@ -1,3 +1,14 @@
+/**
+ * Cucumber step definitions for the show inventory feature: listing, adding
+ * and pulling items for show 1.
+ *
+ * @remarks
+ * Needs the live MySQL DB filled by `seed.js`; every request targets show
+ * id 1 and the department ids from the seed, and sends `this.currentToken`
+ * from the shared login step. Each When step stores its response in
+ * `this.lastResponse` for the Then steps. Adding an item writes to the DB.
+ */
+
 import assert from "node:assert";
 
 import { Given, Then, When } from "@cucumber/cucumber";
@@ -5,17 +16,9 @@ import request from "supertest";
 
 import app from "../../../server.js";
 
-// ----------------------------------------------------------------
-// GIVEN STEPS
-// ----------------------------------------------------------------
-
 Given("an inventory item with ID {int} exists", (_itemId) => {
-	// No action needed, ID will be created by seed data
+	// Nothing to do: the seed data creates this item.
 });
-
-// ----------------------------------------------------------------
-// WHEN STEPS
-// ----------------------------------------------------------------
 
 When("they request the show inventory for Rock of Ages", async function () {
 	this.lastResponse = await request(app)
@@ -56,10 +59,6 @@ When(
 			.set("Authorization", `Bearer ${this.currentToken}`);
 	},
 );
-
-// ----------------------------------------------------------------
-// THEN STEPS (Asserting the responses)
-// ----------------------------------------------------------------
 
 Then("the response should contain a list of inventory items", function () {
 	const responseData = this.lastResponse.body.data || this.lastResponse.body;

@@ -1,6 +1,17 @@
 import ModalDeleteButton from "../buttons/ModalDeleteButton.jsx";
 import ModalHyperButton from "../buttons/ModalHyperButton.jsx";
 
+/**
+ * One row in a member list showing a member's name, email, roles and management
+ * actions.
+ *
+ * @remarks
+ * Stateless. Reads the name and email from the member's nested `User` record
+ * and lists its assigned roles as badges; a "Pending" badge appears when the
+ * parent asks for status and the membership is pending. When editing is allowed
+ * it shows "Edit Roles", which hands the whole member to the parent, and
+ * "Remove", which hands over the member's `users_id`.
+ */
 export default function MemberRow({
 	member,
 	onEditRoles,
@@ -10,7 +21,6 @@ export default function MemberRow({
 }) {
 	return (
 		<div className="flex flex-col gap-4 rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50 sm:flex-row sm:items-center sm:justify-between">
-			{/* Member Info */}
 			<div className="flex-1">
 				<div className="flex items-center gap-2">
 					<div>
@@ -26,7 +36,6 @@ export default function MemberRow({
 					)}
 				</div>
 
-				{/* Roles */}
 				<div className="mt-2 flex flex-wrap gap-1">
 					{member.assignedRoles?.map((role) => (
 						<span
@@ -39,7 +48,6 @@ export default function MemberRow({
 				</div>
 			</div>
 
-			{/* Actions */}
 			<div className="flex gap-2 sm:gap-3">
 				{canEditRoles &&
 					member.assignedRoles &&

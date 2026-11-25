@@ -1,3 +1,14 @@
+/**
+ * Integration tests for the inventory routes: departments, org-wide (global)
+ * inventory CRUD, and authentication on the show inventory routes.
+ *
+ * @remarks
+ * Needs the live MySQL test DB: `beforeAll` runs `setupTestDatabase`, then
+ * creates a user, an org and a show through the API. The first departments
+ * test stores the department id that later create and delete tests use.
+ * Service error paths spy on `inventoryService` and restore each spy.
+ */
+
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
@@ -16,7 +27,6 @@ describe("Inventory Management API", () => {
 	beforeAll(async () => {
 		await setupTestDatabase();
 
-		// Create a user and login to obtain a JWT for all tests
 		const email = `inventory-tester-${Date.now()}@viu.ca`;
 		const userRes = await request(app).post("/api/users").send({
 			fname: "Inventory",
@@ -32,20 +42,17 @@ describe("Inventory Management API", () => {
 		});
 		authToken = loginRes.body.token;
 
-		// Create an organization
 		const orgRes = await request(app)
 			.post("/api/orgs")
 			.set("Authorization", `Bearer ${authToken}`)
 			.send({ name: "Inventory Test Org" });
 		testOrgId = orgRes.body.id;
 
-		// Assign admin role to user in the organization (as creator)
 		await request(app)
 			.put(`/api/orgs/${testOrgId}/users/${testUserId}/roles`)
 			.set("Authorization", `Bearer ${authToken}`)
 			.send({ roles: ["admin", "costumes", "props", "sets", "tech"] });
 
-		// Create a show
 		const showRes = await request(app)
 			.post("/api/shows")
 			.set("Authorization", `Bearer ${authToken}`)
@@ -57,7 +64,6 @@ describe("Inventory Management API", () => {
 			});
 		testShowId = showRes.body.id;
 
-		// Join the show and assign show roles
 		await request(app)
 			.post(`/api/shows/${testShowId}/join`)
 			.send({ userId: testUserId });
@@ -91,7 +97,6 @@ describe("Inventory Management API", () => {
 			expect(Array.isArray(res.body)).toBe(true);
 			expect(res.body.length).toBeGreaterThan(0);
 			expect(res.body[0]).toHaveProperty("name");
-			// Save a department id for later tests
 			testDepartmentId = res.body[0].id;
 			expect(testDepartmentId).toBeDefined();
 		});
@@ -176,7 +181,7 @@ describe("Inventory Management API", () => {
 					.send({
 						name: "Test Prop",
 						description: "A test prop",
-						dept_id: 99999, // Invalid department
+						dept_id: 99999,
 						quantity: 5,
 						condition: "good",
 					});
@@ -222,7 +227,6 @@ describe("Inventory Management API", () => {
 
 		describe("removeGlobal", () => {
 			it("DELETE /api/inventory/orgs/:orgId/items/:inventoryId - should delete a global inventory item", async () => {
-				// Create an item first
 				const createRes = await request(app)
 					.post(`/api/inventory/orgs/${testOrgId}`)
 					.set("Authorization", `Bearer ${authToken}`)
@@ -236,7 +240,6 @@ describe("Inventory Management API", () => {
 
 				const itemId = createRes.body.data.id;
 
-				// Delete the item
 				const res = await request(app)
 					.delete(`/api/inventory/orgs/${testOrgId}/items/${itemId}`)
 					.set("Authorization", `Bearer ${authToken}`);

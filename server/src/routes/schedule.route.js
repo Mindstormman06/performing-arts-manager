@@ -1,3 +1,15 @@
+/**
+ * Express router for organization and show calendars, mounted at
+ * `/api/schedule`.
+ *
+ * @remarks
+ * Every route requires a logged-in user, and `GET /personal` returns the
+ * caller's own events. Reading a calendar requires active org or show
+ * membership. Creating, editing, deleting and assigning people to org events
+ * requires the `president` or `board-member` role; for show events it requires
+ * `director` or `stage-manager`, or org oversight.
+ */
+
 import Router from "express";
 
 import scheduleController from "../controllers/schedule.controller.js";
@@ -8,8 +20,6 @@ import {
 } from "../middleware/auth.middleware.js";
 
 const router = Router();
-
-// GET ROUTES
 
 router.get(
 	"/orgs/:orgId",
@@ -25,8 +35,6 @@ router.get(
 	scheduleController.getShowCalendar,
 );
 
-// POST ROUTES
-
 router.post(
 	"/orgs/:orgId",
 	authenticate,
@@ -41,8 +49,6 @@ router.post(
 	scheduleController.createShowEvent,
 );
 
-// PUT ROUTES
-
 router.put(
 	"/orgs/:orgId/:eventId",
 	authenticate,
@@ -56,8 +62,6 @@ router.put(
 	authorizeShow(["director", "stage-manager"]),
 	scheduleController.updateEvent,
 );
-
-// DELETE ROUTES
 
 router.delete(
 	"/orgs/:orgId/:eventId",

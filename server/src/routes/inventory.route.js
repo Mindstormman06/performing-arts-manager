@@ -1,3 +1,16 @@
+/**
+ * Express router for organization and show inventory, mounted at
+ * `/api/inventory`.
+ *
+ * @remarks
+ * Every route requires a logged-in user, and the department list is open to
+ * any of them. Reading org or show inventory requires active membership.
+ * Changes go through `authorizeInventoryDept`: org admins and presidents at
+ * org level, directors and stage managers at show level, or members whose role
+ * matches the item's department. Create routes accept a `photo` upload saved
+ * under `uploads/inventory`.
+ */
+
 import Router from "express";
 
 import upload, { setUploadSubDir } from "../config/multer.config.js";
@@ -11,14 +24,8 @@ import {
 
 const router = Router();
 
-// --- Department Routes ---
-
-// GET /api/inventory/departments
 router.get("/departments", authenticate, inventoryController.getDepartments);
 
-// --- Organization Level Routes ---
-
-// GET /api/inventory/orgs/1
 router.get(
 	"/orgs/:orgId",
 	authenticate,
@@ -26,7 +33,6 @@ router.get(
 	inventoryController.getGlobal,
 );
 
-// POST /api/inventory/orgs/1
 router.post(
 	"/orgs/:orgId",
 	authenticate,
@@ -38,7 +44,6 @@ router.post(
 	inventoryController.createGlobal,
 );
 
-// PUT /api/inventory/orgs/1/items/5
 router.put(
 	"/orgs/:orgId/items/:inventoryId",
 	authenticate,
@@ -46,7 +51,6 @@ router.put(
 	inventoryController.updateGlobal,
 );
 
-// DELETE /api/inventory/orgs/1/items/5
 router.delete(
 	"/orgs/:orgId/items/:inventoryId",
 	authenticate,
@@ -54,9 +58,6 @@ router.delete(
 	inventoryController.removeGlobal,
 );
 
-// --- Show Level Routes ---
-
-// GET /api/inventory/shows/1
 router.get(
 	"/shows/:showId",
 	authenticate,
@@ -64,7 +65,6 @@ router.get(
 	inventoryController.getShowInventory,
 );
 
-// POST /api/inventory/shows/1
 router.post(
 	"/shows/:showId",
 	authenticate,
@@ -76,7 +76,6 @@ router.post(
 	inventoryController.createShowItem,
 );
 
-// POST /api/inventory/shows/1/pull/5
 router.post(
 	"/shows/:showId/pull/:inventoryId",
 	authenticate,
@@ -84,7 +83,6 @@ router.post(
 	inventoryController.pullItem,
 );
 
-// PUT /api/inventory/shows/1/items/5
 router.put(
 	"/shows/:showId/items/:inventoryId",
 	authenticate,
@@ -92,7 +90,6 @@ router.put(
 	inventoryController.updateItem,
 );
 
-// PUT /api/inventory/shows/1/items/5/assign
 router.put(
 	"/shows/:showId/items/:inventoryId/assign",
 	authenticate,
@@ -100,7 +97,6 @@ router.put(
 	inventoryController.assignItem,
 );
 
-// DELETE /api/inventory/shows/1/items/5
 router.delete(
 	"/shows/:showId/items/:inventoryId",
 	authenticate,

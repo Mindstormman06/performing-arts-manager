@@ -1,5 +1,17 @@
 import { IconButton } from "./IconButton";
 
+/**
+ * A titled dashboard panel with an optional action button and a scrollable
+ * content area.
+ *
+ * @remarks
+ * Stateless. The title is plain text, or a button when the parent marks it
+ * clickable and supplies a click handler. A round `IconButton` appears in the
+ * header only when both an action title and an action handler are given; its
+ * colour and icon are configurable. Children render inside a bordered box that
+ * scrolls vertically, and the section's own class and style can be overridden
+ * for layout.
+ */
 export default function DashboardSection({
 	title,
 	onActionClick,
@@ -42,7 +54,6 @@ export default function DashboardSection({
 				)}
 			</div>
 
-			{/* Content Container */}
 			<div className="min-h-0 flex-1 overflow-y-auto rounded-xl border border-gray-200 bg-gray-50 p-6">
 				{children}
 			</div>

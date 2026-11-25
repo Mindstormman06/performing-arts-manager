@@ -1,3 +1,14 @@
+/**
+ * Unit tests for the show controller handlers: user shows, dashboard summary,
+ * list, get, create, update and remove, including their error mapping.
+ *
+ * @remarks
+ * Needs no database. Handlers are called directly with mock
+ * `req`/`res`/`next`, and `showService` methods are stubbed with `vi.spyOn`
+ * and restored after use. Some tests sign JWTs with the test `JWT_SECRET` to
+ * exercise the optional token read in `getUserShows`.
+ */
+
 import jwt from "jsonwebtoken";
 import { describe, expect, it, vi } from "vitest";
 

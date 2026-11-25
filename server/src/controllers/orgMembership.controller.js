@@ -1,3 +1,18 @@
+/**
+ * Express controller for organization membership, roles and invitations.
+ *
+ * @remarks
+ * Delegates to `orgMembership.service` (join, invite, the caller's own
+ * memberships) and `orgRole.service` (role changes, member lookups, removal),
+ * passing `req.user.id` as the acting user so president-only rules apply.
+ * Service errors map by message: "Only a president" to 403; "not found", "not
+ * a member", "No valid", "does not" or a missing role name to 404; an existing
+ * member on join to 409; and invite failures to 400. Anything else goes to
+ * `next`. `respondToInvite` uses the models directly: accepting activates the
+ * caller's pending OrgMembership and their pending ShowMemberships in that
+ * org, declining deletes them, and these writes are not transactional.
+ */
+
 import { Op } from "sequelize";
 
 import models from "../models/index.js";
@@ -27,7 +42,7 @@ async function join(req, res, next) {
 async function addRoles(req, res, next) {
 	try {
 		const { orgId, userId } = req.params;
-		const { roles } = req.body; // Expecting ["admin", "tech"]
+		const { roles } = req.body;
 
 		const updatedRoles = await orgRoleService.setRolesForAssignment(
 			orgId,
@@ -132,7 +147,6 @@ async function leave(req, res, next) {
 async function removeRole(req, res, next) {
 	try {
 		const { orgId, userId } = req.params;
-		// Accept { "role": "admin" } or { "roles": ["admin", "president"] }
 		const rolesToRemove = req.body.roles || req.body.role;
 
 		const result = await orgRoleService.removeRolesFromUser(
@@ -194,17 +208,14 @@ async function respondToInvite(req, res, next) {
 			return res.status(404).json({ message: "Invite not found." });
 		}
 
-		// 1. Get all shows belonging to this organizations
 		const orgShows = await models.Show.findAll({
 			where: { organization_id: orgId },
 		});
 		const showIds = orgShows.map((show) => show.id);
 
 		if (action === "accept") {
-			// Update the Organization membership
 			await membership.update({ status: "active" });
 
-			// Cascade the 'active' status to any pending Show memberships in this org
 			if (showIds.length > 0) {
 				await models.ShowMembership.update(
 					{ status: "active" },
@@ -220,10 +231,8 @@ async function respondToInvite(req, res, next) {
 
 			return res.json({ success: true, message: "Invitation accepted!" });
 		} else if (action === "decline") {
-			// Remove the pending Organization membership entirely
 			await membership.destroy();
 
-			// Cascade the deletion to any pending Show memberships in this org
 			if (showIds.length > 0) {
 				await models.ShowMembership.destroy({
 					where: {

@@ -1,3 +1,13 @@
+/**
+ * Sequelize model factory for the `expenses` table: one spending entry for a
+ * show.
+ *
+ * @remarks
+ * Requires an `amount` (DECIMAL 10,2) with an optional `description`. The
+ * `show_id` foreign key comes from the `Show.hasMany(Expense)` association in
+ * `models/index.js`.
+ */
+
 export default (sequelize, DataTypes) => {
 	const Expense = sequelize.define(
 		"Expense",

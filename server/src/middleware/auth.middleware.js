@@ -1,3 +1,21 @@
+/**
+ * Express middleware for JWT authentication and organization, show and
+ * department authorization.
+ *
+ * @remarks
+ * `authenticate` verifies the `Authorization: Bearer` token with `JWT_SECRET`,
+ * checks the user still exists, and sets `req.user` to the token payload.
+ * `authorizeOrg(roles)` and `authorizeShow(roles)` require an active
+ * membership and, when roles are given, one of them; show access also requires
+ * active membership in the show's organization. They set `req.orgRoles`,
+ * `req.show` and `req.showRoles`, and org admins, presidents and board members
+ * skip show role checks with `req.showOversight` set.
+ * `authorizeInventoryDept(level)` admits org admins (or show directors and
+ * stage managers), otherwise requires a role named after the item's department
+ * and deletes any uploaded file when it rejects. Also exports
+ * `ORG_ADMIN_ROLES` and `isSelf`. Every check queries the database.
+ */
+
 import fs from "node:fs";
 
 import jwt from "jsonwebtoken";
@@ -249,10 +267,6 @@ export const authorizeInventoryDept = (level) => {
 	};
 };
 
-/**
- * True when the authenticated user is acting on their own record
- * (req.params[param] === req.user.id).
- */
 export const isSelf = (req, param = "userId") =>
 	// eslint-disable-next-line security/detect-object-injection -- param is a route name chosen in code
 	String(req.params[param]) === String(req.user?.id);

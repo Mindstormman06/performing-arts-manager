@@ -1,3 +1,12 @@
+/**
+ * Unit tests for `schedule.service.js`: event update and delete scoping, and
+ * assigning attendees to org and show events by role, user and character.
+ *
+ * @remarks
+ * Needs no database. Sequelize model methods are stubbed with `vi.spyOn` and
+ * restored after each test, so tests are independent of each other.
+ */
+
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import models from "../../src/models/index.js";

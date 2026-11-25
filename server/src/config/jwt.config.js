@@ -1,3 +1,13 @@
+/**
+ * JSON Web Token settings for signing and verifying login tokens.
+ *
+ * @remarks
+ * Loads `.env` and exports `JWT_SECRET` and `JWT_EXPIRES_IN` (from
+ * `JWT_EXPIRES_IN`, default `8h`). Importing it throws when `JWT_SECRET` is
+ * unset, except under tests (`NODE_ENV=test` or Vitest), which get a fixed
+ * test-only secret.
+ */
+
 import "dotenv/config";
 
 const isTestEnv =

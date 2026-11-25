@@ -1,9 +1,21 @@
+/**
+ * Service for organization CRUD.
+ *
+ * @remarks
+ * Exports `getAll` (organizations where a user is an active member),
+ * `getById`, `create`, `update` and `remove`. `create` inserts the
+ * Organization and an active OrgMembership holding the president
+ * OrganizationRole for `data.userId` in one transaction, and fails if that
+ * role has not been seeded. `update` passes its data straight to Sequelize, so
+ * callers decide which fields are allowed. Callers must already have checked
+ * membership or admin rights.
+ */
+
 import models from "../models/index.js";
 import sequelize from "./db.service.js";
 
 const { Organization } = models;
 
-// Organizations the user is an active member of
 async function getAll(userId) {
 	return await Organization.findAll({
 		include: [

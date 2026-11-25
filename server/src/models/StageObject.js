@@ -1,3 +1,13 @@
+/**
+ * Sequelize model factory for the `stage_objects` table: a set piece or other
+ * object drawn on a stage layout.
+ *
+ * @remarks
+ * Holds `name`, optional `type`, a `shape` enum, a 7-character hex `colour`,
+ * and `sizeX`, `sizeY`, `posX`, `posY` and `rotation`. The `layout_id` foreign
+ * key comes from associations in `models/index.js`.
+ */
+
 export default (sequelize, DataTypes) => {
 	const StageObject = sequelize.define(
 		"StageObject",

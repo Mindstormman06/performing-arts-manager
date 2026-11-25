@@ -33,6 +33,20 @@ import {
 	ModalWrapper,
 } from "../../ui/modals/index.js";
 
+/**
+ * A two-tab modal for editing, re-assigning or deleting an existing show event.
+ *
+ * @remarks
+ * Holds the event form, the show's members labelled with their cast character,
+ * the uncast characters, the roles found among members, and the selected user
+ * and character ids, all reloaded from the event each time the modal opens
+ * using `getShowUsers` and `getShowCasting`. Times are shown in local time and
+ * saved as UTC via `utils/dateTime.js`. Saving calls `updateShowEvent` and then
+ * `assignShowEventUsers`; deleting asks for `window.confirm` and calls
+ * `deleteShowEvent`, which also removes the event from the organization
+ * calendar. Renders nothing while closed. Requests go through
+ * `services/api.js`, which authenticates with the `token` in `localStorage`.
+ */
 export default function ManageEventModal({
 	isOpen,
 	onClose,

@@ -1,5 +1,14 @@
 import { Link } from "react-router-dom";
 
+/**
+ * The public landing page: a full-screen hero with the product tagline.
+ *
+ * @remarks
+ * Stateless; takes `token` as a prop from `App`. Signed-out visitors see Get
+ * Started and Log In links, signed-in users a View Dashboard link to
+ * `/organizations`. Loads its backdrop from `/images/backdrop.jpg` in the
+ * public folder.
+ */
 function Landing({ token }) {
 	return (
 		<section

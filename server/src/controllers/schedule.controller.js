@@ -1,3 +1,15 @@
+/**
+ * Express controller for organization, show and personal calendars.
+ *
+ * @remarks
+ * Delegates to `schedule.service` and wraps results in `{ success, data }`.
+ * Updating, deleting and assigning attendees are scoped to the org or show in
+ * the route, so an event from elsewhere is treated as missing, and
+ * `req.user.id` is recorded as the creator of new events. "Event not found"
+ * responds 404; anything else is logged and passed to `next`. Role checks
+ * happen in route middleware.
+ */
+
 import scheduleService from "../services/schedule.service.js";
 
 // Events are always resolved within the org or show named in the route

@@ -1,3 +1,14 @@
+/**
+ * Helpers for converting between browser-local form values and UTC strings.
+ *
+ * @remarks
+ * Exports `localDateTimeToUtcIso` and `localDateAndTimeToUtcIso`, which turn
+ * `datetime-local` or separate date and time input values (interpreted in the
+ * browser's time zone) into UTC ISO strings, and `utcToLocalDateTimeInput`,
+ * which turns a UTC timestamp back into a `YYYY-MM-DDTHH:mm` value for a
+ * `datetime-local` input. All return `""` for empty or invalid input.
+ */
+
 export function localDateTimeToUtcIso(localDateTime) {
 	if (!localDateTime) return "";
 	const date = new Date(localDateTime);
