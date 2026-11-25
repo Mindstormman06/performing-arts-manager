@@ -19,7 +19,7 @@ export default (sequelize, DataTypes) => {
 			role_id: {
 				type: DataTypes.INTEGER,
 				primaryKey: true,
-				references: { model: "roles", key: "id" },
+				references: { model: "org_roles", key: "id" },
 			},
 		},
 		{ tableName: "org_assignment_has_roles", timestamps: false },

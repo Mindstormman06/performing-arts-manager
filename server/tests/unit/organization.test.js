@@ -322,7 +322,7 @@ describe("Organization API & Permissions", () => {
 				.set("Authorization", `Bearer ${authToken}`)
 				.send({ userId: 99999 });
 
-			expect(res.statusCode).toEqual(500);
+			expect(res.statusCode).toEqual(404);
 		});
 
 		it("should throw 'No user found with that email.' natively (Line 37)", async () => {

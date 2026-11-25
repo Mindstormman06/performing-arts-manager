@@ -5,17 +5,31 @@
  *
  * @remarks
  * Needs no database. The handler is called directly with mock `req`/`res`/
- * `next`, and the `OrgMembership`, `Show` and `ShowMembership` model methods
- * are stubbed with `vi.spyOn` and restored at the end of each test.
+ * `next`, `sequelize.transaction` runs its callback with a fake transaction,
+ * and the `OrgMembership`, `Show` and `ShowMembership` model methods are
+ * stubbed with `vi.spyOn`. All spies are restored after each test.
  */
 
 import { Op } from "sequelize";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import orgMembershipController from "../../src/controllers/orgMembership.controller.js";
 import models from "../../src/models/index.js";
+import sequelize from "../../src/services/db.service.js";
+
+const mockTransaction = { id: "test-transaction" };
 
 describe("OrgMembership Controller - Direct Tests", () => {
+	beforeEach(() => {
+		vi.spyOn(sequelize, "transaction").mockImplementation(async (callback) =>
+			callback(mockTransaction),
+		);
+	});
+
+	afterEach(() => {
+		vi.restoreAllMocks();
+	});
+
 	describe("respondToInvite - accept action with shows", () => {
 		it("should update ShowMembership status when accepting invite and shows exist (Line 197)", async () => {
 			const mockMembership = { update: vi.fn() };
@@ -52,6 +66,7 @@ describe("OrgMembership Controller - Direct Tests", () => {
 						show_id: { [Op.in]: [1, 2] },
 						status: "pending",
 					},
+					transaction: mockTransaction,
 				},
 			);
 			expect(mockRes.json).toHaveBeenCalledWith({
@@ -136,6 +151,7 @@ describe("OrgMembership Controller - Direct Tests", () => {
 					show_id: { [Op.in]: [1, 2] },
 					status: "pending",
 				},
+				transaction: mockTransaction,
 			});
 			expect(mockRes.json).toHaveBeenCalledWith({
 				success: true,

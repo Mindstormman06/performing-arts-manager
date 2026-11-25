@@ -97,7 +97,7 @@ export default function CreateInventoryModal({
 		return (
 			<ModalWrapper>
 				<ModalSubWrapper>
-					<ModalHeader>Add Global Inventory Item</ModalHeader>
+					<ModalHeader onClick={onClose}>Add Global Inventory Item</ModalHeader>
 					<ModalError>
 						You do not have permission to add inventory to any departments.
 					</ModalError>

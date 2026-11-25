@@ -108,7 +108,7 @@ export default function OrgInventory() {
 	const filteredItems = items.filter((item) => {
 		const matchesSearch =
 			item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			item.description.toLowerCase().includes(searchTerm.toLowerCase());
+			(item.description ?? "").toLowerCase().includes(searchTerm.toLowerCase());
 		const matchesDept =
 			selectedDept === "All" || item.Department?.name === selectedDept;
 		return matchesSearch && matchesDept;

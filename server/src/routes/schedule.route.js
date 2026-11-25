@@ -6,8 +6,8 @@
  * Every route requires a logged-in user, and `GET /personal` returns the
  * caller's own events. Reading a calendar requires active org or show
  * membership. Creating, editing, deleting and assigning people to org events
- * requires the `president` or `board-member` role; for show events it requires
- * `director` or `stage-manager`, or org oversight.
+ * requires the `admin`, `president` or `board-member` role; for show events
+ * it requires `director` or `stage-manager`, or org oversight.
  */
 
 import Router from "express";
@@ -17,7 +17,10 @@ import {
 	authenticate,
 	authorizeOrg,
 	authorizeShow,
+	ORG_ADMIN_ROLES,
 } from "../middleware/auth.middleware.js";
+
+const ORG_EVENT_MANAGERS = [...ORG_ADMIN_ROLES, "board-member"];
 
 const router = Router();
 
@@ -38,7 +41,7 @@ router.get(
 router.post(
 	"/orgs/:orgId",
 	authenticate,
-	authorizeOrg(["president", "board-member"]),
+	authorizeOrg(ORG_EVENT_MANAGERS),
 	scheduleController.createOrgEvent,
 );
 
@@ -52,7 +55,7 @@ router.post(
 router.put(
 	"/orgs/:orgId/:eventId",
 	authenticate,
-	authorizeOrg(["president", "board-member"]),
+	authorizeOrg(ORG_EVENT_MANAGERS),
 	scheduleController.updateEvent,
 );
 
@@ -66,7 +69,7 @@ router.put(
 router.delete(
 	"/orgs/:orgId/:eventId",
 	authenticate,
-	authorizeOrg(["president", "board-member"]),
+	authorizeOrg(ORG_EVENT_MANAGERS),
 	scheduleController.deleteEvent,
 );
 
@@ -80,7 +83,7 @@ router.delete(
 router.post(
 	"/orgs/:orgId/:eventId/users",
 	authenticate,
-	authorizeOrg(["president", "board-member"]),
+	authorizeOrg(ORG_EVENT_MANAGERS),
 	scheduleController.assignOrgEventUsers,
 );
 
@@ -94,7 +97,7 @@ router.post(
 router.put(
 	"/orgs/:orgId/:eventId/users",
 	authenticate,
-	authorizeOrg(["president", "board-member"]),
+	authorizeOrg(ORG_EVENT_MANAGERS),
 	scheduleController.assignOrgEventUsers,
 );
 

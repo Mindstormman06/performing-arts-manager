@@ -3,8 +3,7 @@
  * `/api/shows`.
  *
  * @remarks
- * `GET /roles/available` is public; every other route requires a logged-in
- * user. Creating a show requires an org admin or president of the
+ * Every route requires a logged-in user. Creating a show requires an org admin or president of the
  * `organization_id` in the body. Show routes require active membership in the
  * show and its organization, and changes require `director` or
  * `stage-manager`, except for org admins, presidents and board members, who
@@ -46,7 +45,7 @@ const requireSelfOrShowManager = (req, res, next) => {
 const router = Router();
 
 router.get("/", authenticate, showController.get);
-router.get("/roles/available", showController.getAvailableRoles);
+router.get("/roles/available", authenticate, showController.getAvailableRoles);
 router.get("/user", authenticate, showController.getUserShows);
 router.get(
 	"/:id/dashboard",

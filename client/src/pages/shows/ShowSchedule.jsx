@@ -184,7 +184,7 @@ export default function ShowSchedule() {
 			) : (
 				<DashboardSection
 					title="Upcoming Events"
-					actionTitle="Create Event"
+					actionTitle={canManageSchedule ? "Create Event" : undefined}
 					onActionClick={
 						canManageSchedule ? () => openCreateModal() : undefined
 					}

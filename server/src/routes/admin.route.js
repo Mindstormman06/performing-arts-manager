@@ -4,7 +4,8 @@
  * @remarks
  * Exposes `POST /reset-db`, which wipes and re-creates the database. It
  * requires a logged-in user and answers 404 unless `ALLOW_DB_RESET` is `true`
- * or the process runs under Vitest, so only enable it on throwaway databases.
+ * and `NODE_ENV` is not `production`, or the process runs under Vitest. Only
+ * enable it on throwaway databases.
  */
 
 import Router from "express";
@@ -19,7 +20,10 @@ const router = Router();
 const isUnitTestRun = () => typeof process.env.VITEST !== "undefined";
 
 const requireDbResetEnabled = (_req, res, next) => {
-	if (process.env.ALLOW_DB_RESET === "true" || isUnitTestRun()) return next();
+	const allowedHere =
+		process.env.ALLOW_DB_RESET === "true" &&
+		process.env.NODE_ENV !== "production";
+	if (allowedHere || isUnitTestRun()) return next();
 	return res.status(404).json({ success: false, message: "Route Not Found" });
 };
 

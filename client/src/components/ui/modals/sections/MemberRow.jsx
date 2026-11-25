@@ -9,8 +9,9 @@ import ModalHyperButton from "../buttons/ModalHyperButton.jsx";
  * Stateless. Reads the name and email from the member's nested `User` record
  * and lists its assigned roles as badges; a "Pending" badge appears when the
  * parent asks for status and the membership is pending. When editing is allowed
- * it shows "Edit Roles", which hands the whole member to the parent, and
- * "Remove", which hands over the member's `users_id`.
+ * it shows "Edit Roles" once the member's roles are loaded (even if empty),
+ * which hands the whole member to the parent, and "Remove", which hands over
+ * the member's `users_id`.
  */
 export default function MemberRow({
 	member,
@@ -49,17 +50,15 @@ export default function MemberRow({
 			</div>
 
 			<div className="flex gap-2 sm:gap-3">
-				{canEditRoles &&
-					member.assignedRoles &&
-					member.assignedRoles.length >= 0 && (
-						<ModalHyperButton
-							type="button"
-							onClick={() => onEditRoles(member)}
-							className="font-medium text-blue-600 hover:text-blue-800"
-						>
-							Edit Roles
-						</ModalHyperButton>
-					)}
+				{canEditRoles && member.assignedRoles && (
+					<ModalHyperButton
+						type="button"
+						onClick={() => onEditRoles(member)}
+						className="font-medium text-blue-600 hover:text-blue-800"
+					>
+						Edit Roles
+					</ModalHyperButton>
+				)}
 				{canEditRoles && (
 					<ModalDeleteButton
 						type="button"

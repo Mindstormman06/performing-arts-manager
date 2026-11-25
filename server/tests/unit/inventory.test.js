@@ -1,6 +1,7 @@
 /**
  * Integration tests for the inventory routes: departments, org-wide (global)
- * inventory CRUD, and authentication on the show inventory routes.
+ * inventory CRUD, authentication on the show inventory routes, and listing a
+ * show's inventory.
  *
  * @remarks
  * Needs the live MySQL test DB: `beforeAll` runs `setupTestDatabase`, then
@@ -57,16 +58,13 @@ describe("Inventory Management API", () => {
 			.post("/api/shows")
 			.set("Authorization", `Bearer ${authToken}`)
 			.send({
-				name: "Inventory Test Show",
-				org_id: testOrgId,
+				title: "Inventory Test Show",
+				organization_id: testOrgId,
 				start_date: "2026-04-01",
 				end_date: "2026-04-15",
 			});
+		expect(showRes.statusCode).toEqual(201);
 		testShowId = showRes.body.id;
-
-		await request(app)
-			.post(`/api/shows/${testShowId}/join`)
-			.send({ userId: testUserId });
 
 		await request(app)
 			.put(`/api/shows/${testShowId}/users/${testUserId}/roles`)
@@ -291,6 +289,14 @@ describe("Inventory Management API", () => {
 				);
 
 				expect(res.statusCode).toEqual(401);
+			});
+
+			it("GET /api/inventory/shows/:showId - should list the show's inventory", async () => {
+				const res = await request(app)
+					.get(`/api/inventory/shows/${testShowId}`)
+					.set("Authorization", `Bearer ${authToken}`);
+
+				expect(res.statusCode).toEqual(200);
 			});
 		});
 

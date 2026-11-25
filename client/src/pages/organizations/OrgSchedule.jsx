@@ -65,8 +65,9 @@ export default function OrgSchedule() {
 		fetchScheduleData();
 	}, [fetchScheduleData]);
 
-	const canManageSchedule =
-		userRoles.includes("president") || userRoles.includes("board-member");
+	const canManageSchedule = ["admin", "president", "board-member"].some(
+		(role) => userRoles.includes(role),
+	);
 
 	const formatDateForInput = (date) => {
 		const local = new Date(date);

@@ -41,7 +41,7 @@ export default function InventoryPhotoCell({ photoPath, itemName }) {
 			</button>
 
 			{showModal && (
-				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
 					<div className="relative max-h-screen max-w-2xl">
 						<button
 							type="button"
