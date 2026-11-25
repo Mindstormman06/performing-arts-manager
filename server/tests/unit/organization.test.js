@@ -260,7 +260,10 @@ describe("Organization API & Permissions", () => {
 				.send({ action: "accept" });
 
 			expect(res.statusCode).toEqual(200);
-			expect(mockMembership.update).toHaveBeenCalledWith({ status: "active" });
+			expect(mockMembership.update).toHaveBeenCalledWith(
+				{ status: "active" },
+				expect.objectContaining({ transaction: expect.anything() }),
+			);
 			spy.mockRestore();
 		});
 
