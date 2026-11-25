@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { JWT_SECRET } from "../../src/config/jwt.config.js";
 import {
@@ -378,7 +378,7 @@ describe("Auth Middleware - Direct Tests", () => {
 
 			const orgSpy = vi
 				.spyOn(models.OrgMembership, "findOne")
-				.mockResolvedValue(null);
+				.mockResolvedValue({ assignedRoles: [] });
 
 			const showMemberSpy = vi
 				.spyOn(models.ShowMembership, "findOne")
@@ -420,7 +420,7 @@ describe("Auth Middleware - Direct Tests", () => {
 
 			const orgSpy = vi
 				.spyOn(models.OrgMembership, "findOne")
-				.mockResolvedValue(null);
+				.mockResolvedValue({ assignedRoles: [] });
 
 			const showMemberSpy = vi
 				.spyOn(models.ShowMembership, "findOne")
@@ -455,7 +455,7 @@ describe("Auth Middleware - Direct Tests", () => {
 
 			const orgSpy = vi
 				.spyOn(models.OrgMembership, "findOne")
-				.mockResolvedValue(null);
+				.mockResolvedValue({ assignedRoles: [] });
 
 			const showMemberSpy = vi
 				.spyOn(models.ShowMembership, "findOne")
@@ -484,9 +484,93 @@ describe("Auth Middleware - Direct Tests", () => {
 			orgSpy.mockRestore();
 			showMemberSpy.mockRestore();
 		});
+		it("should return 403 when user is not in the show's organization", async () => {
+			const showSpy = vi
+				.spyOn(models.Show, "findByPk")
+				.mockResolvedValue({ id: 1, organization_id: 1 });
+			const orgSpy = vi
+				.spyOn(models.OrgMembership, "findOne")
+				.mockResolvedValue(null);
+			// Even an active show director loses access once out of the org
+			const showMemberSpy = vi
+				.spyOn(models.ShowMembership, "findOne")
+				.mockResolvedValue({ assignedRoles: [{ name: "director" }] });
+
+			const mockRes = {
+				status: vi.fn().mockReturnThis(),
+				json: vi.fn(),
+			};
+			const mockNext = vi.fn();
+			await authorizeShow(["director"])(
+				{ params: { showId: 1 }, user: { id: 5 } },
+				mockRes,
+				mockNext,
+			);
+
+			expect(mockNext).not.toHaveBeenCalled();
+			expect(mockRes.status).toHaveBeenCalledWith(403);
+			expect(mockRes.json).toHaveBeenCalledWith({
+				success: false,
+				message: "Not a member of this show's organization.",
+			});
+
+			showSpy.mockRestore();
+			orgSpy.mockRestore();
+			showMemberSpy.mockRestore();
+		});
 	});
 
 	describe("authorizeInventoryDept", () => {
+		// Show-level checks first confirm the show exists and that the user is
+		// still in its organization; individual tests override as needed.
+		beforeEach(() => {
+			vi.spyOn(models.Show, "findByPk").mockResolvedValue({
+				id: 1,
+				organization_id: 1,
+			});
+			vi.spyOn(models.OrgMembership, "findOne").mockResolvedValue({
+				assignedRoles: [],
+			});
+		});
+
+		afterEach(() => {
+			vi.restoreAllMocks();
+		});
+
+		it("should return 404 when the show does not exist", async () => {
+			models.Show.findByPk.mockResolvedValue(null);
+			const mockRes = {
+				status: vi.fn().mockReturnThis(),
+				json: vi.fn(),
+			};
+			await authorizeInventoryDept("show")(
+				{ params: { showId: 999 }, user: { id: 5 }, body: {} },
+				mockRes,
+				vi.fn(),
+			);
+			expect(mockRes.status).toHaveBeenCalledWith(404);
+		});
+
+		it("should return 403 when show member is no longer in the organization", async () => {
+			models.OrgMembership.findOne.mockResolvedValue(null);
+			const showMemberSpy = vi
+				.spyOn(models.ShowMembership, "findOne")
+				.mockResolvedValue({ assignedRoles: [{ name: "director" }] });
+			const mockRes = {
+				status: vi.fn().mockReturnThis(),
+				json: vi.fn(),
+			};
+			const mockNext = vi.fn();
+			await authorizeInventoryDept("show")(
+				{ params: { showId: 1 }, user: { id: 5 }, body: {} },
+				mockRes,
+				mockNext,
+			);
+			expect(mockNext).not.toHaveBeenCalled();
+			expect(mockRes.status).toHaveBeenCalledWith(403);
+			expect(showMemberSpy).not.toHaveBeenCalled();
+		});
+
 		it("should authorize org admin for inventory (Line 145-152)", async () => {
 			const mockMembership = {
 				assignedRoles: [{ name: "admin" }],

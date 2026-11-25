@@ -239,9 +239,11 @@ describe("Show Controller - Direct Tests", () => {
 	});
 
 	describe("get", () => {
-		it("should get all shows with orgId query parameter", async () => {
+		it("should list the caller's shows for the org in the query", async () => {
 			const mockShows = [{ id: 1, title: "Show 1" }];
-			const spy = vi.spyOn(showService, "getAll").mockResolvedValue(mockShows);
+			const spy = vi
+				.spyOn(showService, "getUserShows")
+				.mockResolvedValue(mockShows);
 
 			const mockRes = {
 				json: vi.fn(),
@@ -249,11 +251,12 @@ describe("Show Controller - Direct Tests", () => {
 			const mockNext = vi.fn();
 			const mockReq = {
 				query: { org: 1 },
+				user: { id: 5 },
 			};
 
 			await showController.get(mockReq, mockRes, mockNext);
 
-			expect(spy).toHaveBeenCalledWith(1);
+			expect(spy).toHaveBeenCalledWith(1, 5);
 			expect(mockRes.json).toHaveBeenCalledWith(mockShows);
 
 			spy.mockRestore();
@@ -261,12 +264,15 @@ describe("Show Controller - Direct Tests", () => {
 
 		it("should handle service errors", async () => {
 			const error = new Error("Database error");
-			const spy = vi.spyOn(showService, "getAll").mockRejectedValue(error);
+			const spy = vi
+				.spyOn(showService, "getUserShows")
+				.mockRejectedValue(error);
 
 			const mockRes = {};
 			const mockNext = vi.fn();
 			const mockReq = {
 				query: { org: 1 },
+				user: { id: 5 },
 			};
 
 			await showController.get(mockReq, mockRes, mockNext);

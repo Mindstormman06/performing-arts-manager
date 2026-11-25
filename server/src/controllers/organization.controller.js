@@ -1,8 +1,8 @@
 import organizationService from "../services/organization.service.js";
 
-async function get(_req, res, next) {
+async function get(req, res, next) {
 	try {
-		res.json(await organizationService.getAll());
+		res.json(await organizationService.getAll(req.user.id));
 	} catch (error) {
 		console.error(error);
 		next(error);

@@ -33,6 +33,7 @@ async function addRoles(req, res, next) {
 			orgId,
 			userId,
 			roles,
+			req.user?.id,
 		);
 
 		return res.json({
@@ -40,6 +41,9 @@ async function addRoles(req, res, next) {
 			data: updatedRoles,
 		});
 	} catch (error) {
+		if (error.message.includes("Only a president")) {
+			return res.status(403).json({ success: false, message: error.message });
+		}
 		if (
 			error.message.includes("No valid") ||
 			error.message.includes("not a member") ||
@@ -109,9 +113,13 @@ async function leave(req, res, next) {
 		const result = await orgRoleService.removeUserFromOrg(
 			req.params.orgId,
 			req.params.userId,
+			req.user?.id,
 		);
 		res.status(200).json(result);
 	} catch (error) {
+		if (error.message.includes("Only a president")) {
+			return res.status(403).json({ success: false, message: error.message });
+		}
 		if (
 			error.message.includes("not a member") ||
 			error.message.includes("Organization not found")
@@ -131,9 +139,13 @@ async function removeRole(req, res, next) {
 			orgId,
 			userId,
 			rolesToRemove,
+			req.user?.id,
 		);
 		res.json(result);
 	} catch (error) {
+		if (error.message.includes("Only a president")) {
+			return res.status(403).json({ success: false, message: error.message });
+		}
 		if (
 			error.message.includes("required") ||
 			error.message.includes("not found") ||

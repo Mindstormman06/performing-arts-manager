@@ -7,7 +7,7 @@ async function get(req, res, next) {
 	try {
 		const orgId = req.query.org || req.query.orgId || req.query.organization_id;
 
-		res.json(await showService.getAll(orgId));
+		res.json(await showService.getUserShows(orgId, req.user.id));
 	} catch (error) {
 		console.error(error);
 		next(error);

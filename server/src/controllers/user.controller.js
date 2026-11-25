@@ -32,9 +32,9 @@ function forbidUnlessSelf(req, res) {
 	return false;
 }
 
-async function get(_req, res, next) {
+async function get(req, res, next) {
 	try {
-		res.json(await userService.getAll());
+		res.json(await userService.getAll(req.user.id));
 	} catch (error) {
 		handleError(error, res, next);
 	}
@@ -42,7 +42,7 @@ async function get(_req, res, next) {
 
 async function getById(req, res, next) {
 	try {
-		res.json(await userService.getById(req.params.id));
+		res.json(await userService.getById(req.params.id, req.user.id));
 	} catch (error) {
 		handleError(error, res, next);
 	}

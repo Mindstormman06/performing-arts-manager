@@ -25,6 +25,13 @@ const corsOrigins = (process.env.CORS_ORIGIN || "")
 app.use(cors(corsOrigins.length > 0 ? { origin: corsOrigins } : undefined));
 
 app.disable("x-powered-by");
+
+// Behind a reverse proxy, set TRUST_PROXY (e.g. "1" for one hop) so req.ip is
+// the real client address. Rate limiting keys on it.
+if (process.env.TRUST_PROXY) {
+	const hops = Number(process.env.TRUST_PROXY);
+	app.set("trust proxy", Number.isNaN(hops) ? process.env.TRUST_PROXY : hops);
+}
 app.use((_req, res, next) => {
 	res.setHeader("X-Content-Type-Options", "nosniff");
 	res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");

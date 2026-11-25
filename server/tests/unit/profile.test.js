@@ -22,10 +22,23 @@ describe("ShowMembership Profile API", () => {
 		});
 		userId = user.id;
 
+		// Show access requires an active membership in the show's org
+		const [org] = await models.Organization.findOrCreate({
+			where: { name: "Profile Test Org" },
+		});
+		await models.OrgMembership.findOrCreate({
+			where: { org_id: org.id, users_id: userId },
+			defaults: { status: "active" },
+		});
+
 		// Find or create a show
 		const [show] = await models.Show.findOrCreate({
 			where: { title: "Profile Test Show" },
-			defaults: { start_date: new Date(), end_date: new Date() },
+			defaults: {
+				start_date: new Date(),
+				end_date: new Date(),
+				organization_id: org.id,
+			},
 		});
 		showId = show.id;
 

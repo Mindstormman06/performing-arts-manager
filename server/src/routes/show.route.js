@@ -32,7 +32,7 @@ const requireSelfOrShowManager = (req, res, next) => {
 const router = Router();
 
 // Show CRUD routes
-router.get("/", showController.get);
+router.get("/", authenticate, showController.get);
 router.get("/roles/available", showController.getAvailableRoles);
 router.get("/user", authenticate, showController.getUserShows);
 router.get(
@@ -41,7 +41,7 @@ router.get(
 	authorizeShow(),
 	showController.getDashboardSummary,
 );
-router.get("/:id", showController.getById);
+router.get("/:id", authenticate, authorizeShow(), showController.getById);
 router.post(
 	"/",
 	authenticate,

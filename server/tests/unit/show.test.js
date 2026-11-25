@@ -206,9 +206,11 @@ describe("Show Management API", () => {
 	describe("showController - Error Handling", () => {
 		it("GET /api/shows - should handle generic errors", async () => {
 			const spy = vi
-				.spyOn(showService, "getAll")
+				.spyOn(showService, "getUserShows")
 				.mockRejectedValue(new Error("Some error"));
-			const res = await request(app).get("/api/shows");
+			const res = await request(app)
+				.get("/api/shows")
+				.set("Authorization", `Bearer ${authToken}`);
 			expect(res.statusCode).toEqual(500);
 			spy.mockRestore();
 		});
@@ -216,7 +218,9 @@ describe("Show Management API", () => {
 			const spy = vi
 				.spyOn(showService, "getById")
 				.mockRejectedValue(new Error("Show not found"));
-			const res = await request(app).get(`/api/shows/999`);
+			const res = await request(app)
+				.get(`/api/shows/999`)
+				.set("Authorization", `Bearer ${authToken}`);
 			expect(res.statusCode).toEqual(404);
 			spy.mockRestore();
 		});
@@ -224,7 +228,9 @@ describe("Show Management API", () => {
 			const spy = vi
 				.spyOn(showService, "getById")
 				.mockRejectedValue(new Error("Some other error"));
-			const res = await request(app).get(`/api/shows/${testShowId}`);
+			const res = await request(app)
+				.get(`/api/shows/${testShowId}`)
+				.set("Authorization", `Bearer ${authToken}`);
 			expect(res.statusCode).toEqual(500);
 			spy.mockRestore();
 		});

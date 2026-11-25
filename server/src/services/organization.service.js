@@ -3,9 +3,17 @@ import sequelize from "./db.service.js";
 
 const { Organization } = models;
 
-async function getAll() {
-	const organizations = await Organization.findAll();
-	return organizations;
+// Organizations the user is an active member of
+async function getAll(userId) {
+	return await Organization.findAll({
+		include: [
+			{
+				model: models.OrgMembership,
+				where: { users_id: userId, status: "active" },
+				attributes: [],
+			},
+		],
+	});
 }
 
 async function getById(id) {

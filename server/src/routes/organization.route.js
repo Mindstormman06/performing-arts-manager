@@ -14,8 +14,13 @@ const router = Router();
 router.get("/my", authenticate, orgMembershipController.getUserOrganizations);
 
 // Org CRUD routes
-router.get("/", organizationController.get);
-router.get("/:id", organizationController.getById);
+router.get("/", authenticate, organizationController.get);
+router.get(
+	"/:id",
+	authenticate,
+	authorizeOrg(),
+	organizationController.getById,
+);
 router.post("/", authenticate, organizationController.create);
 router.put(
 	"/:id",

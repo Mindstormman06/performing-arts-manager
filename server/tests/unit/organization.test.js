@@ -64,10 +64,42 @@ describe("Organization API & Permissions", () => {
 			testOrgId = res.body.id;
 		});
 
-		it("GET /api/orgs - should fetch all organizations", async () => {
-			const res = await request(app).get("/api/orgs");
+		it("GET /api/orgs - should list only the caller's organizations", async () => {
+			const res = await request(app)
+				.get("/api/orgs")
+				.set("Authorization", `Bearer ${authToken}`);
 			expect(res.statusCode).toEqual(200);
 			expect(Array.isArray(res.body)).toBe(true);
+			expect(res.body.map((o) => o.id)).toContain(testOrgId);
+		});
+
+		it("GET /api/orgs and /api/orgs/:id - should require authentication", async () => {
+			expect((await request(app).get("/api/orgs")).statusCode).toEqual(401);
+			expect(
+				(await request(app).get(`/api/orgs/${testOrgId}`)).statusCode,
+			).toEqual(401);
+		});
+
+		it("GET /api/orgs/:id - should hide organizations the caller is not in", async () => {
+			const email = `outsider-${Date.now()}@viu.ca`;
+			await request(app)
+				.post("/api/users")
+				.send({ fname: "Out", lname: "Sider", email, password: "password123" });
+			const login = await request(app)
+				.post("/api/auth/login")
+				.send({ email, password: "password123" });
+			const outsider = `Bearer ${login.body.token}`;
+
+			const single = await request(app)
+				.get(`/api/orgs/${testOrgId}`)
+				.set("Authorization", outsider);
+			expect(single.statusCode).toEqual(403);
+
+			const list = await request(app)
+				.get("/api/orgs")
+				.set("Authorization", outsider);
+			expect(list.statusCode).toEqual(200);
+			expect(list.body).toEqual([]);
 		});
 
 		it("PUT /api/orgs/:id - should update organizations details", async () => {
@@ -627,7 +659,9 @@ describe("Organization API & Permissions", () => {
 			const spy = vi
 				.spyOn(organizationService, "getAll")
 				.mockRejectedValue(new Error("Some error"));
-			const res = await request(app).get("/api/orgs");
+			const res = await request(app)
+				.get("/api/orgs")
+				.set("Authorization", `Bearer ${authToken}`);
 			expect(res.statusCode).toEqual(500);
 			spy.mockRestore();
 		});
@@ -635,7 +669,9 @@ describe("Organization API & Permissions", () => {
 			const spy = vi
 				.spyOn(organizationService, "getById")
 				.mockRejectedValue(new Error("Organization not found"));
-			const res = await request(app).get(`/api/orgs/999`);
+			const res = await request(app)
+				.get(`/api/orgs/${testOrgId}`)
+				.set("Authorization", `Bearer ${authToken}`);
 			expect(res.statusCode).toEqual(404);
 			spy.mockRestore();
 		});
@@ -643,7 +679,9 @@ describe("Organization API & Permissions", () => {
 			const spy = vi
 				.spyOn(organizationService, "getById")
 				.mockRejectedValue(new Error("Some other error"));
-			const res = await request(app).get(`/api/orgs/${testOrgId}`);
+			const res = await request(app)
+				.get(`/api/orgs/${testOrgId}`)
+				.set("Authorization", `Bearer ${authToken}`);
 			expect(res.statusCode).toEqual(500);
 			spy.mockRestore();
 		});

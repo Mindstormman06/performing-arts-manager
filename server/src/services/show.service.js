@@ -6,6 +6,19 @@ import inventoryService from "./inventory.service.js";
 
 const { Show } = models;
 
+// Fields a client may set on a show. organization_id is only accepted on
+// create; a show can never be moved to another organization afterwards.
+const EDITABLE_SHOW_FIELDS = ["title", "start_date", "end_date"];
+const ORG_OVERSIGHT_ROLES = ["admin", "president", "board-member"];
+
+function pickShowFields(data = {}, fields = EDITABLE_SHOW_FIELDS) {
+	return Object.fromEntries(
+		Object.entries(data).filter(
+			([field, value]) => fields.includes(field) && value !== undefined,
+		),
+	);
+}
+
 function toPlain(record) {
 	if (!record) {
 		return record;
@@ -94,34 +107,40 @@ async function getAll(orgId) {
 	return await models.Show.findAll({ where: whereClause });
 }
 
+// Shows the user can see: every show in orgs where they hold an oversight
+// role, plus shows they are an active member of in orgs they still belong to.
 async function getUserShows(orgId, userId) {
-	const whereClause = orgId ? { organization_id: orgId } : {};
+	if (!userId) return [];
 
-	if (orgId && userId) {
-		const orgMembership = await models.OrgMembership.findOne({
-			where: { org_id: orgId, users_id: userId },
-			include: [{ model: models.OrganizationRole, as: "assignedRoles" }],
-		});
+	const orgWhere = { users_id: userId, status: "active" };
+	if (orgId) orgWhere.org_id = orgId;
+	const orgMemberships = await models.OrgMembership.findAll({
+		where: orgWhere,
+		include: [{ model: models.OrganizationRole, as: "assignedRoles" }],
+	});
+	if (!orgMemberships.length) return [];
 
-		const isSuperAdmin = orgMembership?.assignedRoles?.some((r) =>
-			["president", "board-member"].includes(r.name),
-		);
+	const memberOrgIds = orgMemberships.map((m) => m.org_id);
+	const oversightOrgIds = orgMemberships
+		.filter((m) =>
+			(m.assignedRoles || []).some((r) => ORG_OVERSIGHT_ROLES.includes(r.name)),
+		)
+		.map((m) => m.org_id);
 
-		if (!isSuperAdmin) {
-			return await models.Show.findAll({
-				where: whereClause,
-				include: [
-					{
-						model: models.ShowMembership,
-						where: { users_id: userId },
-						attributes: [],
-					},
-				],
-			});
-		}
-	}
+	const showMemberships = await models.ShowMembership.findAll({
+		where: { users_id: userId, status: "active" },
+		attributes: ["show_id"],
+	});
+	const memberShowIds = showMemberships.map((m) => m.show_id);
 
-	return await models.Show.findAll({ where: whereClause });
+	return await models.Show.findAll({
+		where: {
+			[Op.or]: [
+				{ organization_id: oversightOrgIds },
+				{ id: memberShowIds, organization_id: memberOrgIds },
+			],
+		},
+	});
 }
 
 async function getById(id) {
@@ -135,7 +154,10 @@ async function getById(id) {
 async function create(data) {
 	const t = await sequelize.transaction();
 	try {
-		const newShow = await models.Show.create(data, { transaction: t });
+		const newShow = await models.Show.create(
+			pickShowFields(data, [...EDITABLE_SHOW_FIELDS, "organization_id"]),
+			{ transaction: t },
+		);
 
 		if (data.creatorId) {
 			const directorRole = await models.ShowRole.findOne({
@@ -169,7 +191,7 @@ async function update(id, data) {
 	if (!show) {
 		throw new Error("Show not found");
 	}
-	await show.update(data);
+	await show.update(pickShowFields(data));
 	return show.toJSON();
 }
 

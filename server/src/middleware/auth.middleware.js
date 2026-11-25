@@ -116,12 +116,19 @@ export const authorizeShow = (requiredRoles = []) => {
 			include: [{ model: models.OrganizationRole, as: "assignedRoles" }],
 		});
 
-		if (orgMembership) {
-			const orgRoles = roleNames(orgMembership);
-			if (ORG_SHOW_OVERSIGHT_ROLES.some((r) => orgRoles.includes(r))) {
-				req.showOversight = true;
-				return next();
-			}
+		// Show access always requires belonging to the show's organization, so
+		// removing someone from the org also cuts off its shows.
+		if (!orgMembership) {
+			return res.status(403).json({
+				success: false,
+				message: "Not a member of this show's organization.",
+			});
+		}
+
+		const orgRoles = roleNames(orgMembership);
+		if (ORG_SHOW_OVERSIGHT_ROLES.some((r) => orgRoles.includes(r))) {
+			req.showOversight = true;
+			return next();
 		}
 
 		const membership = await models.ShowMembership.findOne({
@@ -170,6 +177,18 @@ export const authorizeInventoryDept = (level) => {
 			if (!membership) return deny(403, "Not a member of this organization.");
 			userRoles = roleNames(membership);
 		} else if (level === "show") {
+			const show = await models.Show.findByPk(req.params.showId);
+			if (!show) return deny(404, "Show not found.");
+			const orgMembership = await models.OrgMembership.findOne({
+				where: {
+					org_id: show.organization_id,
+					users_id: userId,
+					status: "active",
+				},
+			});
+			if (!orgMembership)
+				return deny(403, "Not a member of this show's organization.");
+
 			const membership = await models.ShowMembership.findOne({
 				where: {
 					show_id: req.params.showId,

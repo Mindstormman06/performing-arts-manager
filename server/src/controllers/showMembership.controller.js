@@ -69,6 +69,7 @@ async function addRoles(req, res, next) {
 			userId,
 			roles,
 			req.user?.id,
+			Boolean(req.showOversight),
 		);
 
 		return res.json({
@@ -79,7 +80,8 @@ async function addRoles(req, res, next) {
 		if (
 			error.message.includes("higher role") ||
 			error.message.includes("highest role") ||
-			error.message.includes("cannot remove")
+			error.message.includes("cannot remove") ||
+			error.message.includes("cannot change roles")
 		) {
 			return res.status(403).json({ success: false, message: error.message });
 		}
@@ -145,9 +147,14 @@ async function leave(req, res, next) {
 		const result = await showRoleService.removeUserFromShow(
 			req.params.showId,
 			req.params.userId,
+			req.user?.id,
+			Boolean(req.showOversight),
 		);
 		res.status(200).json(result);
 	} catch (error) {
+		if (error.message.includes("cannot change roles")) {
+			return res.status(403).json({ success: false, message: error.message });
+		}
 		if (
 			error.message.includes("not a member") ||
 			error.message.includes("Show not found")
@@ -169,13 +176,15 @@ async function removeRole(req, res, next) {
 			userId,
 			rolesToRemove,
 			req.user?.id,
+			Boolean(req.showOversight),
 		);
 		// Tested but not recognizing coverage. Ignoring for now.
 		/* v8 ignore next */ res.json(result);
 	} catch (error) {
 		if (
 			error.message.includes("highest role") ||
-			error.message.includes("cannot remove")
+			error.message.includes("cannot remove") ||
+			error.message.includes("cannot change roles")
 		) {
 			return res.status(403).json({ success: false, message: error.message });
 		}
