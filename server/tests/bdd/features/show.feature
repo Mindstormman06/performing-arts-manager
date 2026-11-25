@@ -19,4 +19,4 @@ Feature: Organization Show Management
   Scenario: Security blocks unauthenticated show creation
     Given no user is logged in
     When they attempt to create a new show titled "Hamlet" for the organization
-    Then the API should return a "400 Bad Request" status
+    Then the API should return a "401 Unauthorized" status

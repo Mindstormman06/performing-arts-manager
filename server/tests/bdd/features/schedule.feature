@@ -20,10 +20,10 @@ Feature: Show Scheduling and Security
   Scenario: Security blocks unauthenticated scheduling
     Given no user is logged in
     When they attempt to create a "Secret Rehearsal" event for Rock of Ages on "2026-10-15" from "18:00" to "21:00"
-    Then the API should return a "400 Bad Request" status
+    Then the API should return a "401 Unauthorized" status
 
   Scenario: Security blocks unauthenticated deletions
     Given no user is logged in
     And a schedule event with ID 4 exists for Rock of Ages
     When they attempt to delete the schedule event with ID 4 for Rock of Ages
-    Then the API should return a "400 Bad Request" status
+    Then the API should return a "401 Unauthorized" status
